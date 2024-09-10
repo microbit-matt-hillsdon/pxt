@@ -4,11 +4,15 @@ import css from "./styling/HeaderBar.module.scss";
 import { Button } from "react-common/components/controls/Button";
 import { MenuBar } from "react-common/components/controls/MenuBar";
 import { AppStateContext } from "../state/appStateContext";
-import { Ticks } from "../constants";
+import { Strings, Ticks } from "../constants";
 import { MenuDropdown, MenuItem } from "react-common/components/controls/MenuDropdown";
 import { showModal } from "../transforms/showModal";
 import * as authClient from "../services/authClient";
 import { classList } from "react-common/components/util";
+
+const betaTag = () => {
+    return <div className={css["beta-tag"]}>{lf("Beta")}</div>;
+};
 
 interface HeaderBarProps {}
 
@@ -22,30 +26,41 @@ export const HeaderBar: React.FC<HeaderBarProps> = () => {
         if (appTheme?.logoUrl) {
             window.open(appTheme.logoUrl);
         }
-    };
+    }
 
     function onOrgClick() {
         pxt.tickEvent(Ticks.OrgLink);
         if (appTheme?.organizationUrl) {
             window.open(appTheme.organizationUrl);
         }
-    };
+    }
 
     function getOrganizationLogo() {
         return (
             <div className={css["org"]} onClick={onOrgClick}>
                 {appTheme.organizationWideLogo || appTheme.organizationLogo ? (
-                    <img
-                        className={css["logo"]}
-                        src={appTheme.organizationWideLogo || appTheme.organizationLogo}
-                        alt={lf("{0} Logo", appTheme.organization)}
-                    />
+                    <>
+                        {appTheme.organizationWideLogo && (
+                            <img
+                                className={classList(css["logo"], "min-sm")}
+                                src={appTheme.organizationWideLogo}
+                                alt={lf("{0} Logo", appTheme.organization)}
+                            />
+                        )}
+                        {appTheme.organizationLogo && (
+                            <img
+                                className={classList(css["logo"], "max-sm")}
+                                src={appTheme.organizationLogo}
+                                alt={lf("{0} Logo", appTheme.organization)}
+                            />
+                        )}
+                    </>
                 ) : (
                     <span className="name">{appTheme.organization}</span>
                 )}
             </div>
         );
-    };
+    }
 
     function getTargetLogo() {
         return (
@@ -65,17 +80,28 @@ export const HeaderBar: React.FC<HeaderBarProps> = () => {
                         </span>,
                     ]
                 ) : appTheme.logo || appTheme.portraitLogo ? (
-                    <img
-                        className={css["logo"]}
-                        src={appTheme.logo || appTheme.portraitLogo}
-                        alt={lf("{0} Logo", appTheme.boardName)}
-                    />
+                    <>
+                        {appTheme.logo && (
+                            <img
+                                className={classList(css["logo"], "min-2sm")}
+                                src={appTheme.logo}
+                                alt={lf("{0} Logo", appTheme.boardName)}
+                            />
+                        )}
+                        {appTheme.portraitLogo && (
+                            <img
+                                className={classList(css["logo"], "max-2sm")}
+                                src={appTheme.portraitLogo}
+                                alt={lf("{0} Logo", appTheme.boardName)}
+                            />
+                        )}
+                    </>
                 ) : (
                     <span className={css["name"]}>{appTheme.boardName}</span>
                 )}
             </div>
         );
-    };
+    }
 
     function encodedAvatarPic(profile: pxt.auth.UserProfile): string | undefined {
         const type = profile?.idp?.picture?.mimeType;
@@ -125,27 +151,42 @@ export const HeaderBar: React.FC<HeaderBarProps> = () => {
             <></>
         );
         return (
-            <div className={css["user-menu"]}>
-                {teacherTool.userProfile ? (
-                    <MenuDropdown
-                        id="profile-dropdown"
-                        items={items}
-                        label={avatarElem || initialsElem}
-                        title={lf("Profile Settings")}
-                    />
-                ) : (
+            <>
+                <div>
                     <Button
-                        className={classList("inverted", css["sign-in-button"])}
-                        rightIcon="xicon cloud-user"
-                        title={lf("Sign In")}
-                        label={lf("Sign In")}
+                        className={css["feedback-btn"]}
+                        labelClassName="min-sm"
+                        leftIcon="xicon feedback"
+                        title={Strings.GiveFeedback}
+                        label={Strings.GiveFeedback}
                         onClick={() => {
-                            pxt.tickEvent(Ticks.UserMenuSignIn);
-                            showModal({ modal: "sign-in" });
+                            pxt.tickEvent(Ticks.FeedbackForm);
                         }}
+                        href="https://aka.ms/teachertool-feedback"
                     />
-                )}
-            </div>
+                </div>
+                <div className={css["user-menu"]}>
+                    {teacherTool.userProfile ? (
+                        <MenuDropdown
+                            id="profile-dropdown"
+                            items={items}
+                            label={avatarElem || initialsElem}
+                            title={lf("Profile Settings")}
+                        />
+                    ) : (
+                        <Button
+                            className={classList("inverted", css["sign-in-button"])}
+                            rightIcon="xicon cloud-user"
+                            title={lf("Sign In")}
+                            label={lf("Sign In")}
+                            onClick={() => {
+                                pxt.tickEvent(Ticks.UserMenuSignIn);
+                                showModal({ modal: "sign-in" });
+                            }}
+                        />
+                    )}
+                </div>
+            </>
         );
     }
 
@@ -156,9 +197,18 @@ export const HeaderBar: React.FC<HeaderBarProps> = () => {
                 {getTargetLogo()}
             </div>
 
-            <div className={css["right-menu"]}>
-                {getUserMenu()}
+            <div className={css["centered-panel"]}>
+                <div className={classList(css["app-title"], "min-2md")}>
+                    {Strings.AppTitle}
+                    {betaTag()}
+                </div>
+                <div className={classList(css["app-title"], "min-xs max-2md")}>
+                    {Strings.AppTitleShort}
+                    {betaTag()}
+                </div>
             </div>
+
+            <div className={css["right-menu"]}>{getUserMenu()}</div>
         </MenuBar>
     );
 };

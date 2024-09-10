@@ -1990,8 +1990,10 @@ export class ProjectView
 
         const projectname = projectNameForEditor(preferredEditor || header.editor);
 
-
-        if (projectname === pxt.JAVASCRIPT_PROJECT_NAME) {
+        if (projectname === pxt.PYTHON_PROJECT_NAME && header.tutorial.templateLanguage === "python") {
+            currentText[pxt.MAIN_PY] = template;
+        }
+        else if (projectname === pxt.JAVASCRIPT_PROJECT_NAME) {
             currentText[pxt.MAIN_TS] = template;
         }
         else if (projectname === pxt.PYTHON_PROJECT_NAME) {
@@ -2514,6 +2516,17 @@ export class ProjectView
         await workspace.saveAsync(newHeader);
         data.invalidate("headers:");
         await this.loadHeaderAsync(newHeader)
+    }
+
+    async importEmbedProjectAsync(importId: string) {
+        const project = await pxteditor.importDb.removeProjectAsync(importId);
+
+        if (project) {
+            return this.installAndLoadProjectAsync(project);
+        }
+        else {
+            Util.userError(lf("Unable to import project"));
+        }
     }
 
     openProjectByHeaderIdAsync(headerId: string) {
@@ -3277,6 +3290,7 @@ export class ProjectView
             if (simRestart) this.stopSimulator();
             let state = this.editor.snapshotState()
             this.syncPreferredEditor()
+            const attemptedVariants = pxt.appTarget.multiVariants;
 
             try {
                 const resp = await compiler.compileAsync({ native: true, forceEmit: true });
@@ -3304,7 +3318,7 @@ export class ProjectView
 
                     if (noHexFileDiagnostic?.code === 9283 /*program too large*/ && pxt.commands.showProgramTooLargeErrorAsync) {
                         pxt.tickEvent("compile.programTooLargeDialog");
-                        const res = await pxt.commands.showProgramTooLargeErrorAsync(pxt.appTarget.multiVariants, core.confirmAsync, saveOnly);
+                        const res = await pxt.commands.showProgramTooLargeErrorAsync(attemptedVariants, core.confirmAsync, saveOnly);
                         if (res?.recompile) {
                             pxt.tickEvent("compile.programTooLargeDialog.recompile");
                             const oldVariants = pxt.appTarget.multiVariants;
@@ -4087,7 +4101,7 @@ export class ProjectView
         const blockInfo = blocksInfo.blocksById[req.blockId];
         const symbolInfo: pxtc.SymbolInfo = blocksInfo.apis.byQName[blockInfo.qName];
         const compileInfo: pxt.blocks.BlockCompileInfo = pxt.blocks.compileInfo(symbolInfo);
-        const xml = pxtblockly.createToolboxBlock(blocksInfo, symbolInfo, compileInfo);
+        const xml = pxtblockly.createToolboxBlock(blocksInfo, symbolInfo, compileInfo, false, 3);
         return this.renderXmlInner(xml.outerHTML, req.snippetMode, req.layout);
     }
 
@@ -5608,6 +5622,15 @@ function handleHash(newHash: { cmd: string; arg: string }, loading: boolean): bo
                     core.hideLoading("skillmapimport")
                 });
             return true;
+        case "embedimport":
+            const importId = newHash.arg;
+            core.showLoading("embedimport", lf("loading project..."));
+            editor.importEmbedProjectAsync(importId)
+                .finally(() => {
+                    pxt.BrowserUtils.changeHash("");
+                    core.hideLoading("embedimport")
+                });
+            return true;
         case "github": {
             const repoid = pxt.github.parseRepoId(newHash.arg);
             const [ghCmd, ghArg] = newHash.arg.split(':', 2);
@@ -5916,8 +5939,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         return epkg.tilemapProject;
     }
 
-    pxt.hexloader.showLoading = (msg) => core.showLoading("hexcloudcompiler", msg);
-    pxt.hexloader.hideLoading = () => core.hideLoading("hexcloudcompiler");
+    let loadCount = 0;
+    pxt.hexloader.showLoading = (msg) => {
+        loadCount++;
+        if (loadCount === 1) {
+            core.showLoading("hexcloudcompiler", msg);
+        }
+    };
+    pxt.hexloader.hideLoading = () => {
+        loadCount--;
+        if (loadCount === 0) {
+            core.hideLoading("hexcloudcompiler");
+        }
+    };
     pxt.docs.requireMarked = () => require("marked");
 
     // allow static web site to specify custom backend

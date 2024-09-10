@@ -63,6 +63,7 @@ export class TextInputBubble extends Bubble {
         public readonly workspace: Blockly.WorkspaceSvg,
         protected anchor: Blockly.utils.Coordinate,
         protected ownerRect?: Blockly.utils.Rect,
+        protected readonly readOnly?: boolean
     ) {
         super(workspace, anchor, ownerRect);
         dom.addClass(this.svgRoot, 'blocklyTextInputBubble');
@@ -71,6 +72,10 @@ export class TextInputBubble extends Bubble {
         ));
         this.resizeGroup = this.createResizeHandle(this.svgRoot, workspace);
         this.setSize(this.DEFAULT_SIZE, true);
+
+        if (readOnly) {
+            this.deleteIcon.style.display = "none";
+        }
     }
 
     /** @returns the text of this bubble. */
@@ -109,6 +114,13 @@ export class TextInputBubble extends Bubble {
             container,
         );
 
+        // in safari and firefox, contentTop will return the incorrect
+        // height for the topbar unless the rect is already in the dom.
+        // this settimeout will run after the render is complete.
+        setTimeout(() => {
+            inputRoot.setAttribute("y", this.contentTop() + "");
+        });
+
         const body = document.createElementNS(dom.HTML_NS, 'body');
         body.setAttribute('xmlns', dom.HTML_NS);
         body.className = 'blocklyMinimalBody';
@@ -119,6 +131,10 @@ export class TextInputBubble extends Bubble {
         ) as HTMLTextAreaElement;
         textArea.className = 'blocklyTextarea blocklyText';
         textArea.setAttribute('dir', this.workspace.RTL ? 'RTL' : 'LTR');
+
+        if (this.readOnly) {
+            textArea.setAttribute("disabled", "true");
+        }
 
         body.appendChild(textArea);
         inputRoot.appendChild(body);
@@ -216,7 +232,7 @@ export class TextInputBubble extends Bubble {
     }
 
     isDeletable(): boolean {
-        return true;
+        return !this.readOnly;
     }
 
     /** Handles mouse down events on the resize target. */

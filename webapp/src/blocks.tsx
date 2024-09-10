@@ -315,7 +315,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
             pxtblockly.upgradeTilemapsInWorkspace(this.editor, pxt.react.getTilemapProject());
 
-            this.initLayout();
+            this.initLayout(xml);
             this.editor.clearUndo();
             this.reportDeprecatedBlocks();
             this.updateGrayBlocks();
@@ -340,58 +340,70 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         dom.querySelectorAll("block[deletable], shadow[deletable]").forEach(b => { b.removeAttribute("deletable") });
     }
 
-    private initLayout() {
-        let needsLayout = false;
-        let flyoutOnly = !this.editor.getToolbox() && this.editor.getFlyout();
+    private initLayout(xml: Element) {
+        const flyoutOnly = !this.editor.getToolbox() && this.editor.getFlyout();
+
+        if (!flyoutOnly) {
+            // If the blocks file has no location info (e.g. it's from the decompiler), format the code.
+            let needsLayout = false;
+            for (const child of xml.childNodes) {
+                if (!pxt.BrowserUtils.isElement(child)) continue;
+                if (child.localName !== "block" && child.localName !== "comment") continue;
+
+                const x = child.getAttribute("x") ?? "10";
+                const y = child.getAttribute("y") ?? "10";
+
+                if (x === "10" && y === "10") {
+                    needsLayout = true;
+                    break;
+                }
+            }
+
+            if (needsLayout) {
+                pxtblockly.flow(this.editor, { useViewWidth: true });
+                return;
+            }
+        }
 
         let minDistanceFromOrigin: number;
-        let closestToOrigin: Blockly.utils.Rect;
+        let closestToOrigin: Blockly.utils.Coordinate;
 
-        (this.editor.getTopComments(false) as Blockly.comments.RenderedWorkspaceComment[]).forEach(b => {
-            const bounds = b.getBoundingRectangle();
+        for (const comment of this.editor.getTopComments(false) as Blockly.comments.RenderedWorkspaceComment[]) {
+            const coord = comment.getRelativeToSurfaceXY();
 
-            const distanceFromOrigin = Math.sqrt(bounds.left * bounds.left + bounds.top * bounds.top);
-
-            if (minDistanceFromOrigin === undefined || distanceFromOrigin < minDistanceFromOrigin) {
-                closestToOrigin = bounds;
-                minDistanceFromOrigin = distanceFromOrigin;
-            }
-
-            needsLayout = needsLayout || (bounds.left == 10 && bounds.top == 10);
-        });
-        let blockPositions: { left: number, top: number }[] = [];
-        (this.editor.getTopBlocks(false) as Blockly.BlockSvg[]).forEach(b => {
-            const bounds = b.getBoundingRectangle()
-
-            const distanceFromOrigin = Math.sqrt(bounds.left * bounds.left + bounds.top * bounds.top);
+            const distanceFromOrigin = Math.sqrt(coord.x * coord.x + coord.y * coord.y);
 
             if (minDistanceFromOrigin === undefined || distanceFromOrigin < minDistanceFromOrigin) {
-                closestToOrigin = bounds;
+                closestToOrigin = coord;
                 minDistanceFromOrigin = distanceFromOrigin;
             }
-
-            const isOverlapping = !!blockPositions.find(b => b.left === bounds.left && b.top === bounds.top)
-            needsLayout = needsLayout || isOverlapping;
-
-            blockPositions.push(bounds)
-        });
-
-        if (needsLayout && !flyoutOnly) {
-            // If the blocks file has no location info (e.g. it's from the decompiler), format the code.
-            pxtblockly.flow(this.editor, { useViewWidth: true });
         }
-        else {
-            if (closestToOrigin) {
-                // Otherwise translate the blocks so that they are positioned on the top left
-                this.editor.getTopComments(false).forEach(c => (c as Blockly.comments.RenderedWorkspaceComment).moveBy(-closestToOrigin.left, -closestToOrigin.top));
-                this.editor.getTopBlocks(false).forEach(b => b.moveBy(-closestToOrigin.left, -closestToOrigin.top));
+
+        for (const block of this.editor.getTopBlocks(false)) {
+            const coord = block.getRelativeToSurfaceXY();
+
+            const distanceFromOrigin = Math.sqrt(coord.x * coord.x + coord.y * coord.y);
+
+            if (minDistanceFromOrigin === undefined || distanceFromOrigin < minDistanceFromOrigin) {
+                closestToOrigin = coord;
+                minDistanceFromOrigin = distanceFromOrigin;
             }
-            this.editor.scrollX = 10;
-            this.editor.scrollY = 10;
-
-            // Forces scroll to take effect
-            this.editor.resizeContents();
         }
+
+        if (closestToOrigin) {
+            // Otherwise translate the blocks so that they are positioned on the top left
+            for (const comment of this.editor.getTopComments(false) as Blockly.comments.RenderedWorkspaceComment[]) {
+                comment.moveBy(-closestToOrigin.x, -closestToOrigin.y);
+            }
+            for (const block of this.editor.getTopBlocks(false)) {
+                block.moveBy(-closestToOrigin.x, -closestToOrigin.y);
+            }
+        }
+        this.editor.scrollX = 10;
+        this.editor.scrollY = 10;
+
+        // Forces scroll to take effect
+        this.editor.resizeContents();
     }
 
     private initPrompts() {
@@ -539,6 +551,9 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         if (pxt.appTarget.appTheme.workspaceSearch && !this.workspaceSearch) {
             this.workspaceSearch = new pxtblockly.PxtWorkspaceSearch(this.editor);
             this.workspaceSearch.init();
+            pxtblockly.external.setOpenWorkspaceSearch(() => {
+                this.workspaceSearch.open();
+            });
         }
     }
 
@@ -634,7 +649,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 pxtblockly.FIELD_EDITOR_OPEN_EVENT_TYPE
             ];
 
-            if (ev.type !== "var_create" && ev.type !== "marker_move") {
+            if (shouldEventHideFlyout(ev)) {
                 this.hideFlyout();
             }
 
@@ -887,7 +902,11 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     }
 
     public moveFocusToFlyout() {
-        // TODO: Add accessible blocks plugin from Blockly
+        if (this.navigationController) {
+            this.navigationController.navigation.focusFlyout(this.editor);
+        }
+
+        (this.editor.getInjectionDiv() as HTMLDivElement).focus();
     }
 
     renderToolbox(immediate?: boolean) {
@@ -1090,8 +1109,8 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
         // clear previous warnings on non-disabled blocks
         this.editor.getAllBlocks(false).filter(b => b.isEnabled()).forEach((b: Blockly.BlockSvg) => {
-            b.setWarningText(null);
-            setHighlightWarning(b, false);
+            b.setWarningText(null, pxtblockly.PXT_WARNING_ID);
+            setHighlightWarningAsync(b, false);
         });
         let tsfile = file && file.epkg && file.epkg.files[file.getVirtualFileName(pxt.JAVASCRIPT_PROJECT_NAME)];
         if (!tsfile || !tsfile.diagnostics) return;
@@ -1106,8 +1125,8 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 let b = this.editor.getBlockById(bid) as Blockly.BlockSvg;
                 if (b) {
                     let txt = ts.pxtc.flattenDiagnosticMessageText(diag.messageText, "\n");
-                    b.setWarningText(txt);
-                    setHighlightWarning(b, true);
+                    b.setWarningText(txt, pxtblockly.PXT_WARNING_ID);
+                    setHighlightWarningAsync(b, true);
                 }
             }
         })
@@ -1117,8 +1136,8 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 let b = this.editor.getBlockById(d.blockId) as Blockly.BlockSvg;
 
                 if (b) {
-                    b.setWarningText(d.message);
-                    setHighlightWarning(b, true);
+                    b.setWarningText(d.message, pxtblockly.PXT_WARNING_ID);
+                    setHighlightWarningAsync(b, true);
                 }
             }
         })
@@ -1139,7 +1158,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 this.editor.highlightBlock(bid);
                 if (brk) {
                     const b = this.editor.getBlockById(bid) as Blockly.BlockSvg;
-                    b.setWarningText(brk ? brk.exceptionMessage : undefined);
+                    b.setWarningText(brk ? brk.exceptionMessage : undefined, pxtblockly.PXT_WARNING_ID);
                     // ensure highlight is in the screen when a breakpoint info is available
                     // TODO: make warning mode look good
                     // b.setHighlightWarning(brk && !!brk.exceptionMessage);
@@ -1937,9 +1956,13 @@ function clearTemporaryAssetBlockData(workspace: Blockly.Workspace) {
     forEachImageField(workspace, field => field.clearTemporaryAssetData());
 }
 
-function setHighlightWarning(block: Blockly.BlockSvg, enabled: boolean) {
+async function setHighlightWarningAsync(block: Blockly.BlockSvg, enabled: boolean) {
     (block.pathObject as PathObject).setHasError(enabled);
     block.setHighlighted(enabled);
+    if (enabled) {
+        await Blockly.renderManagement.finishQueuedRenders();
+        (block.pathObject as PathObject).resizeHighlight();
+    }
 }
 
 function isBreakpointSet(block: Blockly.BlockSvg) {
@@ -1955,4 +1978,21 @@ function fixHighlight(block: Blockly.BlockSvg) {
     if (connectedTo) {
         fixHighlight(connectedTo);
     }
+}
+
+function shouldEventHideFlyout(ev: Blockly.Events.Abstract) {
+    if (ev.type === "var_create" || ev.type === "marker_move") {
+        return false;
+    }
+
+    // If a block is selected when the user clicks on a flyout button (e.g. "Make a Variable"),
+    // a selected event will fire unselecting the block before the var_create event is fired.
+    // Make sure we don't close the flyout in the case where a block is simply being unselected.
+    if (ev.type === "selected") {
+        if (!(ev as Blockly.Events.Selected).newElementId) {
+            return false;
+        }
+    }
+
+    return true;
 }

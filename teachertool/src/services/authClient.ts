@@ -56,18 +56,16 @@ export async function clientAsync(): Promise<AuthClient | undefined> {
     }
     if (authClientPromise) return authClientPromise;
     authClientPromise = new Promise<AuthClient>(async (resolve, reject) => {
-            const cli = new AuthClient();
-            await cli.initAsync();
-            await cli.authCheckAsync();
-            await cli.initialUserPreferencesAsync();
-            resolve(cli as AuthClient);
+        const cli = new AuthClient();
+        await cli.initAsync();
+        await cli.authCheckAsync();
+        await cli.initialUserPreferencesAsync();
+        resolve(cli as AuthClient);
     });
     return authClientPromise;
 }
 
-export async function authCheckAsync(): Promise<
-    pxt.auth.UserProfile | undefined
-> {
+export async function authCheckAsync(): Promise<pxt.auth.UserProfile | undefined> {
     const cli = await clientAsync();
     const query = pxt.Util.parseQueryString(window.location.href);
     if (query["authcallback"]) {
@@ -102,4 +100,8 @@ export async function loginAsync(
 
 export async function authTokenAsync(): Promise<string | undefined> {
     return await pxt.auth.getAuthTokenAsync();
+}
+
+export async function getAuthHeadersAsync(): Promise<pxt.Map<string>> {
+    return await pxt.auth.getAuthHeadersAsync();
 }

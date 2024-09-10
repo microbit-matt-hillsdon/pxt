@@ -13,11 +13,10 @@ export type AppState = {
     checklist: Checklist;
     activeTab: TabName;
     validatorPlans: pxt.blocks.ValidatorPlan[] | undefined;
-    autorun: boolean;
+    runOnLoad: boolean;
     modalOptions: ModalOptions | undefined;
     toolboxCategories?: pxt.Map<pxt.editor.ToolboxCategoryDefinition>;
     blockImageCache: pxt.Map<string>; // block id -> image uri
-    copilotEndpointOverride?: string; // TODO: remove once copilot is available in prod.
     catalogOpen: boolean;
     screenReaderAnnouncement?: string;
     userProfile: pxt.auth.UserProfile | undefined;
@@ -34,11 +33,10 @@ export const initialAppState: AppState = {
     checklist: makeChecklist(),
     activeTab: "home",
     validatorPlans: undefined,
-    autorun: false,
+    runOnLoad: false,
     modalOptions: undefined,
     toolboxCategories: undefined,
     blockImageCache: {},
-    copilotEndpointOverride: undefined,
     catalogOpen: false,
     screenReaderAnnouncement: undefined,
     userProfile: undefined,
