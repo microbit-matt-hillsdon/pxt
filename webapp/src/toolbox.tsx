@@ -491,42 +491,36 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
     handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
         const isRtl = Util.isUserLanguageRtl();
 
-        const mainWorkspace = Blockly.getMainWorkspace() as Blockly.WorkspaceSvg;
-        // This prevents accidental toolbox navigation while the navigation cursor
-        // is in the flyout. This is needed because the flyout doesn't take the focus.
-        const toolboxNavigationEnabled = !mainWorkspace.keyboardAccessibilityMode;
         const charCode = core.keyCodeFromEvent(e);
-        if (toolboxNavigationEnabled) {
-            if (charCode == 40 /* Down arrow key */) {
-                this.nextItem();
-            } else if (charCode == 38 /* Up arrow key */) {
-                this.previousItem();
-            } else if ((charCode == 39 /* Right arrow key */ && !isRtl)
-                || (charCode == 37 /* Left arrow key */ && isRtl)) {
-                    if (this.selectedTreeRow.nameid !== "addpackage") {
-                        // Focus inside flyout
-                        this.moveFocusToFlyout();
-                    }
-            } else if (charCode == 27) { // ESCAPE
-                // Close the flyout
-                this.closeFlyout();
-            } else if (charCode == core.ENTER_KEY || charCode == core.SPACE_KEY) {
-                const {onCategoryClick, treeRow, index} = this.selectedItem.props;
-                if (onCategoryClick) {
-                    onCategoryClick(treeRow, index);
-                    e.preventDefault();
-                    e.stopPropagation();
+        if (charCode == 40 /* Down arrow key */) {
+            this.nextItem();
+        } else if (charCode == 38 /* Up arrow key */) {
+            this.previousItem();
+        } else if ((charCode == 39 /* Right arrow key */ && !isRtl)
+            || (charCode == 37 /* Left arrow key */ && isRtl)) {
+                if (this.selectedTreeRow.nameid !== "addpackage") {
+                    // Focus inside flyout
+                    this.moveFocusToFlyout();
                 }
-            } else if (charCode == core.TAB_KEY
-                || charCode == 37 /* Left arrow key */
-                || charCode == 39 /* Right arrow key */
-                || charCode == 17 /* Ctrl Key */
-                || charCode == 16 /* Shift Key */
-                || charCode == 91 /* Cmd Key */) {
-                // Escape tab and shift key
-            } else {
-                this.setSearch();
+        } else if (charCode == 27) { // ESCAPE
+            // Close the flyout
+            this.closeFlyout();
+        } else if (charCode == core.ENTER_KEY || charCode == core.SPACE_KEY) {
+            const {onCategoryClick, treeRow, index} = this.selectedItem.props;
+            if (onCategoryClick) {
+                onCategoryClick(treeRow, index);
+                e.preventDefault();
+                e.stopPropagation();
             }
+        } else if (charCode == core.TAB_KEY
+            || charCode == 37 /* Left arrow key */
+            || charCode == 39 /* Right arrow key */
+            || charCode == 17 /* Ctrl Key */
+            || charCode == 16 /* Shift Key */
+            || charCode == 91 /* Cmd Key */) {
+            // Escape tab and shift key
+        } else {
+            this.setSearch();
         }
     }
 
