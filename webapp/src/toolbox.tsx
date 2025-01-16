@@ -130,7 +130,6 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
     private selectedIndex: number;
     private items: ToolboxCategory[];
     private selectedTreeRow: ToolboxCategory;
-    private shouldHandleCategoryTreeFocus: boolean = true;
 
     constructor(props: ToolboxProps) {
         super(props);
@@ -266,25 +265,17 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
     }
 
     focus(itemToFocus?: string) {
-        if (!this.rootElement) return;
-        this.shouldHandleCategoryTreeFocus = false;
-        (this.refs.categoryTree as HTMLDivElement).focus();
-        if (this.selectedItem && this.selectedItem.getTreeRow()) {
-            // Focus the selected item
-            const selectedItem = this.selectedItem.props.treeRow;
-            const selectedItemIndex = this.items.findIndex(item => item.nameid === selectedItem.nameid);
-            this.setSelection(selectedItem, selectedItemIndex, true);
-        } else {
-            // Focus first item in the toolbox
-            if (itemToFocus) {
-                for (const item of this.items) {
-                    if (item.nameid === itemToFocus) {
-                        this.setSelection(item, this.items.indexOf(item), true);
-                        return;
-                    }
+        if (itemToFocus) {
+            for (const item of this.items) {
+                if (item.nameid === itemToFocus) {
+                    this.setSelection(item, this.items.indexOf(item), true);
+                    return;
                 }
             }
-            this.selectFirstItem();
+        } else {
+            // If there is not a specific item to focus, the handleCategoryTreeFocus focus
+            // handler will highlight the currently selected item if it exists, else the first item.
+            (this.refs.categoryTree as HTMLDivElement).focus()
         }
     }
 
@@ -468,7 +459,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
     handleCategoryTreeFocus = (e: React.FocusEvent<HTMLDivElement>) => {
         // Don't handle focus on a mouse down event when the relatedTarget is null.
         // Rely on the click handler instead.
-        if (this.shouldHandleCategoryTreeFocus && e.relatedTarget) {
+        if (e.relatedTarget) {
             if (!this.rootElement) return;
             if (this.selectedItem && this.selectedItem.getTreeRow()) {
                 // 'Focus' the selected item
@@ -480,7 +471,6 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                 this.selectFirstItem();
             }
         }
-        this.shouldHandleCategoryTreeFocus = true;
     }
 
     isRtl() {
