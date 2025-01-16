@@ -908,9 +908,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     public moveFocusToFlyout() {
         if (this.keyboardNavigation) {
             this.keyboardNavigation.focusFlyout();
-        } else {
-            // Move focus to the workspace. If Blockly change the flyout to be focussable this could focus it instead.
-            (this.editor.getInjectionDiv() as HTMLDivElement).focus();
         }
     }
 
@@ -1940,11 +1937,15 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     }
 
     onToolboxFocusCapture(): void {
-        this.keyboardNavigation.onExternalToolboxFocus()
+        if (this.keyboardNavigation) {
+            this.keyboardNavigation.onExternalToolboxFocus()
+        }
     }
 
     onToolboxBlurCapture(): void {
-        this.keyboardNavigation.onExternalToolboxBlur()
+        if (this.keyboardNavigation) {
+            this.keyboardNavigation.onExternalToolboxBlur()
+        }
     }
 }
 
