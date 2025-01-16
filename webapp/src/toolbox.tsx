@@ -272,7 +272,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
         if (this.selectedItem && this.selectedItem.getTreeRow()) {
             // Focus the selected item
             const selectedItem = this.selectedItem.props.treeRow;
-            const selectedItemIndex = this.items.indexOf(selectedItem);
+            const selectedItemIndex = this.items.findIndex(item => item.nameid === selectedItem.nameid);
             this.setSelection(selectedItem, selectedItemIndex, true);
         } else {
             // Focus first item in the toolbox
@@ -473,7 +473,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
             if (this.selectedItem && this.selectedItem.getTreeRow()) {
                 // 'Focus' the selected item
                 const selectedItem = this.selectedItem.props.treeRow;
-                const selectedItemIndex = this.items.indexOf(selectedItem);
+                const selectedItemIndex = this.items.findIndex(item => item.nameid === selectedItem.nameid)
                 this.setSelection(selectedItem, selectedItemIndex, true);
             } else {
                 // 'Focus' first item in the toolbox
@@ -636,6 +636,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                         {hasSearch &&
                             <CategoryItem
                                 key={"search"}
+                                ref="searchCategory"
                                 toolbox={this}
                                 index={index++}
                                 selected={selectedItem == "search"}
@@ -1094,6 +1095,7 @@ export class ToolboxSearch extends data.Component<ToolboxSearchProps, ToolboxSea
                 newState.focusSearch = true;
                 if (hasSearch) newState.selectedItem = 'search';
                 toolbox.setState(newState);
+                toolbox.setSelectedItem(toolbox.refs.searchCategory as CategoryItem)
 
                 this.setState({ searchAccessibilityLabel: searchAccessibilityLabel });
             });

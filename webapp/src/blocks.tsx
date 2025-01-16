@@ -1660,7 +1660,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             this.flyoutXmlList.push(label);
         }
         this.showFlyoutInternal_(this.flyoutXmlList, "search");
-        this.toolbox.setSearch();
     }
 
     private showTopBlocksFlyout() {
