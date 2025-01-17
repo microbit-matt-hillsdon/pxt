@@ -615,7 +615,14 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                     />
                 }
                 <div className="blocklyTreeRoot">
-                    <div role="tree" tabIndex={0} ref="categoryTree" onFocus={this.handleCategoryTreeFocus} onKeyDown={this.handleKeyDown}>
+                    <div
+                        role="tree"
+                        tabIndex={0}
+                        ref="categoryTree"
+                        onFocus={this.handleCategoryTreeFocus}
+                        onKeyDown={this.handleKeyDown}
+                        aria-activedescendant={selectedItem}
+                    >
                         {tryToDeleteNamespace &&
                             <DeleteConfirmationModal
                                 ns={tryToDeleteNamespace}
@@ -632,6 +639,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                 selected={selectedItem == "search"}
                                 treeRow={searchTreeRow}
                                 onCategoryClick={this.onCategoryClick}
+                                ariaLevel={1}
                             />
                         }
                         {hasTopBlocks &&
@@ -641,6 +649,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                 selected={selectedItem == "topblocks"}
                                 treeRow={topBlocksTreeRow}
                                 onCategoryClick={this.onCategoryClick}
+                                ariaLevel={1}
                             />
                         }
                         {nonAdvancedCategories.map(treeRow =>
@@ -649,26 +658,30 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                 toolbox={this}
                                 index={index++}
                                 selected={selectedItem == treeRow.nameid}
-                                childrenVisible={expandedItem == treeRow.nameid}
                                 treeRow={treeRow}
                                 onCategoryClick={this.onCategoryClick}
                                 topRowIndex={topRowIndex++}
                                 shouldAnimate={this.state.shouldAnimate}
                                 hasDeleteButton={treeRow.allowDelete}
                                 onDeleteClick={this.handleRemoveExtension}
+                                ariaLevel={1}
+                                isExpanded={expandedItem == treeRow.nameid}
                             >
-                                {treeRow.subcategories &&
-                                    treeRow.subcategories.map(subTreeRow =>
-                                        <CategoryItem
-                                            key={subTreeRow.nameid + subTreeRow.subns}
-                                            index={index++}
-                                            toolbox={this}
-                                            selected={selectedItem == (subTreeRow.nameid + subTreeRow.subns)}
-                                            treeRow={subTreeRow}
-                                            onCategoryClick={this.onCategoryClick}
-                                        />
-                                    )
-                                }
+                                {treeRow.subcategories && (
+                                    <div className={classList(expandedItem != treeRow.nameid && "hidden")} role="group">
+                                        {treeRow.subcategories.map(subTreeRow =>
+                                            <CategoryItem
+                                                key={subTreeRow.nameid + subTreeRow.subns}
+                                                index={index++}
+                                                toolbox={this}
+                                                selected={selectedItem == (subTreeRow.nameid + subTreeRow.subns)}
+                                                treeRow={subTreeRow}
+                                                onCategoryClick={this.onCategoryClick}
+                                                ariaLevel={2}
+                                            />
+                                        )}
+                                    </div>
+                                )}
                             </CategoryItem>
                         )}
                         {hasAdvanced &&
@@ -677,43 +690,53 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                 <CategoryItem
                                     toolbox={this}
                                     treeRow={{
-                                        nameid: "",
+                                        nameid: "advanced",
                                         name: pxt.toolbox.advancedTitle(),
                                         color: pxt.toolbox.getNamespaceColor('advanced'),
                                         icon: pxt.toolbox.getNamespaceIcon(advancedButtonState),
-                                        advancedButtonState: advancedButtonState
+                                        advancedButtonState: advancedButtonState,
+                                        // Required to show aria-expanded state.
+                                        subcategories: [],
                                     }}
                                     onCategoryClick={this.advancedClicked}
                                     topRowIndex={topRowIndex++}
-                                />
-                            </>
-                        }
-                        {
-                            advancedCategories.map(treeRow =>
-                                <CategoryItem
-                                    key={treeRow.nameid}
-                                    className={!showAdvanced && "hidden"}
-                                    toolbox={this}
-                                    index={index++}
-                                    selected={selectedItem == treeRow.nameid}
-                                    childrenVisible={expandedItem == treeRow.nameid}
-                                    treeRow={treeRow}
-                                    onCategoryClick={this.onCategoryClick}
+                                    ariaLevel={1}
+                                    isExpanded={showAdvanced}
                                 >
-                                    {treeRow.subcategories &&
-                                        treeRow.subcategories.map(subTreeRow =>
-                                            <CategoryItem
-                                                key={subTreeRow.nameid}
-                                                toolbox={this}
-                                                index={index++}
-                                                selected={selectedItem == (subTreeRow.nameid + subTreeRow.subns)}
-                                                treeRow={subTreeRow}
-                                                onCategoryClick={this.onCategoryClick}
-                                            />
-                                        )
-                                    }
+                                    <div className={classList(!showAdvanced && "hidden")} role="group">
+                                        {
+                                            advancedCategories.map(treeRow =>
+                                                <CategoryItem
+                                                    key={treeRow.nameid}
+                                                    toolbox={this}
+                                                    index={index++}
+                                                    selected={selectedItem == treeRow.nameid}
+                                                    treeRow={treeRow}
+                                                    onCategoryClick={this.onCategoryClick}
+                                                    ariaLevel={2}
+                                                    isExpanded={expandedItem == treeRow.nameid}
+                                                >
+                                                    {treeRow.subcategories && (
+                                                        <div className={classList(expandedItem != treeRow.nameid && "hidden")} role="group">
+                                                            {treeRow.subcategories.map(subTreeRow =>
+                                                                <CategoryItem
+                                                                    key={subTreeRow.nameid + subTreeRow.subns}
+                                                                    toolbox={this}
+                                                                    index={index++}
+                                                                    selected={selectedItem == (subTreeRow.nameid + subTreeRow.subns)}
+                                                                    treeRow={subTreeRow}
+                                                                    onCategoryClick={this.onCategoryClick}
+                                                                    ariaLevel={3}
+                                                                />
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </CategoryItem>
+                                            )
+                                        }
+                                    </div>
                                 </CategoryItem>
-                            )
+                            </>
                         }
                     </div>
                 </div>
@@ -724,13 +747,13 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
 
 export interface CategoryItemProps extends TreeRowProps {
     toolbox: Toolbox;
-    childrenVisible?: boolean;
     onCategoryClick?: (treeRow: ToolboxCategory, index: number) => void;
     index?: number;
     topRowIndex?: number;
     hasDeleteButton?: boolean;
     onDeleteClick?: (ns: string) => void;
-    className?: string;
+    ariaLevel: number;
+    isExpanded?: boolean;
 }
 
 export interface CategoryItemState {
@@ -786,11 +809,13 @@ export class CategoryItem extends data.Component<CategoryItemProps, CategoryItem
     }
 
     renderCore() {
-        const { toolbox, childrenVisible, hasDeleteButton, className } = this.props;
+        const { toolbox, hasDeleteButton, treeRow, ariaLevel, isExpanded } = this.props;
         const { selected } = this.state;
 
+        const ariaExpanded = treeRow.subcategories ? isExpanded : undefined;
+
         return (
-            <TreeItem className={className}>
+            <TreeItem id={treeRow.nameid} selected={selected} ariaLevel={ariaLevel} ariaExpanded={ariaExpanded}>
                 <TreeRow
                     ref={this.handleTreeRowRef}
                     isRtl={toolbox.isRtl()}
@@ -799,9 +824,7 @@ export class CategoryItem extends data.Component<CategoryItemProps, CategoryItem
                     onClick={this.handleClick}
                     hasDeleteButton={hasDeleteButton}
                 />
-                <TreeGroup visible={childrenVisible}>
-                    {this.props.children}
-                </TreeGroup>
+                {this.props.children}
             </TreeItem>
         );
     }
@@ -927,34 +950,37 @@ export class TreeRow extends data.Component<TreeRowProps, {}> {
         const extraIconClass = !subns && Object.keys(this.brandIcons).includes(icon) ? 'brandIcon' : ''
         return (
             <div
-                role="button"
                 ref={this.handleTreeRowRef}
                 className={treeRowClass}
                 style={treeRowStyle}
                 data-ns={dataNs}
-                aria-label={lf("Toggle category {0}", rowTitle)}
-                aria-expanded={selected}
                 onClick={onClick}
                 onContextMenu={onClick}
                 onKeyDown={onKeyDown ? onKeyDown : fireClickOnEnter}
             >
-                <span className="blocklyTreeIcon" role="presentation"/>
-                <span
-                    style={iconImageStyle}
-                    className={`blocklyTreeIcon ${iconClass} ${extraIconClass}`}
-                    role="presentation"
-                >
-                    {iconContent}
-                </span>
-                <span className="blocklyTreeLabel">
-                    {rowTitle}
-                </span>
-                {hasDeleteButton &&
-                    <i
-                        className="blocklyTreeButton icon times circle"
-                        onClick={this.handleDeleteClick}
-                    />
-                }
+                {/* 
+                    pointEvents style required to work around non-null assertion operator in Blockly code.
+                    See https://github.com/google/blockly/blob/develop/core/toolbox/toolbox.ts#L263
+                 */}
+                <div className="blocklyTreeRowContentContainer" style={{pointerEvents: "none"}}>
+                    <span className="blocklyTreeIcon" role="presentation"/>
+                    <span
+                        style={iconImageStyle}
+                        className={`blocklyTreeIcon ${iconClass} ${extraIconClass}`}
+                        role="presentation"
+                    >
+                        {iconContent}
+                    </span>
+                    <span id={`${nameid}.label`} className="blocklyTreeLabel">
+                        {rowTitle}
+                    </span>
+                    {hasDeleteButton &&
+                        <i
+                            className="blocklyTreeButton icon times circle"
+                            onClick={this.handleDeleteClick}
+                        />
+                    }
+                </div>
             </div>
         );
     }
@@ -963,50 +989,38 @@ export class TreeRow extends data.Component<TreeRowProps, {}> {
 export class TreeSeparator extends data.Component<{}, {}> {
     renderCore() {
         return (
-            <TreeItem>
-                <div className="blocklyTreeSeparator">
-                    <span style={{ display: 'inline-block' }} role="presentation"></span>
-                </div>
-            </TreeItem>
+            <div className="blocklyTreeSeparator">
+                <span style={{ display: 'inline-block' }} role="presentation"></span>
+            </div>
         );
     }
 }
 
 export interface TreeItemProps {
-    selected?: boolean;
-    className?: string;
+    selected: boolean;
     children?: any;
+    id: string;
+    ariaLevel: number;
+    ariaExpanded: boolean | undefined;
 }
 
 export class TreeItem extends data.Component<TreeItemProps, {}> {
     renderCore() {
-        const { selected, className } = this.props;
+        const { selected, id, ariaLevel, ariaExpanded } = this.props;
         return (
-            <div className={classList(className)} role="treeitem" aria-selected={selected}>
+            <div
+                id={id}
+                role="treeitem"
+                aria-selected={selected}
+                aria-level={ariaLevel}
+                aria-expanded={ariaExpanded}
+                aria-labelledby={`${id}.label`}
+            >
                 {this.props.children}
             </div>
         );
     }
 }
-
-export interface TreeGroupProps {
-    visible?: boolean;
-    children?: any;
-}
-
-export class TreeGroup extends data.Component<TreeGroupProps, {}> {
-    renderCore() {
-        const { visible } = this.props;
-        if (!this.props.children) return <div />;
-
-        return (
-            <div role="tree" style={{ backgroundPosition: '0px 0px', 'display': visible ? '' : 'none' }}>
-                {this.props.children}
-            </div>
-        );
-    }
-}
-
 
 export interface ToolboxSearchProps {
     parent: editor.ToolboxEditor;
