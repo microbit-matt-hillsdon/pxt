@@ -12,9 +12,16 @@ export function setEditorExtensionExperiments(experiments: Experiment[]) {
 }
 
 export function syncTheme() {
+    const experiments = all();
+    const searchParams = new URLSearchParams(window.location.search);
+    const urlIds = searchParams.getAll("experiment")
+    if (urlIds.length > 0) {
+        experiments.forEach(experiment => {
+            setState(experiment, urlIds.includes(experiment.id))
+        })
+    }
     const theme: pxt.Map<boolean> = <pxt.Map<boolean>><any>pxt.savedAppTheme();
     const r: pxt.Map<string | number> = {};
-    const experiments = all();
     experiments.forEach(experiment => {
         const enabled = isEnabled(experiment);
         theme[experiment.id] = !!enabled;
