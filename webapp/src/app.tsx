@@ -664,7 +664,9 @@ export class ProjectView
 
         if (this.isBlocksActive()) {
             if (this.state.embedSimView) this.setState({ embedSimView: false });
-            this.editor.focusWorkspace();
+            // Timeout prevents "enter" from being handled again by Blockly's keyboard
+            // navigation plugin.
+            setTimeout(() => {this.editor.focusWorkspace()}, 0)
             return;
         }
 
