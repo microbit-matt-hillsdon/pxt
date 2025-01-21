@@ -457,9 +457,9 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
     }
 
     handleCategoryTreeFocus = (e: React.FocusEvent<HTMLDivElement>) => {
-        // Don't handle focus on a mouse down event when the relatedTarget is null.
+        // Don't handle focus resulting from click events on category tree items.
         // Rely on the click handler instead.
-        if (e.relatedTarget) {
+        if (e.target === this.refs.categoryTree) {
             if (!this.rootElement) return;
             if (this.selectedItem && this.selectedItem.getTreeRow()) {
                 // 'Focus' the selected item
@@ -982,7 +982,7 @@ export class TreeItem extends data.Component<TreeItemProps, {}> {
     renderCore() {
         const { selected, className } = this.props;
         return (
-            <div className={classList(className)} role="treeitem" aria-selected={selected}>
+            <div className={classList(className)} role="treeitem" aria-selected={selected} tabIndex={-1}>
                 {this.props.children}
             </div>
         );
@@ -1083,9 +1083,11 @@ export class ToolboxSearch extends data.Component<ToolboxSearchProps, ToolboxSea
                 newState.hasSearch = hasSearch;
                 newState.searchBlocks = blocks;
                 newState.focusSearch = true;
-                if (hasSearch) newState.selectedItem = 'search';
+                if (hasSearch) {
+                    newState.selectedItem = 'search';
+                    toolbox.setSelectedItem(toolbox.refs.searchCategory as CategoryItem)
+                }
                 toolbox.setState(newState);
-                toolbox.setSelectedItem(toolbox.refs.searchCategory as CategoryItem)
 
                 this.setState({ searchAccessibilityLabel: searchAccessibilityLabel });
             });
