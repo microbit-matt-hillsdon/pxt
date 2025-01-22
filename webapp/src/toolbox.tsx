@@ -457,9 +457,9 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
     }
 
     handleCategoryTreeFocus = (e: React.FocusEvent<HTMLDivElement>) => {
-        // Don't handle focus on a mouse down event when the relatedTarget is null.
+        // Don't handle focus resulting from click events on category tree items.
         // Rely on the click handler instead.
-        if (e.relatedTarget) {
+        if (e.target === this.refs.categoryTree) {
             if (!this.rootElement) return;
             if (this.selectedItem && this.selectedItem.getTreeRow()) {
                 // 'Focus' the selected item
@@ -484,8 +484,12 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
         const charCode = core.keyCodeFromEvent(e);
         if (charCode == 40 /* Down arrow key */) {
             this.nextItem();
+            // Don't trigger scroll behaviour inside the toolbox.
+            e.preventDefault();
         } else if (charCode == 38 /* Up arrow key */) {
             this.previousItem();
+            // Don't trigger scroll behaviour inside the toolbox.
+            e.preventDefault();
         } else if ((charCode == 39 /* Right arrow key */ && !isRtl)
             || (charCode == 37 /* Left arrow key */ && isRtl)) {
                 if (this.selectedTreeRow.nameid !== "addpackage") {
@@ -636,6 +640,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                 ref="searchCategory"
                                 toolbox={this}
                                 index={index++}
+                                selectedIndex={this.selectedIndex}
                                 selected={selectedItem == "search"}
                                 treeRow={searchTreeRow}
                                 onCategoryClick={this.onCategoryClick}
@@ -657,6 +662,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                 key={treeRow.nameid}
                                 toolbox={this}
                                 index={index++}
+                                selectedIndex={this.selectedIndex}
                                 selected={selectedItem == treeRow.nameid}
                                 treeRow={treeRow}
                                 onCategoryClick={this.onCategoryClick}
@@ -673,6 +679,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                             <CategoryItem
                                                 key={subTreeRow.nameid + subTreeRow.subns}
                                                 index={index++}
+                                                selectedIndex={this.selectedIndex}
                                                 toolbox={this}
                                                 selected={selectedItem == (subTreeRow.nameid + subTreeRow.subns)}
                                                 treeRow={subTreeRow}
@@ -710,6 +717,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                                     key={treeRow.nameid}
                                                     toolbox={this}
                                                     index={index++}
+                                                    selectedIndex={this.selectedIndex}
                                                     selected={selectedItem == treeRow.nameid}
                                                     treeRow={treeRow}
                                                     onCategoryClick={this.onCategoryClick}
@@ -723,6 +731,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                                                     key={subTreeRow.nameid + subTreeRow.subns}
                                                                     toolbox={this}
                                                                     index={index++}
+                                                                    selectedIndex={this.selectedIndex}
                                                                     selected={selectedItem == (subTreeRow.nameid + subTreeRow.subns)}
                                                                     treeRow={subTreeRow}
                                                                     onCategoryClick={this.onCategoryClick}
@@ -749,6 +758,7 @@ export interface CategoryItemProps extends TreeRowProps {
     toolbox: Toolbox;
     onCategoryClick?: (treeRow: ToolboxCategory, index: number) => void;
     index?: number;
+    selectedIndex?: number;
     topRowIndex?: number;
     hasDeleteButton?: boolean;
     onDeleteClick?: (ns: string) => void;
@@ -788,12 +798,19 @@ export class CategoryItem extends data.Component<CategoryItemProps, CategoryItem
         const { toolbox } = this.props;
         if (this.state.selected) {
             this.props.toolbox.setSelectedItem(this);
-            if (!toolbox.state.focusSearch && !coretsx.dialogIsShowing()) this.focusElement();
+            if (!toolbox.state.focusSearch && !coretsx.dialogIsShowing()) {
+                this.focusElement();
+                this.scrollElementIntoView({block: this.props.index === 0 || prevProps.selectedIndex < this.props.index ? "end" : "start"});
+            }
         }
     }
 
     focusElement() {
         this.treeRowElement.focus();
+    }
+
+    scrollElementIntoView(options: ScrollIntoViewOptions) {
+        this.treeRowElement.scrollIntoView(options);
     }
 
     handleClick(e: React.MouseEvent<any>) {
@@ -885,6 +902,10 @@ export class TreeRow extends data.Component<TreeRowProps, {}> {
 
     focus() {
         if (this.treeRow) this.treeRow.focus();
+    }
+
+    scrollIntoView(options: ScrollIntoViewOptions) {
+        if (this.treeRow) this.treeRow.scrollIntoView(options);
     }
 
     getProperties() {
@@ -1012,6 +1033,7 @@ export class TreeItem extends data.Component<TreeItemProps, {}> {
                 id={id}
                 role="treeitem"
                 aria-selected={selected}
+                tabIndex={-1}
                 aria-level={ariaLevel}
                 aria-expanded={ariaExpanded}
                 aria-labelledby={`${id}.label`}
@@ -1067,6 +1089,8 @@ export class ToolboxSearch extends data.Component<ToolboxSearchProps, ToolboxSea
             // Focus the toolbox category tree which opens the currently selected
             // item if one exists, or the first item.
             (toolbox.refs.categoryTree as HTMLDivElement).focus()
+            // Don't trigger scroll behaviour inside the toolbox.
+            e.preventDefault();
         }
     }
 
@@ -1097,9 +1121,11 @@ export class ToolboxSearch extends data.Component<ToolboxSearchProps, ToolboxSea
                 newState.hasSearch = hasSearch;
                 newState.searchBlocks = blocks;
                 newState.focusSearch = true;
-                if (hasSearch) newState.selectedItem = 'search';
+                if (hasSearch) {
+                    newState.selectedItem = 'search';
+                    toolbox.setSelectedItem(toolbox.refs.searchCategory as CategoryItem)
+                }
                 toolbox.setState(newState);
-                toolbox.setSelectedItem(toolbox.refs.searchCategory as CategoryItem)
 
                 this.setState({ searchAccessibilityLabel: searchAccessibilityLabel });
             });
