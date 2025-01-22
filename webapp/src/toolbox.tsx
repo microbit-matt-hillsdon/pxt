@@ -832,7 +832,7 @@ export class CategoryItem extends data.Component<CategoryItemProps, CategoryItem
         const ariaExpanded = treeRow.subcategories ? isExpanded : undefined;
 
         return (
-            <TreeItem id={treeRow.nameid} selected={selected} ariaLevel={ariaLevel} ariaExpanded={ariaExpanded}>
+            <TreeItem id={treeRow.nameid + (treeRow.subns ?? "")} selected={selected} ariaLevel={ariaLevel} ariaExpanded={ariaExpanded}>
                 <TreeRow
                     ref={this.handleTreeRowRef}
                     isRtl={toolbox.isRtl()}
@@ -992,7 +992,7 @@ export class TreeRow extends data.Component<TreeRowProps, {}> {
                     >
                         {iconContent}
                     </span>
-                    <span id={`${nameid}.label`} className="blocklyTreeLabel">
+                    <span id={`${nameid + (subns ?? "")}.label`} className="blocklyTreeLabel">
                         {rowTitle}
                     </span>
                     {hasDeleteButton &&
