@@ -3,6 +3,7 @@
 import * as Blockly from "blockly";
 import { FieldCustom, FieldCustomDropdownOptions, parseColour } from "./field_utils";
 import { FieldGridDropdown } from "@blockly/field-grid-dropdown";
+import { ImageProperties } from "blockly/core/field_dropdown";
 
 export interface FieldImageDropdownOptions extends FieldCustomDropdownOptions {
     columns?: string;
@@ -27,7 +28,6 @@ export class FieldImageDropdown extends FieldGridDropdown implements FieldCustom
     protected savedPrimary_: string;
 
     constructor(text: string, options: FieldImageDropdownOptions, validator?: Function) {
-        console.log(options.data)
         super(options.data, undefined, {columns: parseInt(options.columns)});
 
         this.columns_ = parseInt(options.columns);
@@ -44,102 +44,57 @@ export class FieldImageDropdown extends FieldGridDropdown implements FieldCustom
      */
     public showEditor_() {
         super.showEditor_();
-        // // If there is an existing drop-down we own, this is a request to hide the drop-down.
-        // if (Blockly.DropDownDiv.hideIfOwner(this)) {
-        //     return;
-        // }
-        // // If there is an existing drop-down someone else owns, hide it immediately and clear it.
-        // Blockly.DropDownDiv.hideWithoutAnimation();
-        // Blockly.DropDownDiv.clearContent();
-        // // Populate the drop-down with the icons for this field.
-        // let dropdownDiv = Blockly.DropDownDiv.getContentDiv() as HTMLElement;
-        // let contentDiv = document.createElement('div');
-        // // Accessibility properties
-        // contentDiv.setAttribute('role', 'menu');
-        // contentDiv.setAttribute('aria-haspopup', 'true');
-        // const options = this.getOptions();
-        // let maxButtonHeight: number = 0;
-        // for (let i = 0; i < options.length; i++) {
-        //     let content = (options[i] as any)[0]; // Human-readable text or image.
-        //     const value = (options[i] as any)[1]; // Language-neutral value.
-        //     // Icons with the type property placeholder take up space but don't have any functionality
-        //     // Use for special-case layouts
-        //     if (content.type == 'placeholder') {
-        //         let placeholder = document.createElement('span');
-        //         placeholder.setAttribute('class', 'blocklyDropDownPlaceholder');
-        //         placeholder.style.width = content.width + 'px';
-        //         placeholder.style.height = content.height + 'px';
-        //         contentDiv.appendChild(placeholder);
-        //         continue;
-        //     }
-        //     let button = document.createElement('button');
-        //     button.setAttribute('id', ':' + i); // For aria-activedescendant
-        //     button.setAttribute('role', 'menuitem');
-        //     button.setAttribute('class', 'blocklyDropDownButton');
-        //     button.title = content.alt;
-        //     let buttonSize = content.height;
-        //     if (this.columns_) {
-        //         buttonSize = ((this.width_ / this.columns_) - 8);
-        //         button.style.width = buttonSize + 'px';
-        //         button.style.height = buttonSize + 'px';
-        //     } else {
-        //         button.style.width = content.width + 'px';
-        //         button.style.height = content.height + 'px';
-        //     }
-        //     if (buttonSize > maxButtonHeight) {
-        //         maxButtonHeight = buttonSize;
-        //     }
-        //     let backgroundColor = this.backgroundColour_;
-        //     if (value == this.getValue()) {
-        //         // This icon is selected, show it in a different colour
-        //         backgroundColor = (this.sourceBlock_ as Blockly.BlockSvg).getColourTertiary();
-        //         button.setAttribute('aria-selected', 'true');
-        //     }
-        //     button.style.backgroundColor = backgroundColor;
-        //     button.style.borderColor = this.borderColour_;
-        //     Blockly.browserEvents.bind(button, 'click', this, this.buttonClick_);
-        //     Blockly.browserEvents.bind(button, 'mouseover', this, () => {
-        //         button.setAttribute('class', 'blocklyDropDownButton blocklyDropDownButtonHover');
-        //         contentDiv.setAttribute('aria-activedescendant', button.id);
-        //     });
-        //     Blockly.browserEvents.bind(button, 'mouseout', this, () => {
-        //         button.setAttribute('class', 'blocklyDropDownButton');
-        //         contentDiv.removeAttribute('aria-activedescendant');
-        //     });
-        //     let buttonImg = document.createElement('img');
-        //     buttonImg.src = content.src;
-        //     //buttonImg.alt = icon.alt;
-        //     // Upon click/touch, we will be able to get the clicked element as e.target
-        //     // Store a data attribute on all possible click targets so we can match it to the icon.
-        //     button.setAttribute('data-value', value);
-        //     buttonImg.setAttribute('data-value', value);
-        //     button.appendChild(buttonImg);
-        //     contentDiv.appendChild(button);
-        // }
-        // contentDiv.style.width = this.width_ + 'px';
-        // dropdownDiv.appendChild(contentDiv);
-        // if (this.maxRows_) {
-        //     // Limit the number of rows shown, but add a partial next row to indicate scrolling
-        //     dropdownDiv.style.maxHeight = (this.maxRows_ + 0.4) * (maxButtonHeight + 8) + 'px';
-        // }
 
-        // if (pxt.BrowserUtils.isFirefox()) {
-        //     // This is to compensate for the scrollbar that overlays content in Firefox. It
-        //     // gets removed in onHide_()
-        //     dropdownDiv.style.paddingRight = "20px";
-        // }
+        const dropdownDiv = Blockly.DropDownDiv.getContentDiv() as HTMLElement;
+        const contentDiv = dropdownDiv.querySelector("div");
+        const options = this.getOptions();
+        let maxButtonHeight: number = 0;
 
-        // Blockly.DropDownDiv.setColour(this.backgroundColour_, this.borderColour_);
+        contentDiv.querySelectorAll("img").forEach(el => {
+            el.removeAttribute("height")
+            el.removeAttribute("width")
+        });
 
-        // Blockly.DropDownDiv.showPositionedByField(this, this.onHide_.bind(this));
+        Array.from(contentDiv.children).forEach((el, i) => {
+            const content = (options[i] as any)[0]; // Human-readable text or image.
+            const div = el as HTMLDivElement;
+            div.classList.add("blocklyDropDownButton");
 
-        // let source = this.sourceBlock_ as Blockly.BlockSvg;
-        // this.savedPrimary_ = source?.getColour();
-        // if (source?.isShadow()) {
-        //     source.setColour(source.getColourTertiary());
-        // } else if (this.borderRect_) {
-        //     this.borderRect_.setAttribute('fill', source.getColourTertiary());
-        // }
+            // We need to find where this occurs and handle it.
+            // if (content.type == 'placeholder') {
+            //     let placeholder = document.createElement('span');
+            //     placeholder.setAttribute('class', 'blocklyDropDownPlaceholder');
+            //     placeholder.style.width = content.width + 'px';
+            //     placeholder.style.height = content.height + 'px';
+            //     contentDiv.appendChild(placeholder);
+            //     return;
+            // }
+
+            let buttonSize = content.height;
+            if (this.columns_) {
+                buttonSize = ((this.width_ / this.columns_) - 8);
+                div.style.width = buttonSize + 'px';
+                div.style.height = buttonSize + 'px';
+            } else {
+                div.style.width = content.width + 'px';
+                div.style.height = content.height + 'px';
+            }
+            if (buttonSize > maxButtonHeight) {
+                maxButtonHeight = buttonSize;
+            }
+        })
+
+        contentDiv.style.width = this.width_ + 'px';
+        if (this.maxRows_) {
+            // Limit the number of rows shown, but add a partial next row to indicate scrolling
+            dropdownDiv.style.maxHeight = (this.maxRows_ + 0.4) * (maxButtonHeight + 8) + 'px';
+        }
+
+        if (pxt.BrowserUtils.isFirefox()) {
+            // This is to compensate for the scrollbar that overlays content in Firefox. It
+            // gets removed in onHide_()
+            dropdownDiv.style.paddingRight = "20px";
+        }
     }
 
     doValueUpdate_(newValue: any): void {
@@ -182,10 +137,15 @@ export class FieldImageDropdown extends FieldGridDropdown implements FieldCustom
 }
 
 Blockly.Css.register(`
+.fieldGridDropDownContainer.blocklyMenu {
+    grid-gap: 0px;
+    margin: 0px;
+}
+
 .blocklyDropDownButton {
     display: inline-block;
     float: left;
-    padding: 0;
+    padding: 0 !important;
     margin: 4px;
     border-radius: 4px;
     outline: none;
@@ -194,17 +154,15 @@ Blockly.Css.register(`
     cursor: pointer;
 }
 
-.blocklyDropDownButtonHover {
-    box-shadow: 0px 0px 0px 4px rgba(255, 255, 255, 0.2);
+.blocklyDropDownButton > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
 }
 
-.blocklyDropDownButton:active {
-    box-shadow: 0px 0px 0px 6px rgba(255, 255, 255, 0.2);
-}
-
-.blocklyDropDownButton > img {
+.blocklyDropDownButton img {
     width: 80%;
     height: 80%;
-    margin-top: 5%
 }
 `)
