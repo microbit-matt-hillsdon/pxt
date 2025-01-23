@@ -254,6 +254,7 @@ Blockly.Css.register(`
     border: 1px solid;
     transition: box-shadow .1s;
     cursor: pointer;
+    text-align: center;
 }
 
 .blocklyDropDownButtonHover {
@@ -267,6 +268,8 @@ Blockly.Css.register(`
 .blocklyDropDownButton > img {
     width: 80%;
     height: 80%;
-    margin-top: 5%
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
 }
 `)
