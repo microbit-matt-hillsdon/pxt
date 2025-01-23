@@ -62,6 +62,7 @@
   },
   "dependencies": {
     "@blockly/field-colour": "5.0.5",
+    "@blockly/field-grid-dropdown": "^5.0.12",
     "@blockly/keyboard-experiment": "0.0.1",
     "@blockly/plugin-workspace-search": "9.1.0",
     "@crowdin/crowdin-api-client": "^1.33.0",
