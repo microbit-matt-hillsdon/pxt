@@ -160,4 +160,8 @@ Blockly.Css.register(`
     transform: unset;
     margin-top: 5px;
 }
+.blocklyImageMenu .blocklyDropdownTextLabel {
+    line-height: 1.15;
+    margin-bottom: 2px;
+}
 `)
