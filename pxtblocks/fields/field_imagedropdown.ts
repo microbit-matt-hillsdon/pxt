@@ -66,7 +66,7 @@ export class FieldImageDropdown extends FieldGridDropdown implements FieldCustom
             //     placeholder.style.width = content.width + 'px';
             //     placeholder.style.height = content.height + 'px';
             //     contentDiv.appendChild(placeholder);
-            //     return;
+            //     continue;
             // }
 
             let buttonSize = content.height;
@@ -99,19 +99,6 @@ export class FieldImageDropdown extends FieldGridDropdown implements FieldCustom
         (this as any).selectedOption_ = undefined;
         super.doValueUpdate_(newValue);
     }
-
-    /**
-     * Callback for when a button is clicked inside the drop-down.
-     * Should be bound to the FieldIconMenu.
-     * @param {Event} e DOM event for the click/touch
-     * @private
-     */
-    protected buttonClick_ = (e: MouseEvent) => {
-        let value = (e.target as Element).getAttribute('data-value');
-        if (!value) return;
-        this.setValue(value);
-        Blockly.DropDownDiv.hide();
-    };
 }
 
 Blockly.Css.register(`
