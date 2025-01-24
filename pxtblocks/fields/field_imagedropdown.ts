@@ -3,7 +3,6 @@
 import * as Blockly from "blockly";
 import { FieldCustom, FieldCustomDropdownOptions, parseColour } from "./field_utils";
 import { FieldGridDropdown } from "@blockly/field-grid-dropdown";
-import { ImageProperties } from "blockly/core/field_dropdown";
 
 export interface FieldImageDropdownOptions extends FieldCustomDropdownOptions {
     columns?: string;
@@ -84,7 +83,6 @@ export class FieldImageDropdown extends FieldGridDropdown implements FieldCustom
             }
         })
 
-        contentDiv.style.width = this.width_ + 'px';
         if (this.maxRows_) {
             // Limit the number of rows shown, but add a partial next row to indicate scrolling
             dropdownDiv.style.maxHeight = (this.maxRows_ + 0.4) * (maxButtonHeight + 8) + 'px';
@@ -113,26 +111,6 @@ export class FieldImageDropdown extends FieldGridDropdown implements FieldCustom
         if (!value) return;
         this.setValue(value);
         Blockly.DropDownDiv.hide();
-    };
-
-    /**
-     * Callback for when the drop-down is hidden.
-     */
-    protected onHide_() {
-        let content = Blockly.DropDownDiv.getContentDiv() as HTMLElement;
-        content.removeAttribute('role');
-        content.removeAttribute('aria-haspopup');
-        content.removeAttribute('aria-activedescendant');
-        content.style.width = '';
-        content.style.paddingRight = '';
-        content.style.maxHeight = '';
-
-        let source = this.sourceBlock_ as Blockly.BlockSvg;
-        if (source?.isShadow()) {
-            this.sourceBlock_.setColour(this.savedPrimary_);
-        } else if (this.borderRect_) {
-            this.borderRect_.setAttribute('fill', this.savedPrimary_);
-        }
     };
 }
 
