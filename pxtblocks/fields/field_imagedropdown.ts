@@ -26,8 +26,8 @@ export class FieldImageDropdown extends FieldDropdown implements FieldCustom {
 
     protected savedPrimary_: string;
 
-    private activeDescendantIndex: number | undefined;
-    private buttons: HTMLDivElement[] = [];
+    protected activeDescendantIndex: number | undefined;
+    protected buttons: HTMLDivElement[] = [];
 
     constructor(text: string, options: FieldImageDropdownOptions, validator?: Function) {
         super(options.data);
@@ -40,26 +40,7 @@ export class FieldImageDropdown extends FieldDropdown implements FieldCustom {
         this.borderColour_ = pxt.toolbox.fadeColor(this.backgroundColour_, 0.4, false);
     }
 
-    /**
-     * Create a dropdown menu under the text.
-     * @private
-     */
-    public showEditor_() {
-        // If there is an existing drop-down we own, this is a request to hide the drop-down.
-        if (Blockly.DropDownDiv.hideIfOwner(this)) {
-            return;
-        }
-        // If there is an existing drop-down someone else owns, hide it immediately and clear it.
-        Blockly.DropDownDiv.hideWithoutAnimation();
-        Blockly.DropDownDiv.clearContent();
-        // Populate the drop-down with the icons for this field.
-        let dropdownDiv = Blockly.DropDownDiv.getContentDiv() as HTMLElement;
-        let contentDiv = document.createElement('div');
-        // Accessibility properties
-        contentDiv.setAttribute('role', 'menu');
-        contentDiv.setAttribute('aria-haspopup', 'true');
-        contentDiv.setAttribute('tabindex', '0');
-        contentDiv.setAttribute('class', 'blocklyMenu');
+    protected addKeyHandler(contentDiv: HTMLDivElement) {
         Blockly.browserEvents.bind(contentDiv, 'keydown', this, (e: KeyboardEvent) => {
             console.log(e)
             if (this.activeDescendantIndex === undefined) {
@@ -77,12 +58,12 @@ export class FieldImageDropdown extends FieldDropdown implements FieldCustom {
                     }
                     break;
                 case 'ArrowRight':
-                    if ((this.activeDescendantIndex + 1) % this.columns_ !== 0) {
+                    if (this.activeDescendantIndex < this.buttons.length - 1 && (this.activeDescendantIndex + 1) % this.columns_ !== 0) {
                         this.activeDescendantIndex++;
                     }
                     break;
                 case 'ArrowLeft':
-                    if ((this.activeDescendantIndex + 1) % this.columns_ !== 1) {
+                    if (this.activeDescendantIndex !== 0 && (this.activeDescendantIndex + 1) % this.columns_ !== 1) {
                         this.activeDescendantIndex--;
                     }
                     break;
@@ -108,7 +89,29 @@ export class FieldImageDropdown extends FieldDropdown implements FieldCustom {
             e.preventDefault();
             e.stopPropagation();
         });
+    }
 
+    /**
+     * Create a dropdown menu under the text.
+     * @private
+     */
+    public showEditor_() {
+        // If there is an existing drop-down we own, this is a request to hide the drop-down.
+        if (Blockly.DropDownDiv.hideIfOwner(this)) {
+            return;
+        }
+        // If there is an existing drop-down someone else owns, hide it immediately and clear it.
+        Blockly.DropDownDiv.hideWithoutAnimation();
+        Blockly.DropDownDiv.clearContent();
+        // Populate the drop-down with the icons for this field.
+        let dropdownDiv = Blockly.DropDownDiv.getContentDiv() as HTMLElement;
+        let contentDiv = document.createElement('div');
+        // Accessibility properties
+        contentDiv.setAttribute('role', 'menu');
+        contentDiv.setAttribute('aria-haspopup', 'true');
+        contentDiv.setAttribute('tabindex', '0');
+        contentDiv.setAttribute('class', 'blocklyMenu');
+        this.addKeyHandler(contentDiv)
         const options = this.getOptions();
         let maxButtonHeight: number = 0;
         for (let i = 0; i < options.length; i++) {
