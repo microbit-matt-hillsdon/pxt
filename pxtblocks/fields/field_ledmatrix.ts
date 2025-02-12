@@ -175,7 +175,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
 
     private initMatrix() {
         if (!this.sourceBlock_.isInsertionMarker()) {
-            this.elt = pxsim.svg.parseString(`<svg xmlns="http://www.w3.org/2000/svg" id="field-matrix" class="blocklyMatrix" tabindex="0" role="grid" aria-colcount="${this.matrixWidth}" aria-rowcount="${this.matrixHeight}" />`);
+            this.elt = pxsim.svg.parseString(`<svg xmlns="http://www.w3.org/2000/svg" id="field-matrix" class="blocklyMatrix" tabindex="0" role="grid" />`);
 
             // Initialize the matrix that holds the state
             for (let i = 0; i < this.matrixWidth; i++) {
