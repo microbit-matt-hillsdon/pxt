@@ -45,6 +45,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
     private elt: SVGSVGElement;
 
     private currentDragState_: boolean;
+    private selected: number[] | undefined = undefined;
 
     constructor(text: string, params: any, validator?: Blockly.FieldValidator) {
         super(text, validator);
@@ -80,17 +81,101 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             this.scale = 0.9;
     }
 
+    keyHandler(e: KeyboardEvent) {
+        if (!this.selected) {
+            return
+        }
+        const [x, y] = this.selected;
+        switch(e.key) {
+            case "ArrowUp": {
+                if (y !== 0) {
+                    this.selected = [x, y - 1]
+                }
+                break;
+            }
+            case "ArrowDown": {
+                if (y !== this.cells[0].length - 1) {
+                    this.selected = [x, y + 1]
+                }
+                break;
+            }
+            case "ArrowLeft": {
+                if (x !== 0) {
+                    this.selected = [x - 1, y]
+                } else if (y !== 0){
+                    this.selected = [this.matrixWidth - 1, y - 1]
+                }
+                break;
+            }
+            case "ArrowRight": {
+                if (x !== this.cells.length - 1) {
+                    this.selected = [x + 1, y]
+                } else if (y !== this.matrixHeight - 1) {
+                    this.selected = [0, y + 1]
+                }
+                break;
+            }
+            case "Home": {
+                if (e.ctrlKey) {
+                    this.selected = [0, 0]
+                } else {
+                    this.selected = [0, y]
+                }
+                break;
+            }
+            case "End": {
+                if (e.ctrlKey) {
+                    this.selected = [this.matrixWidth - 1, this.matrixHeight - 1]
+                } else {
+                    this.selected = [this.matrixWidth - 1, y]
+                }
+                break;
+            }
+            case "Enter":
+            case " ": {
+                this.toggleRect(x, y, !this.cellState[x][y]);
+                break;
+            }
+            case "Escape": {
+                (Blockly.getMainWorkspace() as Blockly.WorkspaceSvg).markFocused();
+                return;
+            }
+            default: {
+                return
+            }
+        }
+        this.cells.forEach(cell => cell.forEach(cell => cell.classList.remove("selected")));
+        this.cells[this.selected[0]][this.selected[1]].classList.add("selected");
+        this.elt.setAttribute('aria-activedescendant', ":" + this.selected[0] + this.selected[1]);
+
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    blurHandler() {
+        this.elt.removeEventListener("keydown", this.keyHandler)
+        this.elt.removeEventListener("blur", this.blurHandler)
+        if (this.selected) {
+            this.cells[this.selected[0]][this.selected[1]].classList.remove("selected");
+            this.selected = undefined;
+        }
+        this.elt.removeAttribute('aria-activedescendant');
+    }
+
     /**
      * Show the inline free-text editor on top of the text.
      * @private
      */
     showEditor_() {
-        // Intentionally left empty
+        this.selected = [0, 0];
+        this.cells[0][0].classList.add("selected");
+        this.elt.setAttribute('aria-activedescendant', ":" + this.selected[0] + this.selected[1]);
+        this.elt.focus();
     }
 
     private initMatrix() {
         if (!this.sourceBlock_.isInsertionMarker()) {
-            this.elt = pxsim.svg.parseString(`<svg xmlns="http://www.w3.org/2000/svg" id="field-matrix" />`);
+            this.elt = pxsim.svg.parseString(`<svg xmlns="http://www.w3.org/2000/svg" id="field-matrix" class="blocklyMatrix" tabindex="0" role="grid" aria-colcount="${this.matrixWidth}" aria-rowcount="${this.matrixHeight}" />`);
 
             // Initialize the matrix that holds the state
             for (let i = 0; i < this.matrixWidth; i++) {
@@ -105,8 +190,9 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
 
             // Create the cells of the matrix that is displayed
             for (let i = 0; i < this.matrixWidth; i++) {
+                const row = this.createRow()
                 for (let j = 0; j < this.matrixHeight; j++) {
-                    this.createCell(i, j);
+                    this.createCell(j, i, row);
                 }
             }
 
@@ -132,6 +218,8 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             }
 
             this.fieldGroup_.replaceChild(this.elt, this.fieldGroup_.firstChild);
+            this.elt.addEventListener("keydown", this.keyHandler.bind(this));
+            this.elt.addEventListener("blur", this.blurHandler.bind(this));
         }
     }
 
@@ -179,20 +267,26 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
         super.updateEditable();
     }
 
-    private createCell(x: number, y: number) {
+    private createRow() {
+        const row = pxsim.svg.child(this.elt, "g", { 'role': 'row' }) as SVGGElement;
+        return row;
+    }
+
+    private createCell(x: number, y: number, row: SVGGElement) {
         const tx = this.scale * x * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_HORIZONTAL_MARGIN) + FieldMatrix.CELL_HORIZONTAL_MARGIN + this.getYAxisWidth();
         const ty = this.scale * y * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_VERTICAL_MARGIN) + FieldMatrix.CELL_VERTICAL_MARGIN;
 
-        const cellG = pxsim.svg.child(this.elt, "g", { transform: `translate(${tx} ${ty})` }) as SVGGElement;
+        const cellG = pxsim.svg.child(row, "g", { transform: `translate(${tx} ${ty})` }) as SVGGElement;
         const cellRect = pxsim.svg.child(cellG, "rect", {
+            'id': ':' + x + y, // For aria-activedescendant
             'class': `blocklyLed${this.cellState[x][y] ? 'On' : 'Off'}`,
+            'role': 'gridcell',
             width: this.scale * FieldMatrix.CELL_WIDTH, height: this.scale * FieldMatrix.CELL_WIDTH,
             fill: this.getColor(x, y),
             'data-x': x,
             'data-y': y,
             rx: Math.max(2, this.scale * FieldMatrix.CELL_CORNER_RADIUS) }) as SVGRectElement;
         this.cells[x][y] = cellRect;
-
         if ((this.sourceBlock_.workspace as any).isFlyout) return;
 
         pxsim.pointerEvents.down.forEach(evid => cellRect.addEventListener(evid, (ev: MouseEvent) => {
@@ -220,8 +314,8 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
         }, false));
     }
 
-    private toggleRect = (x: number, y: number) => {
-        this.cellState[x][y] = this.currentDragState_;
+    private toggleRect = (x: number, y: number, value?: boolean) => {
+        this.cellState[x][y] = value ?? this.currentDragState_;
         this.updateValue();
     }
 
@@ -261,7 +355,8 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
         const cellRect = this.cells[x][y];
         cellRect.setAttribute("fill", this.getColor(x, y));
         cellRect.setAttribute("fill-opacity", this.getOpacity(x, y));
-        cellRect.setAttribute('class', `blocklyLed${this.cellState[x][y] ? 'On' : 'Off'}`);
+        cellRect.classList.remove("blocklyLedOn", "blocklyLedOff");
+        cellRect.classList.add(`blocklyLed${this.cellState[x][y] ? 'On' : 'Off'}`);
     }
 
     setValue(newValue: string | number, restoreState = true) {
@@ -287,10 +382,9 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             this.initMatrix();
         }
 
-
         // The height and width must be set by the render function
         this.size_.height = this.scale * Number(this.matrixHeight) * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_VERTICAL_MARGIN) + FieldMatrix.CELL_VERTICAL_MARGIN * 2 + FieldMatrix.BOTTOM_MARGIN + this.getXAxisHeight()
-        this.size_.width = this.scale * Number(this.matrixWidth) * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_HORIZONTAL_MARGIN) + this.getYAxisWidth();
+        this.size_.width = this.scale * Number(this.matrixWidth) * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_HORIZONTAL_MARGIN) + FieldMatrix.CELL_HORIZONTAL_MARGIN + this.getYAxisWidth() ;
     }
 
     // The return value of this function is inserted in the code
@@ -366,3 +460,13 @@ function removeQuotes(str: string) {
     }
     return str;
 }
+
+Blockly.Css.register(`
+.blocklyMatrix:focus-visible {
+    outline: none;
+}
+
+.blocklyMatrix .selected {
+    outline: 4px solid black;
+}
+`)
