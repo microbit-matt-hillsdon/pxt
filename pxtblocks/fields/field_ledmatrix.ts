@@ -102,12 +102,16 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             case "ArrowLeft": {
                 if (x !== 0) {
                     this.selected = [x - 1, y]
+                } else if (y !== 0){
+                    this.selected = [this.matrixWidth - 1, y - 1]
                 }
                 break;
             }
             case "ArrowRight": {
                 if (x !== this.cells.length - 1) {
                     this.selected = [x + 1, y]
+                } else if (y !== this.matrixHeight - 1) {
+                    this.selected = [0, y + 1]
                 }
                 break;
             }
@@ -283,7 +287,6 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             'data-y': y,
             rx: Math.max(2, this.scale * FieldMatrix.CELL_CORNER_RADIUS) }) as SVGRectElement;
         this.cells[x][y] = cellRect;
-
         if ((this.sourceBlock_.workspace as any).isFlyout) return;
 
         pxsim.pointerEvents.down.forEach(evid => cellRect.addEventListener(evid, (ev: MouseEvent) => {
@@ -381,7 +384,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
 
         // The height and width must be set by the render function
         this.size_.height = this.scale * Number(this.matrixHeight) * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_VERTICAL_MARGIN) + FieldMatrix.CELL_VERTICAL_MARGIN * 2 + FieldMatrix.BOTTOM_MARGIN + this.getXAxisHeight()
-        this.size_.width = this.scale * Number(this.matrixWidth) * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_HORIZONTAL_MARGIN) + this.getYAxisWidth();
+        this.size_.width = this.scale * Number(this.matrixWidth) * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_HORIZONTAL_MARGIN) + FieldMatrix.CELL_HORIZONTAL_MARGIN + this.getYAxisWidth() ;
     }
 
     // The return value of this function is inserted in the code
@@ -464,6 +467,6 @@ Blockly.Css.register(`
 }
 
 .blocklyMatrix .selected {
-    outline: 3px solid black;
+    outline: 4px solid black;
 }
 `)
