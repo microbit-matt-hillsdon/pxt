@@ -86,6 +86,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             return
         }
         const [x, y] = this.selected;
+        const ctrlCmd = pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey;
         switch(e.key) {
             case "ArrowUp": {
                 if (y !== 0) {
@@ -116,7 +117,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
                 break;
             }
             case "Home": {
-                if (e.ctrlKey) {
+                if (ctrlCmd) {
                     this.selected = [0, 0]
                 } else {
                     this.selected = [0, y]
@@ -124,7 +125,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
                 break;
             }
             case "End": {
-                if (e.ctrlKey) {
+                if (ctrlCmd) {
                     this.selected = [this.matrixWidth - 1, this.matrixHeight - 1]
                 } else {
                     this.selected = [this.matrixWidth - 1, y]
@@ -175,7 +176,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
 
     private initMatrix() {
         if (!this.sourceBlock_.isInsertionMarker()) {
-            this.elt = pxsim.svg.parseString(`<svg xmlns="http://www.w3.org/2000/svg" id="field-matrix" class="blocklyMatrix" tabindex="0" role="grid" />`);
+            this.elt = pxsim.svg.parseString(`<svg xmlns="http://www.w3.org/2000/svg" id="field-matrix" class="blocklyMatrix" tabindex="-1" role="grid" />`);
 
             // Initialize the matrix that holds the state
             for (let i = 0; i < this.matrixWidth; i++) {
