@@ -81,7 +81,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             this.scale = 0.9;
     }
 
-    keyHandler(e: KeyboardEvent) {
+    private keyHandler(e: KeyboardEvent) {
         if (!this.selected) {
             return
         }
@@ -145,22 +145,28 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
                 return
             }
         }
-        this.cells.forEach(cell => cell.forEach(cell => cell.classList.remove("selected")));
-        this.cells[this.selected[0]][this.selected[1]].classList.add("selected");
-        this.elt.setAttribute('aria-activedescendant', ":" + this.selected[0] + this.selected[1]);
-
+        this.setFocusIndicator(this.cells[this.selected[0]][this.selected[1]]);
+        // Order of `this.selected` for activedescendant is reversed by design.
+        this.elt.setAttribute('aria-activedescendant', ":" + this.selected[1] + this.selected[0]);
         e.preventDefault();
         e.stopPropagation();
     }
 
-    blurHandler() {
+    private blurHandler() {
         this.elt.removeEventListener("keydown", this.keyHandler)
         this.elt.removeEventListener("blur", this.blurHandler)
         if (this.selected) {
-            this.cells[this.selected[0]][this.selected[1]].classList.remove("selected");
+            this.setFocusIndicator();
             this.selected = undefined;
         }
         this.elt.removeAttribute('aria-activedescendant');
+    }
+
+    private setFocusIndicator(cell?: SVGRectElement) {
+        this.cells.forEach(cell => cell.forEach(cell => cell.nextElementSibling.firstElementChild.classList.remove("selected")));
+        if (cell) {
+            cell.nextElementSibling.firstElementChild.classList.add("selected");
+        }
     }
 
     /**
@@ -169,8 +175,8 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
      */
     showEditor_() {
         this.selected = [0, 0];
-        this.cells[0][0].classList.add("selected");
-        this.elt.setAttribute('aria-activedescendant', ":" + this.selected[0] + this.selected[1]);
+        this.setFocusIndicator(this.cells[0][0])
+        this.elt.setAttribute('aria-activedescendant', ":00");
         this.elt.focus();
     }
 
@@ -279,7 +285,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
 
         const cellG = pxsim.svg.child(row, "g", { transform: `translate(${tx} ${ty})` }) as SVGGElement;
         const cellRect = pxsim.svg.child(cellG, "rect", {
-            'id': ':' + x + y, // For aria-activedescendant
+            'id': ':' + y + x, // For aria-activedescendant
             'class': `blocklyLed${this.cellState[x][y] ? 'On' : 'Off'}`,
             'role': 'gridcell',
             width: this.scale * FieldMatrix.CELL_WIDTH, height: this.scale * FieldMatrix.CELL_WIDTH,
@@ -288,6 +294,20 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             'data-y': y,
             rx: Math.max(2, this.scale * FieldMatrix.CELL_CORNER_RADIUS) }) as SVGRectElement;
         this.cells[x][y] = cellRect;
+
+        // Used for focus-visible styling.
+        const foreignObject = pxsim.svg.child(cellG, "foreignObject", {
+            transform: 'translate(-4, -4)',
+            width: this.scale * FieldMatrix.CELL_WIDTH + 8,
+            height: this.scale * FieldMatrix.CELL_WIDTH + 8,
+        });
+        foreignObject.style.pointerEvents = "none";
+        const div = document.createElement("div");
+        div.classList.add("blocklyLedFocusIndicator");
+        div.style.borderRadius = `${Math.max(2, this.scale * FieldMatrix.CELL_CORNER_RADIUS)}px`;
+        div.setAttribute("aria-hidden", "true");
+        foreignObject.append(div);
+
         if ((this.sourceBlock_.workspace as any).isFlyout) return;
 
         pxsim.pointerEvents.down.forEach(evid => cellRect.addEventListener(evid, (ev: MouseEvent) => {
@@ -312,6 +332,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
 
             ev.stopPropagation();
             ev.preventDefault();
+            this.elt.blur();
         }, false));
     }
 
@@ -467,7 +488,12 @@ Blockly.Css.register(`
     outline: none;
 }
 
-.blocklyMatrix .selected {
-    outline: 4px solid black;
+.blocklyMatrix .blocklyLedFocusIndicator {
+    border: 4px solid transparent;
+    height: 100%;
+}
+
+.blocklyMatrix .blocklyLedFocusIndicator.selected {
+    border-color: black;
 }
 `)
