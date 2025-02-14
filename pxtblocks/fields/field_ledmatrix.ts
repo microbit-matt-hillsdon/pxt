@@ -278,15 +278,14 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
     }
 
     private createRow() {
-        const row = pxsim.svg.child(this.elt, "g", { 'role': 'row' }) as SVGGElement;
-        return row;
+        return pxsim.svg.child(this.elt, "g", { 'role': 'row' });
     }
 
-    private createCell(x: number, y: number, row: SVGGElement) {
+    private createCell(x: number, y: number, row: SVGElement) {
         const tx = this.scale * x * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_HORIZONTAL_MARGIN) + FieldMatrix.CELL_HORIZONTAL_MARGIN + this.getYAxisWidth();
         const ty = this.scale * y * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_VERTICAL_MARGIN) + FieldMatrix.CELL_VERTICAL_MARGIN;
 
-        const cellG = pxsim.svg.child(row, "g", { transform: `translate(${tx} ${ty})`, 'role': 'gridcell' }) as SVGGElement;
+        const cellG = pxsim.svg.child(row, "g", { transform: `translate(${tx} ${ty})`, 'role': 'gridcell' });
         const cellRect = pxsim.svg.child(cellG, "rect", {
             'id': `${this.sourceBlock_.id}:${x}${y}`, // For aria-activedescendant
             'class': `blocklyLed${this.cellState[x][y] ? 'On' : 'Off'}`,
@@ -301,7 +300,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             rx: Math.max(2, this.scale * FieldMatrix.CELL_CORNER_RADIUS) }) as SVGRectElement;
         this.cells[x][y] = cellRect;
 
-        // Used for focus-visible styling.
+        // Used for focus indicator.
         const foreignObject = pxsim.svg.child(cellG, "foreignObject", {
             transform: 'translate(-4, -4)',
             width: this.scale * FieldMatrix.CELL_WIDTH + 8,
@@ -382,8 +381,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
         const cellRect = this.cells[x][y];
         cellRect.setAttribute("fill", this.getColor(x, y));
         cellRect.setAttribute("fill-opacity", this.getOpacity(x, y));
-        cellRect.classList.remove("blocklyLedOn", "blocklyLedOff");
-        cellRect.classList.add(`blocklyLed${this.cellState[x][y] ? 'On' : 'Off'}`);
+        cellRect.setAttribute('class', `blocklyLed${this.cellState[x][y] ? 'On' : 'Off'}`);
         cellRect.setAttribute("aria-checked", this.cellState[x][y].toString());
     }
 
@@ -412,7 +410,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
 
         // The height and width must be set by the render function
         this.size_.height = this.scale * Number(this.matrixHeight) * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_VERTICAL_MARGIN) + FieldMatrix.CELL_VERTICAL_MARGIN * 2 + FieldMatrix.BOTTOM_MARGIN + this.getXAxisHeight()
-        this.size_.width = this.scale * Number(this.matrixWidth) * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_HORIZONTAL_MARGIN) + FieldMatrix.CELL_HORIZONTAL_MARGIN + this.getYAxisWidth() ;
+        this.size_.width = this.scale * Number(this.matrixWidth) * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_HORIZONTAL_MARGIN) + FieldMatrix.CELL_HORIZONTAL_MARGIN + this.getYAxisWidth();
     }
 
     // The return value of this function is inserted in the code
