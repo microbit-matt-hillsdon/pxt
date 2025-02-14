@@ -87,19 +87,22 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
         }
         const [x, y] = this.selected;
         const ctrlCmd = pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey;
-        switch(e.key) {
+        switch(e.code) {
+            case "KeyW":
             case "ArrowUp": {
                 if (y !== 0) {
                     this.selected = [x, y - 1]
                 }
                 break;
             }
+            case "KeyS":
             case "ArrowDown": {
                 if (y !== this.cells[0].length - 1) {
                     this.selected = [x, y + 1]
                 }
                 break;
             }
+            case "KeyA":
             case "ArrowLeft": {
                 if (x !== 0) {
                     this.selected = [x - 1, y]
@@ -108,6 +111,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
                 }
                 break;
             }
+            case "KeyD":
             case "ArrowRight": {
                 if (x !== this.cells.length - 1) {
                     this.selected = [x + 1, y]
@@ -133,7 +137,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
                 break;
             }
             case "Enter":
-            case " ": {
+            case "Space": {
                 this.toggleRect(x, y, !this.cellState[x][y]);
                 break;
             }
@@ -146,8 +150,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             }
         }
         this.setFocusIndicator(this.cells[this.selected[0]][this.selected[1]]);
-        // Order of `this.selected` for activedescendant is reversed by design.
-        this.elt.setAttribute('aria-activedescendant', ":" + this.selected[1] + this.selected[0]);
+        this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${this.selected[0]}${this.selected[1]}`);
         e.preventDefault();
         e.stopPropagation();
     }
@@ -176,13 +179,13 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
     showEditor_() {
         this.selected = [0, 0];
         this.setFocusIndicator(this.cells[0][0])
-        this.elt.setAttribute('aria-activedescendant', ":00");
+        this.elt.setAttribute('aria-activedescendant', this.sourceBlock_.id + ":00");
         this.elt.focus();
     }
 
     private initMatrix() {
         if (!this.sourceBlock_.isInsertionMarker()) {
-            this.elt = pxsim.svg.parseString(`<svg xmlns="http://www.w3.org/2000/svg" id="field-matrix" class="blocklyMatrix" tabindex="-1" role="grid" />`);
+            this.elt = pxsim.svg.parseString(`<svg xmlns="http://www.w3.org/2000/svg" id="field-matrix" class="blocklyMatrix" tabindex="-1" role="grid" aria-label="${lf("LED matrix")}" />`);
 
             // Initialize the matrix that holds the state
             for (let i = 0; i < this.matrixWidth; i++) {
@@ -196,10 +199,10 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             this.restoreStateFromString();
 
             // Create the cells of the matrix that is displayed
-            for (let i = 0; i < this.matrixWidth; i++) {
+            for (let y = 0; y < this.matrixHeight; y++) {
                 const row = this.createRow()
-                for (let j = 0; j < this.matrixHeight; j++) {
-                    this.createCell(j, i, row);
+                for (let x = 0; x < this.matrixWidth; x++) {
+                    this.createCell(x, y, row);
                 }
             }
 
@@ -283,11 +286,14 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
         const tx = this.scale * x * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_HORIZONTAL_MARGIN) + FieldMatrix.CELL_HORIZONTAL_MARGIN + this.getYAxisWidth();
         const ty = this.scale * y * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_VERTICAL_MARGIN) + FieldMatrix.CELL_VERTICAL_MARGIN;
 
-        const cellG = pxsim.svg.child(row, "g", { transform: `translate(${tx} ${ty})` }) as SVGGElement;
+        const cellG = pxsim.svg.child(row, "g", { transform: `translate(${tx} ${ty})`, 'role': 'gridcell' }) as SVGGElement;
         const cellRect = pxsim.svg.child(cellG, "rect", {
-            'id': ':' + y + x, // For aria-activedescendant
+            'id': `${this.sourceBlock_.id}:${x}${y}`, // For aria-activedescendant
             'class': `blocklyLed${this.cellState[x][y] ? 'On' : 'Off'}`,
-            'role': 'gridcell',
+            'aria-label': lf("LED"),
+            'role': 'switch',
+            'aria-checked': this.cellState[x][y].toString(),
+            'aria-readonly': this.sourceBlock_.isEditable(),
             width: this.scale * FieldMatrix.CELL_WIDTH, height: this.scale * FieldMatrix.CELL_WIDTH,
             fill: this.getColor(x, y),
             'data-x': x,
@@ -305,7 +311,6 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
         const div = document.createElement("div");
         div.classList.add("blocklyLedFocusIndicator");
         div.style.borderRadius = `${Math.max(2, this.scale * FieldMatrix.CELL_CORNER_RADIUS)}px`;
-        div.setAttribute("aria-hidden", "true");
         foreignObject.append(div);
 
         if ((this.sourceBlock_.workspace as any).isFlyout) return;
@@ -379,6 +384,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
         cellRect.setAttribute("fill-opacity", this.getOpacity(x, y));
         cellRect.classList.remove("blocklyLedOn", "blocklyLedOff");
         cellRect.classList.add(`blocklyLed${this.cellState[x][y] ? 'On' : 'Off'}`);
+        cellRect.setAttribute("aria-checked", this.cellState[x][y].toString());
     }
 
     setValue(newValue: string | number, restoreState = true) {
