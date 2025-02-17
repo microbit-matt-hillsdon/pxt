@@ -155,14 +155,22 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
         e.stopPropagation();
     }
 
-    private blurHandler() {
-        this.elt.removeEventListener("keydown", this.keyHandler)
-        this.elt.removeEventListener("blur", this.blurHandler)
+    private clearSelection() {
         if (this.selected) {
             this.setFocusIndicator();
             this.selected = undefined;
         }
         this.elt.removeAttribute('aria-activedescendant');
+    }
+
+    private removeKeyboardFocusHandlers() {
+        this.elt.removeEventListener("keydown", this.keyHandler)
+        this.elt.removeEventListener("blur", this.blurHandler)
+    }
+
+    private blurHandler() {
+        this.removeKeyboardFocusHandlers();
+        this.clearSelection();
     }
 
     private setFocusIndicator(cell?: SVGRectElement) {
@@ -300,7 +308,9 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             rx: Math.max(2, this.scale * FieldMatrix.CELL_CORNER_RADIUS) }) as SVGRectElement;
         this.cells[x][y] = cellRect;
 
-        // Used for focus indicator.
+        // Borders and box-shadow do not work in this context and outlines do not follow border-radius.
+        // Stroke is harder to manage given the difference in stroke for an LED when it is on vs off.
+        // This foreignObject/div is used to create a focus indicator for the LED when selected via keyboard navigation.
         const foreignObject = pxsim.svg.child(cellG, "foreignObject", {
             transform: 'translate(-4, -4)',
             width: this.scale * FieldMatrix.CELL_WIDTH + 8,
@@ -336,7 +346,9 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
 
             ev.stopPropagation();
             ev.preventDefault();
-            this.elt.blur();
+            // Clear event listeners and selection used for keyboard navigation.
+            this.removeKeyboardFocusHandlers();
+            this.clearSelection();
         }, false));
     }
 
