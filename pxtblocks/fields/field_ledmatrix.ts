@@ -149,8 +149,9 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
                 return
             }
         }
-        this.setFocusIndicator(this.cells[this.selected[0]][this.selected[1]]);
-        this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${this.selected[0]}${this.selected[1]}`);
+        const [newX, newY] = this.selected;
+        this.setFocusIndicator(this.cells[newX][newY], this.cellState[newX][newY]);
+        this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${newX}${newY}`);
         e.preventDefault();
         e.stopPropagation();
     }
@@ -173,10 +174,11 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
         this.clearSelection();
     }
 
-    private setFocusIndicator(cell?: SVGRectElement) {
-        this.cells.forEach(cell => cell.forEach(cell => cell.nextElementSibling.firstElementChild.classList.remove("selected")));
+    private setFocusIndicator(cell?: SVGRectElement, ledOn?: boolean) {
+        this.cells.forEach(cell => cell.forEach(cell => cell.nextElementSibling.firstElementChild.classList.remove("selectedLedOn", "selectedLedOff")));
         if (cell) {
-            cell.nextElementSibling.firstElementChild.classList.add("selected");
+            const className = ledOn ? "selectedLedOn" : "selectedLedOff"
+            cell.nextElementSibling.firstElementChild.classList.add(className);
         }
     }
 
@@ -186,7 +188,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
      */
     showEditor_() {
         this.selected = [0, 0];
-        this.setFocusIndicator(this.cells[0][0])
+        this.setFocusIndicator(this.cells[0][0], this.cellState[0][0])
         this.elt.setAttribute('aria-activedescendant', this.sourceBlock_.id + ":00");
         this.elt.focus();
     }
@@ -509,7 +511,19 @@ Blockly.Css.register(`
     height: 100%;
 }
 
-.blocklyMatrix .blocklyLedFocusIndicator.selected {
-    border-color: black;
+.blocklyMatrix .blocklyLedFocusIndicator.selectedLedOn,
+.blocklyMatrix .blocklyLedFocusIndicator.selectedLedOff {
+    border-color: white;
+}
+
+.blocklyMatrix .blocklyLedFocusIndicator.selectedLedOn:after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    border: 2px solid black;
+    border-radius: inherit;
 }
 `)
