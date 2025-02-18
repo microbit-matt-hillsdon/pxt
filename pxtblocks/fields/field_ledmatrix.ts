@@ -302,7 +302,6 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             'aria-label': lf("LED"),
             'role': 'switch',
             'aria-checked': this.cellState[x][y].toString(),
-            'aria-readonly': this.sourceBlock_.isEditable(),
             width: this.scale * FieldMatrix.CELL_WIDTH, height: this.scale * FieldMatrix.CELL_WIDTH,
             fill: this.getColor(x, y),
             'data-x': x,
