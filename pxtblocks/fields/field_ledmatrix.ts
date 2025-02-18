@@ -514,15 +514,16 @@ Blockly.Css.register(`
 .blocklyMatrix .blocklyLedFocusIndicator.selectedLedOn,
 .blocklyMatrix .blocklyLedFocusIndicator.selectedLedOff {
     border-color: white;
+    transform: translateZ(0);
 }
 
 .blocklyMatrix .blocklyLedFocusIndicator.selectedLedOn:after {
     content: "";
     position: absolute;
-    top: 2px;
-    left: 2px;
-    right: 2px;
-    bottom: 2px;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
     border: 2px solid black;
     border-radius: inherit;
 }
