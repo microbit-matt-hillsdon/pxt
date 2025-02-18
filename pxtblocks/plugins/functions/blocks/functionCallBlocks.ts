@@ -128,7 +128,7 @@ const FUNCTION_CALL_MIXIN: FunctionCallMixin = {
         if (isVarGet) {
             fieldDom.setAttribute("id", fieldValue);
             const varModel = this.workspace.getVariableById(fieldValue);
-            fieldDom.textContent = varModel ? varModel.name : "";
+            fieldDom.textContent = varModel ? varModel.getName() : "";
         }
         fieldDom.setAttribute("name", fieldName);
         shadowDom.appendChild(fieldDom);
