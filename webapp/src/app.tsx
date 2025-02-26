@@ -1412,6 +1412,10 @@ export class ProjectView
             sd.expand();
         }
     }
+    
+    toggleShortcutDialog() {
+        this.blocksEditor?.toggleShortcutDialog();
+    }
 
     setTutorialInstructionsExpanded(value: boolean): void {
         const tutorialOptions = this.state.tutorialOptions;
