@@ -499,6 +499,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
         } else if (charCode == 27) { // ESCAPE
             // Close the flyout
             this.closeFlyout();
+            this.props.parent.focusWorkspace();
         } else if (charCode == core.ENTER_KEY || charCode == core.SPACE_KEY) {
             const {onCategoryClick, treeRow, index} = this.selectedItem.props;
             if (onCategoryClick) {
