@@ -161,10 +161,12 @@
                     font-weight: 500;
                     border-bottom: 1px solid fade(@primaryColor, 0%);
                     transition: border-color 400ms ease;
-                    &:hover, &:focus-visible {
+                    &:hover, &:focus {
                         border-color: @primaryColor;
-                        border: 2px solid white;
+                    }
+                    &:focus-visible {
                         outline: @homeCardBorderSize solid @homeCardFocusBorderColor !important;
+                        outline-offset: 2px;
                     }
                 }
             }
