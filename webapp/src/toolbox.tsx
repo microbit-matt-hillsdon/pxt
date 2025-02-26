@@ -463,8 +463,8 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
             if (!this.rootElement) return;
             if (this.selectedItem && this.selectedItem.getTreeRow()) {
                 // 'Focus' the selected item
-                const selectedItem = this.selectedItem.props.treeRow;
-                const selectedItemIndex = this.items.findIndex(item => item.nameid === selectedItem.nameid)
+                const selectedItemIndex = this.selectedItem.props.selectedIndex;
+                const selectedItem = this.items[selectedItemIndex];
                 this.setSelection(selectedItem, selectedItemIndex, true);
             } else {
                 // 'Focus' first item in the toolbox
