@@ -234,6 +234,10 @@ pre {
     }
 }
 
+.editor-sidebar .simtoolbar .ui.button:focus-visible {
+    outline: @homeCardBorderSize solid @homeCardFocusBorderColor !important;
+}
+
 #downloadArea {
     margin: unset;
 
@@ -247,6 +251,13 @@ pre {
         background-color: var(--pxt-primary-background-hover) !important;
         color: var(--pxt-primary-foreground-hover) !important;
     }
+}
+
+#downloadArea .button:focus-visible,
+#editortools .button:focus-visible
+{
+    outline: @homeCardBorderSize solid @homeCardFocusBorderColor !important;
+    outline-offset: 2px;
 }
 
 #editorToolbarArea {
@@ -711,6 +722,9 @@ div.simframe > iframe {
     left: -21px;
     top: calc(~'40% - 2.4rem');
     height: calc(~'20% + 0.8rem');
+    &:focus-visible {
+        outline: @homeCardBorderSize solid @homeCardFocusBorderColor !important;
+    }
 }
 
 .collapsedEditorTools #computertogglesim,

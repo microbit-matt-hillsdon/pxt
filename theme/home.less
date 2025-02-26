@@ -90,6 +90,9 @@
 
         .action {
             margin: 1rem 0;
+            a:focus-visible, button:focus-visible {
+                outline: calc(@homeHeaderBorderSize + 1px) solid @homeHeaderSelectedBorderColor;
+            }
         }
 
         .dots button {
@@ -152,6 +155,10 @@
                     &:hover, &:focus {
                         border-color: var(--pxt-primary-background);
                     }
+                    &:focus-visible {
+                        outline: @homeCardBorderSize solid @homeCardFocusBorderColor !important;
+                        outline-offset: 2px;
+                    }
                 }
             }
         }
@@ -173,6 +180,10 @@
     .import-dialog-btn {
         position: relative;
         z-index: 1; /* Move up so it's above the carousel container that has an offset margin */
+        &:focus-visible {
+            outline: @homeCardBorderSize solid @homeCardFocusBorderColor !important;
+            outline-offset: 2px;
+        }
     }
     /* Footer, Privary, Terms of Use */
     .homefooter {
