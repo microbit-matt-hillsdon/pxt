@@ -1953,6 +1953,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
     onToolboxBlurCapture(): void {
         if (this.keyboardNavigation) {
+            this.toolbox.clearSelection()
             this.keyboardNavigation.onExternalToolboxBlur()
         }
     }
