@@ -1048,6 +1048,7 @@ declare namespace pxt.editor {
         showKeymap(show: boolean): void;
         toggleKeymap(): void;
         signOutGithub(): void;
+        toggleShortcutDialog(): void;
 
         showReportAbuse(): void;
         showLanguagePicker(): void;

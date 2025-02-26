@@ -290,6 +290,10 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         (block.getField(asset.meta.temporaryInfo.fieldName) as pxtblockly.FieldAssetEditor<any, any>).updateAsset(asset);
     }
 
+    toggleShortcutDialog() {
+        this.keyboardNavigation.toggleShortcutDialog();
+    }
+
     private saveBlockly(): string {
         // make sure we don't return an empty document before we get started
         // otherwise it may get saved and we're in trouble
