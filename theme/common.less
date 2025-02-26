@@ -223,8 +223,7 @@ pre {
     transition-timing-function: linear;
 }
 
-.editor-sidebar .simtoolbar .ui.button:focus {
-    border: 2px solid transparent;
+.editor-sidebar .simtoolbar .ui.button:focus-visible {
     outline: @homeCardBorderSize solid @homeCardFocusBorderColor !important;
 }
 
@@ -236,11 +235,11 @@ pre {
     }
 }
 
-#downloadArea .button:focus,
-#editortools .button:focus
+#downloadArea .button:focus-visible,
+#editortools .button:focus-visible
 {
-    border: 2px solid white;
     outline: @homeCardBorderSize solid @homeCardFocusBorderColor !important;
+    outline-offset: 2px;
 }
 
 #editorToolbarArea {
@@ -667,8 +666,7 @@ div.simframe > iframe {
     left: -21px;
     top: calc(~'40% - 2.4rem');
     height: calc(~'20% + 0.8rem');
-    &:focus {
-        border: 2px solid transparent;
+    &:focus-visible {
         outline: @homeCardBorderSize solid @homeCardFocusBorderColor !important;
     }
 }
