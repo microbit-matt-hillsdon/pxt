@@ -1412,7 +1412,7 @@ export class ProjectView
             sd.expand();
         }
     }
-    
+
     toggleShortcutDialog() {
         this.blocksEditor?.toggleShortcutDialog();
     }
