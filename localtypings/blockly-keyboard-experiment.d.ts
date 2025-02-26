@@ -14,5 +14,6 @@ declare module "@blockly/keyboard-experiment" {
    focusFlyout(): void;
    onExternalToolboxFocus(): void;
    onExternalToolboxBlur(): void;
+   toggleShortcutDialog(): void;
   }
 }

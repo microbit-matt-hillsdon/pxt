@@ -45,6 +45,10 @@ function startTour(parent: IProjectView) {
     parent.showOnboarding();
 }
 
+function openKeyboardNav(parent: IProjectView) {
+    parent.toggleShortcutDialog();
+}
+
 function renderDocItems(parent: IProjectView, elements: pxt.DocMenuEntry[], cls: string = "") {
     return elements.map(m =>
         m.tutorial ? <DocsMenuItem key={"docsmenututorial" + m.path} role="menuitem" ariaLabel={pxt.Util.rlf(m.name)} text={pxt.Util.rlf(m.name)} className={"ui " + cls} parent={parent} path={m.path} onItemClick={openTutorial} />
@@ -76,6 +80,13 @@ export class DocsMenu extends data.PureComponent<DocsMenuProps, {}> {
         const targetTheme = pxt.appTarget.appTheme;
         return <sui.DropdownMenu role="menuitem" icon="help circle large"
             className="item mobile hide help-dropdown-menuitem" textClass={"landscape only"} title={lf("Help")} >
+            {this.props.editor === "Blocks" && <DocsMenuItem key="keyboardnav"
+                role="menuitem"
+                ariaLabel={pxt.Util.rlf("Keyboard Navigation")}
+                text={pxt.Util.rlf("Keyboard Navigation")}
+                className="ui" parent={parent}
+                onItemClick={() => openKeyboardNav(parent)}
+                path="/keyboardnav" />}
             {targetTheme.tours?.editor && getTourItem(parent)}
             {renderDocItems(parent, targetTheme.docMenu)}
             {getDocsLanguageItem(this.props.editor, parent)}
