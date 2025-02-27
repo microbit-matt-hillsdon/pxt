@@ -452,8 +452,16 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
         this.props.parent.onToolboxFocusCapture();
     }
 
-    handleBlurCapture = () => {
-        this.props.parent.onToolboxBlurCapture();
+    handleBlurCapture = (e: React.FocusEvent<HTMLDivElement>) => {
+        // Make sure we close the flyout if the search input is focussed and there 
+        // is no flyout for search blocks.
+        const searchInputEl = (this.refs.searchbox as React.Component<ToolboxSearch>).refs.searchInput;
+        if (e.relatedTarget === searchInputEl && !this.state.hasSearch) {
+            return this.props.parent.onToolboxBlurCapture();
+        }
+        if (!this.rootElement.contains(e.relatedTarget)) {
+            this.props.parent.onToolboxBlurCapture();
+        }
     }
 
     handleCategoryTreeFocus = (e: React.FocusEvent<HTMLDivElement>) => {
@@ -463,8 +471,8 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
             if (!this.rootElement) return;
             if (this.selectedItem && this.selectedItem.getTreeRow()) {
                 // 'Focus' the selected item
-                const selectedItem = this.selectedItem.props.treeRow;
-                const selectedItemIndex = this.items.findIndex(item => item.nameid === selectedItem.nameid)
+                const selectedItemIndex = this.selectedItem.props.selectedIndex;
+                const selectedItem = this.items[selectedItemIndex];
                 this.setSelection(selectedItem, selectedItemIndex, true);
             } else {
                 // 'Focus' first item in the toolbox
@@ -620,87 +628,40 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                     />
                 }
                 <div className="blocklyTreeRoot">
-                    <div role="tree" tabIndex={0} ref="categoryTree" onFocus={this.handleCategoryTreeFocus} onKeyDown={this.handleKeyDown}>
-                        {tryToDeleteNamespace &&
-                            <DeleteConfirmationModal
-                                ns={tryToDeleteNamespace}
-                                onCancelClick={this.cancelDeleteExtension}
-                                onDeleteClick={this.deleteExtension}
-                            />
-                        }
-                        {hasSearch &&
-                            <CategoryItem
-                                key={"search"}
-                                ref="searchCategory"
-                                toolbox={this}
-                                index={index++}
-                                selectedIndex={this.selectedIndex}
-                                selected={selectedItem == "search"}
-                                treeRow={searchTreeRow}
-                                onCategoryClick={this.onCategoryClick}
-                            />
-                        }
-                        {hasTopBlocks &&
-                            <CategoryItem
-                                key={"topblocks"}
-                                toolbox={this}
-                                selected={selectedItem == "topblocks"}
-                                treeRow={topBlocksTreeRow}
-                                onCategoryClick={this.onCategoryClick}
-                            />
-                        }
-                        {nonAdvancedCategories.map(treeRow =>
-                            <CategoryItem
-                                key={treeRow.nameid}
-                                toolbox={this}
-                                index={index++}
-                                selectedIndex={this.selectedIndex}
-                                selected={selectedItem == treeRow.nameid}
-                                childrenVisible={expandedItem == treeRow.nameid}
-                                treeRow={treeRow}
-                                onCategoryClick={this.onCategoryClick}
-                                topRowIndex={topRowIndex++}
-                                shouldAnimate={this.state.shouldAnimate}
-                                hasDeleteButton={treeRow.allowDelete}
-                                onDeleteClick={this.handleRemoveExtension}
-                            >
-                                {treeRow.subcategories &&
-                                    treeRow.subcategories.map(subTreeRow =>
-                                        <CategoryItem
-                                            key={subTreeRow.nameid + subTreeRow.subns}
-                                            index={index++}
-                                            selectedIndex={this.selectedIndex}
-                                            toolbox={this}
-                                            selected={selectedItem == (subTreeRow.nameid + subTreeRow.subns)}
-                                            treeRow={subTreeRow}
-                                            onCategoryClick={this.onCategoryClick}
-                                        />
-                                    )
-                                }
-                            </CategoryItem>
-                        )}
-                        {hasAdvanced &&
-                            <>
-                                <TreeSeparator key="advancedseparator" />
-                                <CategoryItem
-                                    toolbox={this}
-                                    treeRow={{
-                                        nameid: "",
-                                        name: pxt.toolbox.advancedTitle(),
-                                        color: pxt.toolbox.getNamespaceColor('advanced'),
-                                        icon: pxt.toolbox.getNamespaceIcon(advancedButtonState),
-                                        advancedButtonState: advancedButtonState
-                                    }}
-                                    onCategoryClick={this.advancedClicked}
-                                    topRowIndex={topRowIndex++}
+                    <div role="tree" tabIndex={0} ref="categoryTree" onFocusCapture={this.handleCategoryTreeFocus} onKeyDown={this.handleKeyDown}>
+                        {/* This layer is needed to differentiate between keyboard tab focus and click focus */}
+                        <div className="treeFocus" tabIndex={-1}>
+                            {tryToDeleteNamespace &&
+                                <DeleteConfirmationModal
+                                    ns={tryToDeleteNamespace}
+                                    onCancelClick={this.cancelDeleteExtension}
+                                    onDeleteClick={this.deleteExtension}
                                 />
-                            </>
-                        }
-                        {
-                            advancedCategories.map(treeRow =>
+                            }
+                            {hasSearch &&
+                                <CategoryItem
+                                    key={"search"}
+                                    ref="searchCategory"
+                                    toolbox={this}
+                                    index={index++}
+                                    selectedIndex={this.selectedIndex}
+                                    selected={selectedItem == "search"}
+                                    treeRow={searchTreeRow}
+                                    onCategoryClick={this.onCategoryClick}
+                                />
+                            }
+                            {hasTopBlocks &&
+                                <CategoryItem
+                                    key={"topblocks"}
+                                    toolbox={this}
+                                    selected={selectedItem == "topblocks"}
+                                    treeRow={topBlocksTreeRow}
+                                    onCategoryClick={this.onCategoryClick}
+                                />
+                            }
+                            {nonAdvancedCategories.map(treeRow =>
                                 <CategoryItem
                                     key={treeRow.nameid}
-                                    className={!showAdvanced && "hidden"}
                                     toolbox={this}
                                     index={index++}
                                     selectedIndex={this.selectedIndex}
@@ -708,14 +669,18 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                     childrenVisible={expandedItem == treeRow.nameid}
                                     treeRow={treeRow}
                                     onCategoryClick={this.onCategoryClick}
+                                    topRowIndex={topRowIndex++}
+                                    shouldAnimate={this.state.shouldAnimate}
+                                    hasDeleteButton={treeRow.allowDelete}
+                                    onDeleteClick={this.handleRemoveExtension}
                                 >
                                     {treeRow.subcategories &&
                                         treeRow.subcategories.map(subTreeRow =>
                                             <CategoryItem
-                                                key={subTreeRow.nameid}
-                                                toolbox={this}
+                                                key={subTreeRow.nameid + subTreeRow.subns}
                                                 index={index++}
                                                 selectedIndex={this.selectedIndex}
+                                                toolbox={this}
                                                 selected={selectedItem == (subTreeRow.nameid + subTreeRow.subns)}
                                                 treeRow={subTreeRow}
                                                 onCategoryClick={this.onCategoryClick}
@@ -723,8 +688,54 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                         )
                                     }
                                 </CategoryItem>
-                            )
-                        }
+                            )}
+                            {hasAdvanced &&
+                                <>
+                                    <TreeSeparator key="advancedseparator" />
+                                    <CategoryItem
+                                        toolbox={this}
+                                        treeRow={{
+                                            nameid: "",
+                                            name: pxt.toolbox.advancedTitle(),
+                                            color: pxt.toolbox.getNamespaceColor('advanced'),
+                                            icon: pxt.toolbox.getNamespaceIcon(advancedButtonState),
+                                            advancedButtonState: advancedButtonState
+                                        }}
+                                        onCategoryClick={this.advancedClicked}
+                                        topRowIndex={topRowIndex++}
+                                    />
+                                </>
+                            }
+                            {
+                                advancedCategories.map(treeRow =>
+                                    <CategoryItem
+                                        key={treeRow.nameid}
+                                        className={!showAdvanced && "hidden"}
+                                        toolbox={this}
+                                        index={index++}
+                                        selectedIndex={this.selectedIndex}
+                                        selected={selectedItem == treeRow.nameid}
+                                        childrenVisible={expandedItem == treeRow.nameid}
+                                        treeRow={treeRow}
+                                        onCategoryClick={this.onCategoryClick}
+                                    >
+                                        {treeRow.subcategories &&
+                                            treeRow.subcategories.map(subTreeRow =>
+                                                <CategoryItem
+                                                    key={subTreeRow.nameid}
+                                                    toolbox={this}
+                                                    index={index++}
+                                                    selectedIndex={this.selectedIndex}
+                                                    selected={selectedItem == (subTreeRow.nameid + subTreeRow.subns)}
+                                                    treeRow={subTreeRow}
+                                                    onCategoryClick={this.onCategoryClick}
+                                                />
+                                            )
+                                        }
+                                    </CategoryItem>
+                                )
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1025,7 +1036,7 @@ export class TreeItem extends data.Component<TreeItemProps, {}> {
     renderCore() {
         const { selected, className } = this.props;
         return (
-            <div className={classList(className)} role="treeitem" aria-selected={selected} tabIndex={-1}>
+            <div className={classList(className)} role="treeitem" aria-selected={selected}>
                 {this.props.children}
             </div>
         );
