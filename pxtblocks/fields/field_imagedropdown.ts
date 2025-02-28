@@ -93,6 +93,9 @@ export class FieldImageDropdown extends FieldDropdown implements FieldCustom {
                 case "Enter":
                 case "Space": {
                     this.buttonClick_(this.buttons[this.activeDescendantIndex].getAttribute('data-value'));
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
                 }
                 default: {
                     return
