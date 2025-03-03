@@ -353,7 +353,7 @@ div.simframe > iframe {
 .menubar .ui.menu.fixed .ui.item.editor-menuitem .item.link:hover {
     background: none;
 }
-.menubar .ui.menu.fixed .ui.item.editor-menuitem .item:not(.active) {
+.menubar .ui.menu.fixed .ui.item.editor-menuitem .item:not(.active) * {
     opacity: 0.8;
 }
 .menubar .ui.menu.inverted.fixed .ui.item.editor-menuitem .active.item {
@@ -441,6 +441,15 @@ div.simframe > iframe {
     .toggle.dropdown-attached {
         border-top-right-radius: 0!important;
         border-bottom-right-radius: 0!important;
+    }
+
+    .base-menuitem:focus-visible {
+        outline: 3px solid white;
+        outline-offset: -5px;
+    }
+
+    .base-menuitem.active:focus-visible {
+        outline-color: black;
     }
 }
 
