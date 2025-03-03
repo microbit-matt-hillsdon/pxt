@@ -54,7 +54,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     loadingXml: boolean;
     loadingXmlPromise: Promise<any>;
     compilationResult: pxtblockly.BlockCompilationResult;
-    isFirstLoad = true;
+    shouldFocusWorkspace = false;
     functionsDialog: CreateFunctionDialog = null;
 
     showCategories: boolean = true;
@@ -169,8 +169,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             pxt.Util.toArray(document.querySelectorAll(classes)).forEach((el: HTMLElement) => el.style.display = 'none');
             if (this.editor) Blockly.hideChaff();
             if (this.toolbox) this.toolbox.clearExpandedItem();
-            // Update isFirstLoad here to handle when the app switches to JavaScript or Python immediately.
-            this.isFirstLoad = false;
         }
     }
 
@@ -238,7 +236,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
                     this.resize();
                     Blockly.svgResize(this.editor);
-                    this.isFirstLoad = false;
+                    this.shouldFocusWorkspace = true;
                 }).finally(() => {
                     try {
                         // It's possible Blockly reloads and the loading dimmer is no longer a child of the editorDiv
@@ -335,7 +333,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
             this.typeScriptSaveable = true;
 
-            if (!this.isFirstLoad) {
+            if (this.shouldFocusWorkspace) {
                 this.focusWorkspace();
             }
         } catch (e) {
@@ -1110,9 +1108,10 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             })
     }
 
-    unloadFileAsync(): Promise<void> {
+    unloadFileAsync(unloadToHome?: boolean): Promise<void> {
         this.delayLoadXml = undefined;
         if (this.toolbox) this.toolbox.clearSearch();
+        if (unloadToHome) this.shouldFocusWorkspace = false;
         return Promise.resolve();
     }
 
