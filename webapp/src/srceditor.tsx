@@ -74,7 +74,7 @@ export class Editor implements IEditor {
     snapshotState(): any {
         return null
     }
-    unloadFileAsync(): Promise<void> { return Promise.resolve() }
+    unloadFileAsync(unloadToHome?: boolean): Promise<void> { return Promise.resolve() }
 
     isIncomplete() {
         return false
