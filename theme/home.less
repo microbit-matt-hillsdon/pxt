@@ -93,7 +93,7 @@
             a:focus-visible, button:focus-visible {
                 outline-width: calc(@homeHeaderBorderSize + 1px) !important;
                 outline-style: solid;
-                outline-color: @homeHeaderSelectedBorderColor;
+                outline-color: var(--pxt-neutral-stencil3);
             }
         }
 
@@ -178,7 +178,7 @@
                     &:focus-visible {
                         outline-width: @homeCardBorderSize !important;
                         outline-style: solid;
-                        outline-color: @homeCardFocusBorderColor;
+                        outline-color: var(--pxt-primary-background);
                         outline-offset: 2px;
                     }
                 }
@@ -205,7 +205,7 @@
         &:focus-visible {
             outline-width: @homeCardBorderSize !important;
             outline-style: solid;
-            outline-color: @homeCardFocusBorderColor;
+            outline-color: var(--pxt-primary-background);
             outline-offset: 2px;
         }
     }
