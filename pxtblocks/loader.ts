@@ -608,7 +608,8 @@ function init(blockInfo: pxtc.BlocksInfo) {
     initText();
     initComments();
     initTooltip();
-    initCopyPaste();
+    // FIXME: Disabled while we consider conflict with the keyboard nav plugin
+    // initCopyPaste();
 }
 
 
