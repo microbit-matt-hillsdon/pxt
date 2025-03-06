@@ -448,10 +448,6 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
         this.rootElement = c;
     }
 
-    handleFocusCapture = () => {
-        this.props.parent.onToolboxFocusCapture();
-    }
-
     handleBlurCapture = (e: React.FocusEvent<HTMLDivElement>) => {
         // Make sure we close the flyout if the search input is focussed and there 
         // is no flyout for search blocks.
@@ -612,7 +608,6 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                 ref={this.handleRootElementRef}
                 className={classes}
                 id={`${editorname}EditorToolbox`}
-                onFocusCapture={this.handleFocusCapture}
                 onBlurCapture={this.handleBlurCapture}
             >
                 <ToolboxStyle categories={this.items} />
