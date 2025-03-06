@@ -20,7 +20,6 @@ export abstract class ToolboxEditor extends srceditor.Editor {
      * Hook to allow us to disable Blockly keyboard navigation when our toolbox is focussed.
      * Hopefully this won't be necessary when the flyout takes the focus properly.
      */
-    abstract onToolboxFocusCapture(): void;
     abstract onToolboxBlurCapture(): void;
 
     protected shouldShowBlock(blockId: string, ns: string, shadow?: boolean) {
