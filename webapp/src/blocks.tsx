@@ -1952,12 +1952,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         }
     }
 
-    onToolboxFocusCapture(): void {
-        if (this.keyboardNavigation) {
-            this.keyboardNavigation.onExternalToolboxFocus()
-        }
-    }
-
     onToolboxBlurCapture(): void {
         if (this.keyboardNavigation) {
             this.toolbox.clearSelection()
