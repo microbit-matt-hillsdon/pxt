@@ -58,7 +58,7 @@
     #monacoEditor .blocklyTreeRow,
     #monacoEditor .monacoDraggableBlock {
         &:focus, &:hover {
-            outline: 2px solid @selected !important;
+            outline: @editorFocusBorderSize solid @selected !important;
         }
     }
 
@@ -102,7 +102,7 @@
         #monacoEditor .blocklyTreeRow,
         #monacoEditor .monacoDraggableBlock {
             &:focus, &:hover {
-                outline: 1px solid transparent !important;
+                outline: @editorFocusBorderSize solid transparent !important;
             }
         }
     }
@@ -356,7 +356,7 @@
 
         &:focus, &:hover {
             color: @HCtextColor !important;
-            border-color: @selected !important;
+            outline: @editorFocusBorderSize solid @selected;
             background: @HCbackground !important;
 
             i, span {
