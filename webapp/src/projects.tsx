@@ -161,7 +161,7 @@ export class Projects extends auth.Component<ISettingsProps, ProjectsState> {
                     </div>
                     <div className="column right aligned" style={{ zIndex: 1 }}>
                         {pxt.appTarget.compile || (pxt.appTarget.cloud && pxt.appTarget.cloud.sharing && pxt.appTarget.cloud.importing) ?
-                            <sui.Button key="import" icon="upload" className="import-dialog-btn" textClass="landscape only" text={lf("Import")} title={lf("Import a project")} onClick={this.importProject} /> : undefined}
+                            <sui.Button key="import" icon="upload" className="import-dialog-btn neutral" textClass="landscape only" text={lf("Import")} title={lf("Import a project")} onClick={this.importProject} /> : undefined}
                     </div>
                 </div>
                 <div className="content">
@@ -237,6 +237,7 @@ export class ProjectSettingsMenu extends data.Component<ProjectSettingsMenuProps
 
         this.showLanguagePicker = this.showLanguagePicker.bind(this);
         this.toggleHighContrast = this.toggleHighContrast.bind(this);
+        this.showThemePicker = this.showThemePicker.bind(this);
         this.showResetDialog = this.showResetDialog.bind(this);
         this.showReportAbuse = this.showReportAbuse.bind(this);
         this.showAboutDialog = this.showAboutDialog.bind(this);
@@ -252,6 +253,11 @@ export class ProjectSettingsMenu extends data.Component<ProjectSettingsMenuProps
     toggleHighContrast() {
         pxt.tickEvent("home.togglecontrast", undefined, { interactiveConsent: true });
         core.toggleHighContrast();
+    }
+
+    showThemePicker() {
+        pxt.tickEvent("home.showthemepicker", undefined, { interactiveConsent: true });
+        this.props.parent.showThemePicker();
     }
 
     toggleGreenScreen() {
@@ -296,12 +302,12 @@ export class ProjectSettingsMenu extends data.Component<ProjectSettingsMenuProps
         const githubUser = !hasIdentity && this.getData("github:user") as UserInfo;
         const reportAbuse = pxt.appTarget.cloud && pxt.appTarget.cloud.sharing && pxt.appTarget.cloud.importing;
         const showDivider = targetTheme.selectLanguage || targetTheme.highContrast || githubUser;
-        const showFeedbackOption = pxt.webConfig.ocvEnabled && targetTheme.feedbackEnabled && targetTheme.ocvFrameUrl && targetTheme.ocvAppId;
+        const showFeedbackOption = pxt.U.ocvEnabled();
         sendUpdateFeedbackTheme(highContrast);
 
         return <sui.DropdownMenu role="menuitem" icon={'setting large'} title={lf("Settings")} className="item icon more-dropdown-menuitem" ref={ref => this.dropdown = ref}>
             {targetTheme.selectLanguage && <sui.Item icon='xicon globe' role="menuitem" text={lf("Language")} onClick={this.showLanguagePicker} />}
-            {targetTheme.highContrast && <sui.Item role="menuitem" text={highContrast ? lf("High Contrast Off") : lf("High Contrast On")} onClick={this.toggleHighContrast} />}
+            <sui.Item role="menuitem" icon="paint brush" text={lf("Theme")} onClick={this.showThemePicker} />
             {githubUser && <div className="ui divider"></div>}
             {githubUser && <div className="ui item" title={lf("Unlink {0} from GitHub", githubUser.name)} role="menuitem" onClick={this.signOutGithub}>
                 <div className="avatar" role="presentation">
@@ -313,7 +319,7 @@ export class ProjectSettingsMenu extends data.Component<ProjectSettingsMenuProps
             {reportAbuse ? <sui.Item role="menuitem" icon="warning circle" text={lf("Report Abuse...")} onClick={this.showReportAbuse} /> : undefined}
             <sui.Item role="menuitem" icon='sign out' text={lf("Reset")} onClick={this.showResetDialog} />
             <sui.Item role="menuitem" text={lf("About...")} onClick={this.showAboutDialog} />
-            {showFeedbackOption ? <sui.Item role="menuitem" icon="comment" text={lf("Give Feedback")} onClick={this.showFeedbackDialog} /> : undefined}
+            {showFeedbackOption ? <sui.Item role="menuitem" icon="comment" text={lf("Feedback")} onClick={this.showFeedbackDialog} /> : undefined}
         </sui.DropdownMenu>;
     }
 }
@@ -339,6 +345,7 @@ class HeroBanner extends data.Component<ISettingsProps, HeroBannerState> {
 
     protected handleRefreshCard = (backwards?: boolean) => {
         pxt.debug(`next hero carousel`);
+
         if (this.prevGalleries?.length) {
             const cardIndex = this.state.cardIndex;
             const nextOffset = backwards ? this.prevGalleries.length - 1 : 1;
@@ -516,6 +523,8 @@ class HeroBanner extends data.Component<ISettingsProps, HeroBannerState> {
         return <div className="ui segment getting-started-segment hero"
             style={{ backgroundImage: encodedBkgd }}
             onKeyDown={this.onKeyDown}
+            role="region"
+            aria-label={lf("Banner")}
             onPointerDown={this.onPointerDown} onTouchStart={this.onTouchstart}
             onPointerUp={this.onPointerUp} onTouchEnd={this.onTouchEnd}
         >
@@ -538,9 +547,9 @@ class HeroBanner extends data.Component<ISettingsProps, HeroBannerState> {
                         this.handleCardClick
                     )}
                 </div>}
-                {isGallery && <div key="cards" className="dots">
+                {isGallery && <div key="cards" className="dots" tabIndex={0} role="group" aria-label={lf("Carousel controls")}>
                     {cards.map((card, i) => <button key={"dot" + i} className={`ui button empty circular label  clear ${i === cardIndex && "active"}`}
-                        onClick={handleSetCard(i)} aria-label={lf("View {0} hero image", card.title || card.name)} title={lf("View {0} hero image", card.title || card.name)}>
+                        onClick={handleSetCard(i)} aria-label={lf("View {0} hero image", card.title || card.name)} tabIndex={-1} title={lf("View {0} hero image", card.title || card.name)}>
                     </button>)}
                 </div>}
             </div>

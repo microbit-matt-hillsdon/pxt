@@ -104,6 +104,7 @@ declare namespace pxt.editor {
         | "serviceworkerregistered"
         | "runeval"
         | "precachetutorial"
+        | "setcolorthemebyid"
 
         // package extension messasges
         | ExtInitializeType
@@ -510,6 +511,12 @@ declare namespace pxt.editor {
         body?: any;
     }
 
+    export interface EditorMessageSetColorThemeRequest extends EditorMessageRequest {
+        action: "setcolorthemebyid";
+        colorThemeId: string;
+        savePreference?: boolean;
+    }
+
     /**
      * Events are fired by the editor on the extension iFrame. Extensions
      * receive events, they don't send them.
@@ -812,6 +819,7 @@ declare namespace pxt.editor {
         isMultiplayerGame?: boolean; // Arcade: Does the current project contain multiplayer blocks?
         onboarding?: pxt.tour.BubbleStep[];
         feedback?: FeedbackState;
+        themePickerOpen?: boolean;
     }
 
     export interface EditorState {
@@ -1035,6 +1043,7 @@ declare namespace pxt.editor {
         isEmbedSimActive(): boolean;
         isBlocksActive(): boolean;
         isJavaScriptActive(): boolean;
+        isTextSourceCodeEditorActive(): boolean;
         isPythonActive(): boolean;
         isAssetsActive(): boolean;
 
@@ -1051,6 +1060,7 @@ declare namespace pxt.editor {
 
         showReportAbuse(): void;
         showLanguagePicker(): void;
+        showThemePicker(): void;
         showShareDialog(title?: string, kind?: "multiplayer" | "vscode" | "share"): void;
         showAboutDialog(): void;
         showFeedbackDialog(kind: ocv.FeedbackKind): void;
@@ -1090,6 +1100,7 @@ declare namespace pxt.editor {
         hasHeaderBeenPersistentShared(): boolean;
         getSharePreferenceForHeader(): boolean;
         saveSharePreferenceForHeaderAsync(anonymousByDefault: boolean): Promise<void>;
+        setColorThemeById(colorThemeId: string, savePreference: boolean): void;
     }
 
     export interface IHexFileImporter {
@@ -1156,7 +1167,7 @@ declare namespace pxt.editor {
         perfMeasurementThresholdMs?: number;
         onPerfMilestone?: (payload: { milestone: string, time: number, params?: Map<string> }) => void;
         onPerfMeasurement?: (payload: { name: string, start: number, duration: number, params?: Map<string> }) => void;
-    
+
         // Used with the @tutorialCompleted macro. See docs/writing-docs/tutorials.md for more info
         onTutorialCompleted?: () => void;
         onMarkdownActivityLoad?: (path: string, title?: string, editorProjectName?: string) => Promise<void>;
