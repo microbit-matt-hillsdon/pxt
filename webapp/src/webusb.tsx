@@ -74,8 +74,10 @@ export async function webUsbPairThemedDialogAsync(pairAsync: () => Promise<boole
         if (connected) {
             // plugged in underneath previous dialog, continue;
             core.hideDialog();
-        } else if (!webUsbInstrDialogRes) {
+        } else if (webUsbInstrDialogRes === ShowPairStepResult.Rejected) {
             return notPairedResult();
+        } else if (webUsbInstrDialogRes === ShowPairStepResult.DownloadOnly) {
+            return pxt.commands.WebUSBPairResult.DownloadOnly;
         } else {
             let errMessage: any;
             try {
@@ -121,9 +123,10 @@ export async function webUsbPairThemedDialogAsync(pairAsync: () => Promise<boole
         await showConnectionSuccessAsync(confirmAsync, implicitlyCalled);
     }
     else {
-        const tryAgain = await showConnectionFailureAsync(confirmAsync, implicitlyCalled, lastPairingError);
+        const userResponse = await showConnectionFailureAsync(confirmAsync, implicitlyCalled, lastPairingError);
 
-        if (tryAgain) return webUsbPairThemedDialogAsync(pairAsync, confirmAsync, implicitlyCalled);
+        if (userResponse === ShowPairStepResult.Accepted) return webUsbPairThemedDialogAsync(pairAsync, confirmAsync, implicitlyCalled);
+        else if (userResponse === ShowPairStepResult.DownloadOnly) return pxt.commands.WebUSBPairResult.DownloadOnly;
     }
 
     if (paired) {
@@ -158,7 +161,6 @@ function showConnectDeviceDialogAsync(confirmAsync: ConfirmAsync) {
     );
 
     return showPairStepAsync({
-        hideClose: true,
         confirmAsync,
         jsxd,
         buttonLabel: lf("Next"),
@@ -304,6 +306,12 @@ interface PairStepOptions {
     doNotHideOnAgree?: boolean;
 }
 
+enum ShowPairStepResult {
+    Rejected,
+    Accepted,
+    DownloadOnly
+}
+
 async function showPairStepAsync({
     confirmAsync,
     jsxd,
@@ -316,8 +324,8 @@ async function showPairStepAsync({
     showDownloadAsFileButton,
     hideClose,
     doNotHideOnAgree,
-}: PairStepOptions) {
-    let tryAgain = false;
+}: PairStepOptions): Promise<ShowPairStepResult> {
+    let userResponse = ShowPairStepResult.Rejected;
 
     /**
      * The deferred below is only used when doNotHideOnAgree is set
@@ -335,7 +343,7 @@ async function showPairStepAsync({
             labelPosition: "left",
             onclick: () => {
                 pxt.tickEvent(tick);
-                tryAgain = true;
+                userResponse = ShowPairStepResult.Accepted;
                 if (doNotHideOnAgree) {
                     deferred();
                 }
@@ -353,7 +361,7 @@ async function showPairStepAsync({
             onclick: () => {
                 pxt.tickEvent("downloaddialog.button.webusb.preferdownload");
                 userPrefersDownloadFlag = true;
-                tryAgain = false;
+                userResponse = ShowPairStepResult.DownloadOnly;
             },
         });
     }
@@ -379,7 +387,7 @@ async function showPairStepAsync({
         await dialog;
     }
 
-    return tryAgain;
+    return userResponse;
 }
 
 export function webUsbPairLegacyDialogAsync(pairAsync: () => Promise<boolean>, confirmAsync: ConfirmAsync): Promise<number> {
