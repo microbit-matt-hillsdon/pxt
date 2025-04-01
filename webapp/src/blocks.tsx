@@ -494,12 +494,20 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         (Blockly as any).Toolbox.prototype.position = function () {
             oldToolboxPosition.call(this);
             editor.resizeToolbox();
-        }
+        };
 
         /**
          * Override blockly methods to support our custom toolbox.
          */
         const that = this;
+        (Blockly as any).Toolbox.prototype.updateFlyout_ = function (oldItem: Blockly.ISelectableToolboxItem | null, newItem: Blockly.ISelectableToolboxItem | null) {
+            // Keyboard nav triggers selection on the Blockly toolbox
+            // (first item + clear as we intercept all other events).
+            // Hook in just to hide the flyout when selection is cleared.
+            if (newItem === null) {
+                that.hideFlyout();
+            }
+        };
         (Blockly.WorkspaceSvg as any).prototype.refreshToolboxSelection = function () {
             let ws = this.isFlyout ? this.targetWorkspace : this;
             if (ws && !ws.currentGesture_ && ws.toolbox_ && ws.toolbox_.flyout_) {
@@ -538,11 +546,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     private initAccessibleBlocks() {
         const enabled = pxt.appTarget.appTheme?.accessibleBlocks;
         if (enabled && !this.keyboardNavigation) {
-            this.keyboardNavigation = new KeyboardNavigation(this.editor, {
-                externalToolbox: {
-                    focus: () => this.focusToolbox()
-                }
-            });
+            this.keyboardNavigation = new KeyboardNavigation(this.editor);
         }
     }
 
@@ -923,7 +927,9 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
     public moveFocusToFlyout() {
         if (this.keyboardNavigation) {
-            this.keyboardNavigation.focusFlyout();
+            const flyout = this.editor.getFlyout()
+            const element = ((flyout as any).svgGroup_ as SVGElement);
+            element?.focus();
         }
     }
 
@@ -931,11 +937,17 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         if (pxt.shell.isReadOnly()) return;
         const blocklyToolboxDiv = this.getBlocklyToolboxDiv();
         const blocklyToolbox = <div className="blocklyToolbox">
-            <toolbox.Toolbox ref={this.handleToolboxRef} editorname="blocks" parent={this} />
-            {<div id="debuggerToolbox"></div>}
+            <div className="blocklyToolboxContents" tabIndex={-1}>
+                <toolbox.Toolbox ref={this.handleToolboxRef} editorname="blocks" parent={this} />
+                {<div id="debuggerToolbox"></div>}
+            </div>
         </div>;
         Util.assert(!!blocklyToolboxDiv);
         ReactDOM.render(blocklyToolbox, blocklyToolboxDiv);
+        blocklyToolboxDiv.querySelector(".blocklyToolboxContents").addEventListener("focus", () => {
+            console.log("Did it happen?");
+            (blocklyToolboxDiv.querySelector("[role=tree]") as HTMLElement).focus()
+        })
 
         if (!immediate) this.toolbox.showLoading();
     }
@@ -1274,7 +1286,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             plugins: {
                 'blockDragger': pxtblockly.BlockDragger,
                 'connectionChecker': DuplicateOnDragConnectionChecker,
-                'flyoutsVerticalToolbox': pxtblockly.VerticalFlyout,
+                'flyoutsVerticalToolbox': pxtblockly.CachedFlyout,
                 'connectionPreviewer': pxtblockly.ConnectionPreviewer
             },
             move: {
@@ -1701,8 +1713,11 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
     private showFlyoutInternal_(xmlList: Element[], flyoutName: string = "default", skipCache = false) {
         this.currentFlyoutKey = flyoutName;
-        const flyout = this.editor.getFlyout() as pxtblockly.VerticalFlyout;
-        flyout.show(xmlList, skipCache ? undefined : flyoutName);
+        // TODO: reconsider!
+        // const flyout = this.editor.getFlyout() as pxtblockly.VerticalFlyout;
+        // flyout.show(xmlList, skipCache ? undefined : flyoutName);
+        const flyout = this.editor.getFlyout();
+        flyout.show(xmlList);
         flyout.scrollToStart();
     }
 
@@ -1953,18 +1968,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         }
     }
 
-<<<<<<< HEAD
-    onToolboxBlurCapture(): void {
-        if (this.keyboardNavigation) {
-            this.toolbox.clearSelection()
-            this.keyboardNavigation.onExternalToolboxBlur()
-        }
-    }
-
-    protected pasteCallback = () => {
-=======
     protected pasteCallback = (workspace: Blockly.Workspace, ev: Event) => {
->>>>>>> master
         const data = getCopyData();
         if (!data?.data || !this.editor || !this.canPasteData(data)) return false;
 
@@ -2146,7 +2150,7 @@ function fixHighlight(block: Blockly.BlockSvg) {
 }
 
 function shouldEventHideFlyout(ev: Blockly.Events.Abstract) {
-    if (ev.type === "var_create" || ev.type === "marker_move") {
+    if (ev.type === "var_create" || ev.type === "marker_move" || ev.type === "toolbox_item_select") {
         return false;
     }
 

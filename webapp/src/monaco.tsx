@@ -2124,9 +2124,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         return "";
     }
 
-    onToolboxBlurCapture(): void {
-        // Nothing to do
-    }
 }
 
 export function rangeToSelection(range: monaco.IRange): monaco.Selection {

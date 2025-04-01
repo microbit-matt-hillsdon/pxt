@@ -448,18 +448,6 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
         this.rootElement = c;
     }
 
-    handleBlurCapture = (e: React.FocusEvent<HTMLDivElement>) => {
-        // Make sure we close the flyout if the search input is focussed and there 
-        // is no flyout for search blocks.
-        const searchInputEl = (this.refs.searchbox as React.Component<ToolboxSearch>).refs.searchInput;
-        if (e.relatedTarget === searchInputEl && !this.state.hasSearch) {
-            return this.props.parent.onToolboxBlurCapture();
-        }
-        if (!this.rootElement.contains(e.relatedTarget)) {
-            this.props.parent.onToolboxBlurCapture();
-        }
-    }
-
     handleCategoryTreeFocus = (e: React.FocusEvent<HTMLDivElement>) => {
         // Don't handle focus resulting from click events on category tree items.
         // Rely on the click handler instead.
@@ -608,7 +596,6 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                 ref={this.handleRootElementRef}
                 className={classes}
                 id={`${editorname}EditorToolbox`}
-                onBlurCapture={this.handleBlurCapture}
             >
                 <ToolboxStyle categories={this.items} />
                 {showToolboxLabel &&
