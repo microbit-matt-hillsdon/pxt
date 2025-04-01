@@ -123,9 +123,10 @@ export async function webUsbPairThemedDialogAsync(pairAsync: () => Promise<boole
         await showConnectionSuccessAsync(confirmAsync, implicitlyCalled);
     }
     else {
-        const tryAgain = await showConnectionFailureAsync(confirmAsync, implicitlyCalled, lastPairingError);
+        const userResponse = await showConnectionFailureAsync(confirmAsync, implicitlyCalled, lastPairingError);
 
-        if (tryAgain) return webUsbPairThemedDialogAsync(pairAsync, confirmAsync, implicitlyCalled);
+        if (userResponse === ShowPairStepResult.Accepted) return webUsbPairThemedDialogAsync(pairAsync, confirmAsync, implicitlyCalled);
+        else if (userResponse === ShowPairStepResult.DownloadOnly) return pxt.commands.WebUSBPairResult.DownloadOnly;
     }
 
     if (paired) {
@@ -323,8 +324,8 @@ async function showPairStepAsync({
     showDownloadAsFileButton,
     hideClose,
     doNotHideOnAgree,
-}: PairStepOptions) {
-    let tryAgain = ShowPairStepResult.Rejected;
+}: PairStepOptions): Promise<ShowPairStepResult> {
+    let userResponse = ShowPairStepResult.Rejected;
 
     /**
      * The deferred below is only used when doNotHideOnAgree is set
@@ -342,7 +343,7 @@ async function showPairStepAsync({
             labelPosition: "left",
             onclick: () => {
                 pxt.tickEvent(tick);
-                tryAgain = ShowPairStepResult.Accepted;
+                userResponse = ShowPairStepResult.Accepted;
                 if (doNotHideOnAgree) {
                     deferred();
                 }
@@ -360,7 +361,7 @@ async function showPairStepAsync({
             onclick: () => {
                 pxt.tickEvent("downloaddialog.button.webusb.preferdownload");
                 userPrefersDownloadFlag = true;
-                tryAgain = ShowPairStepResult.DownloadOnly;
+                userResponse = ShowPairStepResult.DownloadOnly;
             },
         });
     }
@@ -386,7 +387,7 @@ async function showPairStepAsync({
         await dialog;
     }
 
-    return tryAgain;
+    return userResponse;
 }
 
 export function webUsbPairLegacyDialogAsync(pairAsync: () => Promise<boolean>, confirmAsync: ConfirmAsync): Promise<number> {
