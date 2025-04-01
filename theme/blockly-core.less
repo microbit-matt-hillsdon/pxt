@@ -50,13 +50,7 @@ svg.blocklySvg {
     }
 }
 
-.blocklyWorkspace:focus {
-    outline: none;
-}
-.blocklyWorkspace:focus-visible .blocklyMainBackground {
-    outline: 5px solid black;
-    outline-offset: -5px;
-}
+
 
 .blocklyMainBackground {
     stroke: none !important;
@@ -389,4 +383,46 @@ text.blocklyCheckbox {
     text.blocklyCheckbox {
         font-size: 17pt !important;
     }
+}
+
+
+/*******************************
+        Focus styles
+*******************************/
+
+.accessibleBlocks .blocklyWorkspace:focus,.blocklyWorkspaceFocusLayer:focus {
+    outline: none;
+}
+
+.accessibleBlocks .blocklyWorkspaceFocusRingLayer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    pointer-events: none;
+    z-index: 99;
+}
+
+.accessibleBlocks .blocklyWorkspaceFocusRingLayer[data-focused = 'true'] {
+    outline: 3px solid black;
+    outline-offset: -3px;
+}
+
+div.blocklyTreeRoot > div[role="tree"]:focus-visible {
+    outline: none;
+}
+
+.accessibleBlocks div.blocklyTreeRoot > div[role="tree"]:focus-visible {
+    outline: 3px solid black;
+    outline-offset: -3px;
+}
+
+.accessibleBlocks .blocklyFlyout:focus {
+    outline: none;
+}
+
+.accessibleBlocks .blocklyFlyout:focus-visible {
+    outline: 3px solid black;
+    outline-offset: -3px;
 }

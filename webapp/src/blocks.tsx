@@ -498,15 +498,18 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
         /**
          * Override blockly methods to support our custom toolbox.
+         *
+         * We don't generally use this selection but keyboard nav will trigger
+         * it to select the first category and clear the selection.
          */
         const that = this;
-        (Blockly as any).Toolbox.prototype.updateFlyout_ = function (oldItem: Blockly.ISelectableToolboxItem | null, newItem: Blockly.ISelectableToolboxItem | null) {
-            // Keyboard nav triggers selection on the Blockly toolbox
-            // (first item + clear as we intercept all other events).
-            // Hook in just to hide the flyout when selection is cleared.
+        (Blockly as any).Toolbox.prototype.setSelectedItem = function (newItem: Blockly.ISelectableToolboxItem | null) {
             if (newItem === null) {
                 that.hideFlyout();
             }
+        };
+        (Blockly as any).Toolbox.prototype.clearSelection = function () {
+            that.hideFlyout();
         };
         (Blockly.WorkspaceSvg as any).prototype.refreshToolboxSelection = function () {
             let ws = this.isFlyout ? this.targetWorkspace : this;
@@ -547,6 +550,17 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         const enabled = pxt.appTarget.appTheme?.accessibleBlocks;
         if (enabled && !this.keyboardNavigation) {
             this.keyboardNavigation = new KeyboardNavigation(this.editor);
+
+            const injectionDiv = document.getElementById('blocksEditor');
+            injectionDiv.classList.add("accessibleBlocks");
+            const focusRingDiv = injectionDiv.appendChild(document.createElement("div"))
+            focusRingDiv.className = "blocklyWorkspaceFocusRingLayer";
+            this.editor.getSvgGroup().addEventListener("focus", () => {
+                focusRingDiv.dataset.focused = "true";
+            })
+            this.editor.getSvgGroup().addEventListener("blur", () => {
+                delete focusRingDiv.dataset.focused;
+            })
         }
     }
 
@@ -937,19 +951,21 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         if (pxt.shell.isReadOnly()) return;
         const blocklyToolboxDiv = this.getBlocklyToolboxDiv();
         const blocklyToolbox = <div className="blocklyToolbox">
-            <div className="blocklyToolboxContents" tabIndex={-1}>
+            <div className="blocklyToolboxContents" tabIndex={-1} onFocus={this.handleToolboxContentsFocusCapture}>
                 <toolbox.Toolbox ref={this.handleToolboxRef} editorname="blocks" parent={this} />
                 {<div id="debuggerToolbox"></div>}
             </div>
         </div>;
         Util.assert(!!blocklyToolboxDiv);
         ReactDOM.render(blocklyToolbox, blocklyToolboxDiv);
-        blocklyToolboxDiv.querySelector(".blocklyToolboxContents").addEventListener("focus", () => {
-            console.log("Did it happen?");
-            (blocklyToolboxDiv.querySelector("[role=tree]") as HTMLElement).focus()
-        })
 
         if (!immediate) this.toolbox.showLoading();
+    }
+
+    private handleToolboxContentsFocusCapture = (e: React.FocusEvent) => {
+        if (e.target === e.currentTarget) {
+            (this.getBlocklyToolboxDiv().querySelector("[role=tree]") as HTMLElement).focus()
+        }
     }
 
     updateToolbox() {
