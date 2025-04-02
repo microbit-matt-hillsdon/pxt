@@ -74,7 +74,7 @@ export class Editor implements IEditor {
     snapshotState(): any {
         return null
     }
-    unloadFileAsync(): Promise<void> { return Promise.resolve() }
+    unloadFileAsync(unloadToHome?: boolean): Promise<void> { return Promise.resolve() }
 
     isIncomplete() {
         return false
@@ -147,6 +147,9 @@ export class Editor implements IEditor {
     }
 
     focusToolbox(itemToFocus?: string) {
+    }
+
+    focusWorkspace() {
     }
 
     // allows all editors to send exceptions to error list
