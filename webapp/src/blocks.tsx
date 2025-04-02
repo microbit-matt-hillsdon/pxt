@@ -950,11 +950,9 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     renderToolbox(immediate?: boolean) {
         if (pxt.shell.isReadOnly()) return;
         const blocklyToolboxDiv = this.getBlocklyToolboxDiv();
-        const blocklyToolbox = <div className="blocklyToolbox">
-            <div className="blocklyToolboxContents" tabIndex={-1} onFocus={this.handleToolboxContentsFocusCapture}>
-                <toolbox.Toolbox ref={this.handleToolboxRef} editorname="blocks" parent={this} />
+        const blocklyToolbox = <div className="blocklyToolboxCategoryGroup" tabIndex={-1} onFocus={this.handleToolboxContentsFocusCapture}>
+            <toolbox.Toolbox ref={this.handleToolboxRef} editorname="blocks" parent={this} />
                 {<div id="debuggerToolbox"></div>}
-            </div>
         </div>;
         Util.assert(!!blocklyToolboxDiv);
         ReactDOM.render(blocklyToolbox, blocklyToolboxDiv);
