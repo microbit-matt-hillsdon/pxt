@@ -161,7 +161,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     setVisible(v: boolean) {
         super.setVisible(v);
         this.isVisible = v;
-        let classes = '#blocksEditor .blocklyToolboxDiv, #blocksEditor .blocklyWidgetDiv, #blocksEditor .blocklyToolboxDiv';
+        let classes = '#blocksEditor .blocklyToolbox, #blocksEditor .blocklyWidgetDiv, #blocksEditor .blocklyToolbox';
         if (this.isVisible) {
             pxt.Util.toArray(document.querySelectorAll(classes)).forEach((el: HTMLElement) => el.style.display = '');
             // Fire a resize event since the toolbox may have changed width and height.
@@ -912,7 +912,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
     getBlocklyToolboxDiv(): HTMLDivElement {
         const blocksArea = this.getBlocksAreaDiv();
-        return blocksArea ? blocksArea.getElementsByClassName('blocklyToolboxDiv')[0] as HTMLDivElement : undefined;
+        return blocksArea ? blocksArea.getElementsByClassName('blocklyToolbox')[0] as HTMLDivElement : undefined;
     }
 
     handleToolboxRef = (c: toolbox.Toolbox) => {
@@ -976,7 +976,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     }
 
     showVariablesFlyout() {
-        this.showFlyoutInternal_(Blockly.Variables.flyoutCategory(this.editor), "variables");
+        this.showFlyoutInternal_(Blockly.Variables.flyoutCategory(this.editor, true), "variables");
     }
 
     showFunctionsFlyout() {
@@ -1213,7 +1213,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
         if (this.debuggerToolbox) {
             const visibleVars = Blockly.Variables.allUsedVarModels(this.editor)
-                .map((variable: Blockly.VariableModel) => pxtc.escapeIdentifier(variable.name));
+                .map((variable: Blockly.VariableModel) => pxtc.escapeIdentifier(variable.getName()));
 
             this.debuggerToolbox.setBreakpoint(brk, visibleVars);
         }
