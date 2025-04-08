@@ -453,11 +453,9 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
         // Rely on the click handler instead.
         if (e.target === this.refs.categoryTree) {
             if (!this.rootElement) return;
-            if (this.selectedItem && this.selectedItem.getTreeRow()) {
+            if (this.selectedIndex && this.selectedTreeRow) {
                 // 'Focus' the selected item
-                const selectedItemIndex = this.selectedItem.props.selectedIndex;
-                const selectedItem = this.items[selectedItemIndex];
-                this.setSelection(selectedItem, selectedItemIndex, true);
+                this.setSelection(this.selectedTreeRow, this.selectedIndex, true);
             } else {
                 // 'Focus' first item in the toolbox
                 this.selectFirstItem();
