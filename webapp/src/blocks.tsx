@@ -561,6 +561,12 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             this.editor.getSvgGroup().addEventListener("blur", () => {
                 delete focusRingDiv.dataset.focused;
             })
+
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "/" && pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey) {
+                    this.parent.toggleBuiltInSideDoc("keyboardNav", false);
+                }
+            });
         }
     }
 
@@ -892,9 +898,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             <div className="blocksAndErrorList">
                 <div className="blocksEditorOuter">
                     <div id="blocksEditor"></div>
-                    {/* This does not integrate well with MakeCode, but is useful for blockly
-                     keyboard navigation testing / evaluation purposes. */}
-                    <div id="shortcuts"></div>
                     <toolbox.ToolboxTrashIcon flyoutOnly={flyoutOnly} />
                 </div>
                 {showErrorList && <ErrorList isInBlocksEditor={true} listenToBlockErrorChanges={this.listenToBlockErrorChanges}
