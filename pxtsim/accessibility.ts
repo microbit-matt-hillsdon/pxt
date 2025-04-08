@@ -10,7 +10,10 @@ namespace pxsim.accessibility {
 
     export function getKeyboardShortcutEditorAction(e: KeyboardEvent): pxsim.SimulatorActionMessage["type"] | null {
         const meta  = e.metaKey || e.ctrlKey;
-        if (e.key === "e" && meta) {
+        if (e.key === "/" && meta) {
+            e.preventDefault();
+            return "toggleShortcutDoc"
+        } else if (e.key === "e" && meta) {
             e.preventDefault();
             return "focusWorkspace"
         } else if (e.key === "b" && meta) {
