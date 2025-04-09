@@ -564,7 +564,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 delete focusRingDiv.dataset.focused;
             })
 
-            document.addEventListener("keydown", (e) => {
+            const handleKeydown = (e: KeyboardEvent) => {
                 const meta  = pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey;
                 if (e.key === "/" && meta) {
                     e.preventDefault();
@@ -593,7 +593,22 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                         this.parent.compile();
                     })();
                 }
-            });
+            }
+
+            const simulatorOrigins = [
+                // Simulator local development origin.
+                "http://localhost:3232",
+                // Simulator deployed origin.
+                "https://trg-microbit.userpxt.io"
+            ]
+            window.addEventListener("message", (e) => {
+                // Listen to simulator iframe keydown post messages.
+                if (simulatorOrigins.includes(e.origin)) {
+                    const event = new KeyboardEvent("keydown", e.data)
+                    handleKeydown(event)
+                }
+            }, false)
+            document.addEventListener("keydown", handleKeydown);
         }
     }
 
