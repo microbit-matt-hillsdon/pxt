@@ -559,10 +559,25 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             focusRingDiv.className = "blocklyWorkspaceFocusRingLayer";
             this.editor.getSvgGroup().addEventListener("focus", () => {
                 focusRingDiv.dataset.focused = "true";
-            })
+            });
             this.editor.getSvgGroup().addEventListener("blur", () => {
                 delete focusRingDiv.dataset.focused;
-            })
+            });
+
+            const listShortcuts = Blockly.ShortcutRegistry.registry.getRegistry()["list_shortcuts"];
+            Blockly.ShortcutRegistry.registry.unregister(listShortcuts.name);
+            Blockly.ShortcutRegistry.registry.register({
+                ...listShortcuts,
+                keyCodes: [
+                    Blockly.ShortcutRegistry.registry.createSerializedKey(Blockly.utils.KeyCodes.SLASH, [
+                        Blockly.utils.KeyCodes.META,
+                    ]),
+                    Blockly.ShortcutRegistry.registry.createSerializedKey(Blockly.utils.KeyCodes.SLASH, [
+                        Blockly.utils.KeyCodes.CTRL,
+                    ]),
+                ]
+            });
+
 
             const handleKeydown = (e: KeyboardEvent) => {
                 const meta  = pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey;
