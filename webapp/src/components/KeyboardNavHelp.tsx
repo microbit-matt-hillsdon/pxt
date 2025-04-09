@@ -50,6 +50,12 @@ const KeyboardNavHelp = () => {
                             <br /><span className="hint">Hold {optionOrCtrl} for free movement</span>
                         </td>
                     </tr>
+                    <tr>
+                        <td>Copy / paste</td>
+                        <td>
+                            <Shortcut value={[cmd, "C"]} /> / <Shortcut value={[cmd, "V"]} />
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             <h3>Editor Overview</h3>
