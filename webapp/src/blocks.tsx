@@ -17,6 +17,7 @@ import * as dialogs from "./dialogs";
 import * as blocklyFieldView from "./blocklyFieldView";
 import { CreateFunctionDialog } from "./createFunction";
 import { initializeSnippetExtensions } from './snippetBuilder';
+import * as cmds from "./cmds"
 
 import * as pxtblockly from "../../pxtblocks";
 import { KeyboardNavigation } from '@blockly/keyboard-experiment';
@@ -39,6 +40,7 @@ import { PathObject } from "../../pxtblocks/plugins/renderer/pathObject";
 import { Measurements } from "./constants";
 import { flow } from "../../pxtblocks";
 import { HIDDEN_CLASS_NAME } from "../../pxtblocks/plugins/flyout/blockInflater";
+import { userPrefersDownloadFlagSet } from "./webusb";
 
 interface CopyDataEntry {
     version: 1;
@@ -583,6 +585,53 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                     flow(workspace, { useViewWidth: true });
                     return true
                 }
+            });
+
+            const triggerEditorAction = (action: pxsim.SimulatorActionMessage["type"]) => {
+                switch (action) {
+                    case "focusWorkspace": {
+                        this.parent.editor.focusWorkspace();
+                        return
+                    }
+                    case "focusSimulator": {
+                        // Note that pxtsim.driver.focus() isn't the same as tabbing to the sim.
+                        (document.querySelector("#boardview") as HTMLElement).focus();
+                        return
+                    }
+                    case "webUSBDownload": {
+                        (async () => {
+                            // TODO: refactor and share with editortoolbar.tsx
+                            const shouldShowPairingDialogOnDownload = pxt.appTarget.appTheme.preferWebUSBDownload
+                                && pxt.appTarget?.compile?.webUSB
+                                && pxt.usb.isEnabled
+                                && !userPrefersDownloadFlagSet();
+                            if (shouldShowPairingDialogOnDownload
+                                && !pxt.packetio.isConnected()
+                                && !pxt.packetio.isConnecting()
+                            ) {
+                                await cmds.pairAsync(true);
+                            }
+                            this.parent.compile();
+                        })();
+                        return
+                    }
+                }
+            }
+
+            const simulatorOrigins = [
+                window.location.origin,
+                // Simulator deployed origin.
+                "https://trg-microbit.userpxt.io"
+            ]
+            window.addEventListener("message", (e: MessageEvent<pxsim.SimulatorActionMessage>) => {
+                // Listen to simulator iframe keydown post messages.
+                if (simulatorOrigins.includes(e.origin)) {
+                    triggerEditorAction(e.data.type)
+                }
+            }, false)
+            document.addEventListener("keydown", (e: KeyboardEvent) => {
+                const action = pxsim.accessibility.getKeyboardShortcutEditorAction(e)
+                triggerEditorAction(action)
             });
         }
     }

@@ -716,6 +716,7 @@ declare namespace pxt.editor {
         zoomOut(): void;
         resize(): void;
         setScale(scale: number): void;
+        focusWorkspace(): void;
     }
 
     export interface IFile {
