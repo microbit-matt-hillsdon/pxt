@@ -74,7 +74,7 @@ function getTourItem(parent: IProjectView, cls: string = ""): JSX.Element {
 
 function getKeyboardNavHelpItem(parent: IProjectView, cls: string = ""): JSX.Element {
     const path = "/keyboardNav";
-    return <DocsMenuItem key={"docsmenu" + path} role="menuitem" ariaLabel={lf("Keyboard Navigation")} text={lf("Keyboard Navigation")} className={`ui ${cls}`} parent={parent} path={path} onItemClick={openKeyboardNavHelp} />
+    return <DocsMenuItem key={"docsmenu" + path} role="menuitem" ariaLabel={lf("Keyboard Controls")} text={lf("Keyboard Controls")} className={`ui ${cls}`} parent={parent} path={path} onItemClick={openKeyboardNavHelp} />
 }
 
 type DocsMenuEditorName = "Blocks" | "JavaScript" | "Python";

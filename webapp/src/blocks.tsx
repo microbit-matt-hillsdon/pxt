@@ -15,6 +15,7 @@ import * as dialogs from "./dialogs";
 import * as blocklyFieldView from "./blocklyFieldView";
 import { CreateFunctionDialog } from "./createFunction";
 import { initializeSnippetExtensions } from './snippetBuilder';
+import * as cmds from "./cmds"
 
 import * as pxtblockly from "../../pxtblocks";
 import { KeyboardNavigation } from '@blockly/keyboard-experiment';
@@ -35,6 +36,7 @@ import SimState = pxt.editor.SimState;
 import { DuplicateOnDragConnectionChecker } from "../../pxtblocks/plugins/duplicateOnDrag";
 import { PathObject } from "../../pxtblocks/plugins/renderer/pathObject";
 import { Measurements } from "./constants";
+import { userPrefersDownloadFlagSet } from "./webusb";
 
 interface CopyDataEntry {
     version: 1;
@@ -563,8 +565,33 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             })
 
             document.addEventListener("keydown", (e) => {
-                if (e.key === "/" && pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey) {
+                const meta  = pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey;
+                if (e.key === "/" && meta) {
+                    e.preventDefault();
                     this.parent.toggleBuiltInSideDoc("keyboardNav", false);
+                } else if (e.key === "e" && meta) {
+                    e.preventDefault();
+                    this.parent.editor.focusWorkspace();
+                } else if (e.key === "b" && meta) {
+                    e.preventDefault();
+                    // Note that pxtsim.driver.focus() isn't the same as tabbing to the sim.
+                    (document.querySelector("#boardview") as HTMLElement).focus();
+                } else if (e.key === "d" && meta) {
+                    e.preventDefault();
+                    (async () => {
+                        // TODO: refactor and share with editortoolbar.tsx
+                        const shouldShowPairingDialogOnDownload = pxt.appTarget.appTheme.preferWebUSBDownload
+                            && pxt.appTarget?.compile?.webUSB
+                            && pxt.usb.isEnabled
+                            && !userPrefersDownloadFlagSet();
+                        if (shouldShowPairingDialogOnDownload
+                            && !pxt.packetio.isConnected()
+                            && !pxt.packetio.isConnecting()
+                        ) {
+                            await cmds.pairAsync(true);
+                        }
+                        this.parent.compile();
+                    })();
                 }
             });
         }
