@@ -596,8 +596,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             }
 
             const simulatorOrigins = [
-                // Simulator local development origin.
-                "http://localhost:3232",
+                window.location.origin,
                 // Simulator deployed origin.
                 "https://trg-microbit.userpxt.io"
             ]
