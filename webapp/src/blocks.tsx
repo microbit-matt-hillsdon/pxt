@@ -15,6 +15,7 @@ import * as dialogs from "./dialogs";
 import * as blocklyFieldView from "./blocklyFieldView";
 import { CreateFunctionDialog } from "./createFunction";
 import { initializeSnippetExtensions } from './snippetBuilder';
+import * as cmds from "./cmds"
 
 import * as pxtblockly from "../../pxtblocks";
 import { KeyboardNavigation } from '@blockly/keyboard-experiment';
@@ -35,6 +36,7 @@ import SimState = pxt.editor.SimState;
 import { DuplicateOnDragConnectionChecker } from "../../pxtblocks/plugins/duplicateOnDrag";
 import { PathObject } from "../../pxtblocks/plugins/renderer/pathObject";
 import { Measurements } from "./constants";
+import { userPrefersDownloadFlagSet } from "./webusb";
 
 interface CopyDataEntry {
     version: 1;
@@ -557,10 +559,70 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             focusRingDiv.className = "blocklyWorkspaceFocusRingLayer";
             this.editor.getSvgGroup().addEventListener("focus", () => {
                 focusRingDiv.dataset.focused = "true";
-            })
+            });
             this.editor.getSvgGroup().addEventListener("blur", () => {
                 delete focusRingDiv.dataset.focused;
-            })
+            });
+
+            const listShortcuts = Blockly.ShortcutRegistry.registry.getRegistry()["list_shortcuts"];
+            Blockly.ShortcutRegistry.registry.unregister(listShortcuts.name);
+            Blockly.ShortcutRegistry.registry.register({
+                ...listShortcuts,
+                keyCodes: [
+                    Blockly.ShortcutRegistry.registry.createSerializedKey(Blockly.utils.KeyCodes.SLASH, [
+                        Blockly.utils.KeyCodes.META,
+                    ]),
+                    Blockly.ShortcutRegistry.registry.createSerializedKey(Blockly.utils.KeyCodes.SLASH, [
+                        Blockly.utils.KeyCodes.CTRL,
+                    ]),
+                ]
+            });
+
+
+            const handleKeydown = (e: KeyboardEvent) => {
+                const meta  = pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey;
+                if (e.key === "/" && meta) {
+                    e.preventDefault();
+                    this.parent.toggleBuiltInSideDoc("keyboardNav", false);
+                } else if (e.key === "e" && meta) {
+                    e.preventDefault();
+                    this.parent.editor.focusWorkspace();
+                } else if (e.key === "b" && meta) {
+                    e.preventDefault();
+                    // Note that pxtsim.driver.focus() isn't the same as tabbing to the sim.
+                    (document.querySelector("#boardview") as HTMLElement).focus();
+                } else if (e.key === "d" && meta) {
+                    e.preventDefault();
+                    (async () => {
+                        // TODO: refactor and share with editortoolbar.tsx
+                        const shouldShowPairingDialogOnDownload = pxt.appTarget.appTheme.preferWebUSBDownload
+                            && pxt.appTarget?.compile?.webUSB
+                            && pxt.usb.isEnabled
+                            && !userPrefersDownloadFlagSet();
+                        if (shouldShowPairingDialogOnDownload
+                            && !pxt.packetio.isConnected()
+                            && !pxt.packetio.isConnecting()
+                        ) {
+                            await cmds.pairAsync(true);
+                        }
+                        this.parent.compile();
+                    })();
+                }
+            }
+
+            const simulatorOrigins = [
+                window.location.origin,
+                // Simulator deployed origin.
+                "https://trg-microbit.userpxt.io"
+            ]
+            window.addEventListener("message", (e) => {
+                // Listen to simulator iframe keydown post messages.
+                if (simulatorOrigins.includes(e.origin)) {
+                    const event = new KeyboardEvent("keydown", e.data)
+                    handleKeydown(event)
+                }
+            }, false)
+            document.addEventListener("keydown", handleKeydown);
         }
     }
 
@@ -892,9 +954,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             <div className="blocksAndErrorList">
                 <div className="blocksEditorOuter">
                     <div id="blocksEditor"></div>
-                    {/* This does not integrate well with MakeCode, but is useful for blockly
-                     keyboard navigation testing / evaluation purposes. */}
-                    <div id="shortcuts"></div>
                     <toolbox.ToolboxTrashIcon flyoutOnly={flyoutOnly} />
                 </div>
                 {showErrorList && <ErrorList isInBlocksEditor={true} listenToBlockErrorChanges={this.listenToBlockErrorChanges}
