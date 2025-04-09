@@ -17,7 +17,9 @@ import { CreateFunctionDialog } from "./createFunction";
 import { initializeSnippetExtensions } from './snippetBuilder';
 
 import * as pxtblockly from "../../pxtblocks";
-import { NavigationController, Navigation } from "@blockly/keyboard-navigation";
+// This now fails at import time as the code attempts to extend classes that no
+// longer exist in Blockly v12.0.0-beta.3.
+// import { NavigationController, Navigation } from "@blockly/keyboard-navigation";
 import { WorkspaceSearch } from "@blockly/plugin-workspace-search";
 
 
@@ -36,6 +38,25 @@ import SimState = pxt.editor.SimState;
 import { DuplicateOnDragConnectionChecker } from "../../pxtblocks/plugins/duplicateOnDrag";
 import { PathObject } from "../../pxtblocks/plugins/renderer/pathObject";
 import { Measurements } from "./constants";
+
+// Stub implementation to avoid greater diff in the rest of the code.
+type BlocklyNavigationState = "workspace" | "toolbox" | "flyout";
+
+class Navigation {
+    resetFlyout(workspace: WorkspaceSvg, shouldHide: boolean) {};
+    setState(workspace: WorkspaceSvg, state: BlocklyNavigationState) {};
+    focusFlyout(workspace: WorkspaceSvg) {};
+}
+
+class NavigationController {
+    navigation: Navigation = new Navigation();
+    constructor() {}
+    init() {}
+    addWorkspace(workspace: WorkspaceSvg) {};
+    enable(workspace: WorkspaceSvg) {};
+    disable(workspace: WorkspaceSvg) {};
+    focusToolbox(workspace: WorkspaceSvg) {};
+}
 
 interface CopyDataEntry {
     version: 1;
