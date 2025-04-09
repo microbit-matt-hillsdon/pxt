@@ -72,7 +72,7 @@
     "@zip.js/zip.js": "2.4.20",
     "adm-zip": "^0.5.12",
     "axios": "^1.6.8",
-    "blockly": "12.0.0-beta.2",
+    "blockly": "12.0.0-beta.3",
     "browserify": "17.0.0",
     "chai": "^3.5.0",
     "cssnano": "4.1.10",
@@ -98,14 +98,6 @@
     "sanitize-html": "2.3.2",
     "semantic-ui-less": "2.4.1",
     "terser": "5.6.0"
-  },
-  "overrides": {
-    "@blockly/field-colour": {
-      "blockly": "^12.0.0-beta.2"
-    },
-    "@blockly/plugin-workspace-search": {
-      "blockly": "^12.0.0-beta.2"
-    }
   },
   "lazyDependencies": {
     "node-hid": "^0.7.2",
@@ -162,13 +154,10 @@
   },
   "overrides": {
     "@blockly/field-colour": {
-      "blockly": "^12.0.0-beta.2"
+      "blockly": "^12.0.0-beta.3"
     },
     "@blockly/plugin-workspace-search": {
-      "blockly": "^12.0.0-beta.2"
-    },
-    "@blockly/keyboard-navigation": {
-      "blockly": "^12.0.0-beta.2"
+      "blockly": "^12.0.0-beta.3"
     }
   },
   "scripts": {
