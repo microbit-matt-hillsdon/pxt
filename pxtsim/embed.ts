@@ -75,6 +75,10 @@ namespace pxsim {
         url: string;
     }
 
+    export interface SimulatorActionMessage extends SimulatorMessage {
+        type: "toggleShortcutDoc" | "focusWorkspace" | "focusSimulator" | "webUSBDownload";
+    }
+
     export interface SimulatorStateMessage extends SimulatorMessage {
         type: "status";
         frameid?: string;
