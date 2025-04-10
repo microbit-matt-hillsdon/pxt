@@ -25,7 +25,6 @@ const KeyboardNavHelp = () => {
                         </td>
                         <td>
                             <Shortcut value={["↑", "↓", "←", "→"]} /><br />
-                            <span className="hint">Left and right arrows move in and out of a block.</span>
                         </td>
                     </tr>
                     <tr>
