@@ -7,7 +7,7 @@ const KeyboardNavHelp = () => {
     }, []);
     const cmd = pxt.BrowserUtils.isMac() ? "⌘" : "Ctrl+";
     const optionOrCtrl = pxt.BrowserUtils.isMac() ? "⌥" : "Ctrl+"
-    const enterOrSpace = <><Shortcut value={["Enter"]} /> or <Shortcut value={["Space"]} /></>
+    const enterOrSpace = <Shortcut value={["Enter", "Space"]} joinStyle="or" />
     return (
         <aside id="keyboardnavhelp" aria-label={lf("Keyboard Controls")} ref={ref} tabIndex={0}>
             <h2>Keyboard Controls</h2>
@@ -24,14 +24,13 @@ const KeyboardNavHelp = () => {
                             Block and toolbox navigation
                         </td>
                         <td>
-                            <Shortcut value={["↑", "↓", "←", "→"]} /><br />
+                            <Shortcut value={["↑", "↓", "←", "→"]} joinStyle="none" /><br />
                         </td>
                     </tr>
                     <tr>
                         <td>Toolbox or insert</td>
                         <td>
-                            <Shortcut value={["T"]} />{" or "}
-                            <Shortcut value={["I"]} />
+                            <Shortcut value={["T", "I"]} joinStyle="or" />
                         </td>
                     </tr>
                     <tr>
@@ -85,13 +84,13 @@ const KeyboardNavHelp = () => {
                     <tr>
                         <td width="50%">Toolbox: Move in and out of categories</td>
                         <td width="50%">
-                            <Shortcut value={["←", "→"]} /><br />
+                            <Shortcut value={["←", "→"]} joinStyle="none" /><br />
                         </td>
                     </tr>
                     <tr>
                         <td width="50%">Toolbox: Navigate categories or blocks</td>
                         <td width="50%">
-                            <Shortcut value={["↑", "↓"]} /><br />
+                            <Shortcut value={["↑", "↓"]} joinStyle="none" /><br />
                         </td>
                     </tr>
                     <tr>
@@ -139,7 +138,7 @@ const KeyboardNavHelp = () => {
                     <tr>
                         <td width="50%">Move in and out of a block</td>
                         <td width="50%">
-                            <Shortcut value={["←", "→"]} /><br />
+                            <Shortcut value={["←", "→"]} joinStyle="none" /><br />
                         </td>
                     </tr>
                     <tr>
@@ -157,7 +156,7 @@ const KeyboardNavHelp = () => {
                     <tr>
                         <td width="50%">Insert block at current position</td>
                         <td width="50%">
-                            <Shortcut value={["T"]} /> or <Shortcut value={["I"]} />
+                            <Shortcut value={["I"]} />
                         </td>
                     </tr>
                     <tr>
@@ -218,7 +217,7 @@ const KeyboardNavHelp = () => {
                             Move mode: Move to new position
                         </td>
                         <td>
-                            <Shortcut value={["↑", "↓", "←", "→"]} /><br />
+                            <Shortcut value={["↑", "↓", "←", "→"]} joinStyle="none" /><br />
                         </td>
                     </tr>
                     <tr>
@@ -259,13 +258,24 @@ const KeyboardNavHelp = () => {
     );
 }
 
-const Shortcut = ({ value }: { value: string[] }) => {
+type JoinStyle = "and" | "none" | "or"
+const Shortcut = ({ value, joinStyle = "and" }: { value: string[], joinStyle?: JoinStyle }) => {
+    const joiners: Record<JoinStyle, string> = {
+        "and": pxt.BrowserUtils.isMac() ? " " : " + ",
+        "or": " or ",
+        "none": " "
+    }
     return (
         <span className="shortcut">
-            {value.map(v => <Key key={v} value={v} />)}
+            {value.reduce((acc, v) => {
+                return acc.length === 0
+                    ? [...acc,  <Key key={v} value={v} />]
+                    : [...acc, joiners[joinStyle], <Key key={v} value={v} />]
+            }, [])}
         </span>
     );
 }
+
 
 const Key = ({ value }: { value: string }) => {
     return <span className="key">{value}</span>
