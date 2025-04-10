@@ -11,7 +11,6 @@ const KeyboardNavHelp = () => {
     return (
         <aside id="keyboardnavhelp" aria-label={lf("Keyboard Controls")} ref={ref} tabIndex={0}>
             <h2>Keyboard Controls</h2>
-            <h3>Common Actions</h3>
             <table>
                 <tbody>
                     <tr>
