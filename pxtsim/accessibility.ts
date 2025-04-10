@@ -8,6 +8,16 @@ namespace pxsim.accessibility {
         elem.setAttribute("tabindex", "0");
     }
 
+    export function postKeyboardEvent() {
+        document.addEventListener("keydown", (e) => {
+            // TODO: origin
+            window.parent.postMessage(
+              { key: e.key, metaKey: e.metaKey, ctrlKey: e.ctrlKey },
+              "*"
+            );
+        });
+    }
+
     export function enableKeyboardInteraction(elem: Element, handlerKeyDown?: () => void, handlerKeyUp?: () => void): void {
         if (handlerKeyDown) {
             elem.addEventListener('keydown', (e: KeyboardEvent) => {
