@@ -197,12 +197,6 @@ const KeyboardNavHelp = () => {
                             <Shortcut value={[cmd, "Enter"]} />
                         </td>
                     </tr>
-                    <tr>
-                        <td width="50%">Block help</td>
-                        <td width="50%">
-                            <Shortcut value={[cmd, "Enter"]} /> then Help
-                        </td>
-                    </tr>
                 </tbody>
             </table>
             <h3>Moving Blocks</h3>
