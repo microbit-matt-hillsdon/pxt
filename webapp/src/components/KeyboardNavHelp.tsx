@@ -60,9 +60,14 @@ const KeyboardNavHelp = () => {
             <table>
                 <tbody>
                     <tr>
-                        <td width="50%">Move between menus, simulator and the workspace</td>
+                        <td width="50%" rowSpan={2}>Move between menus, simulator and the workspace</td>
                         <td width="50%">
-                            <Shortcut value={["Tab"]} /><br /><Shortcut value={["Shift", "Tab"]} />
+                            <Shortcut value={["Tab"]} />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="50%">
+                            <Shortcut value={["Shift", "Tab"]} />
                         </td>
                     </tr>
                     <tr>
