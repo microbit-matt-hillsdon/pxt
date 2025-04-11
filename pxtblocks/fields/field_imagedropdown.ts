@@ -4,6 +4,13 @@ import * as Blockly from "blockly";
 import { FieldCustom, FieldCustomDropdownOptions, parseColour } from "./field_utils";
 import { FieldDropdown } from "./field_dropdown";
 
+interface MouseCoords {
+    x: number,
+    y: number,
+}
+
+type UserInputAction = "mousemove" | "keymove";
+
 export interface FieldImageDropdownOptions extends FieldCustomDropdownOptions {
     columns?: string;
     maxRows?: string;
@@ -28,6 +35,9 @@ export class FieldImageDropdown extends FieldDropdown implements FieldCustom {
 
     protected activeDescendantIndex: number | undefined;
     protected buttons: HTMLDivElement[] = [];
+
+    protected openingMouseCoords: MouseCoords| undefined;
+    protected lastAction: UserInputAction | undefined;
 
     constructor(text: string, options: FieldImageDropdownOptions, validator?: Function) {
         super(options.data);
@@ -101,6 +111,7 @@ export class FieldImageDropdown extends FieldDropdown implements FieldCustom {
                     return
                 }
             }
+            this.lastAction = 'keymove';
             this.buttons.forEach(button => button.setAttribute('class', 'blocklyDropDownButton'));
             const activeButton = this.buttons[this.activeDescendantIndex];
             const activeButtonContainer = activeButton.parentElement;
@@ -125,11 +136,31 @@ export class FieldImageDropdown extends FieldDropdown implements FieldCustom {
         return row;
     }
 
+    protected addMouseMoveListener(dropdownDiv: HTMLElement) {
+        Blockly.browserEvents.bind(dropdownDiv, 'mousemove', this, () => {
+            this.lastAction = 'mousemove';
+        });
+    }
+
+    protected mouseoverTriggeredByMouseMove() {
+        return this.openingMouseCoords && !this.lastAction || this.lastAction === 'mousemove'
+    }
+
+    protected mouseoutTriggeredByMouseMove() {
+        return this.lastAction === 'mousemove'
+    }
+
     /**
      * Create a dropdown menu under the text.
      * @private
      */
     public showEditor_(e?: MouseEvent) {
+        if (e) {
+            this.openingMouseCoords = {
+                x: e.pageX,
+                y: e.pageY
+            }
+        }
         // If there is an existing drop-down we own, this is a request to hide the drop-down.
         if (Blockly.DropDownDiv.hideIfOwner(this)) {
             return;
@@ -144,6 +175,7 @@ export class FieldImageDropdown extends FieldDropdown implements FieldCustom {
         contentDiv.setAttribute('role', 'grid');
         contentDiv.setAttribute('tabindex', '0');
         contentDiv.setAttribute('class', 'blocklyMenu');
+        this.addMouseMoveListener(dropdownDiv)
         this.addKeyHandler(contentDiv)
         const options = this.getOptions();
         let maxButtonHeight: number = 0;
@@ -195,16 +227,20 @@ export class FieldImageDropdown extends FieldDropdown implements FieldCustom {
             button.style.backgroundColor = backgroundColor;
             button.style.borderColor = this.borderColour_;
             Blockly.browserEvents.bind(button, 'click', this, () => this.buttonClick_(value));
-            Blockly.browserEvents.bind(button, 'mouseover', this, () => {
-                this.buttons.forEach(button => button.setAttribute('class', 'blocklyDropDownButton'));
-                this.activeDescendantIndex = i;
-                button.setAttribute('class', 'blocklyDropDownButton blocklyDropDownButtonHover');
-                contentDiv.setAttribute('aria-activedescendant', button.id);
+            Blockly.browserEvents.bind(button, 'mouseover', this, (e: MouseEvent) => {
+                if (this.mouseoverTriggeredByMouseMove()) {
+                    this.buttons.forEach(button => button.setAttribute('class', 'blocklyDropDownButton'));
+                    this.activeDescendantIndex = i;
+                    button.setAttribute('class', 'blocklyDropDownButton blocklyDropDownButtonHover');
+                    contentDiv.setAttribute('aria-activedescendant', button.id);
+                }
             });
-            Blockly.browserEvents.bind(button, 'mouseout', this, () => {
-                button.setAttribute('class', 'blocklyDropDownButton');
-                contentDiv.removeAttribute('aria-activedescendant');
-                this.activeDescendantIndex = undefined;
+            Blockly.browserEvents.bind(button, 'mouseout', this, (e: MouseEvent) => {
+                if (this.mouseoutTriggeredByMouseMove()) {
+                    button.setAttribute('class', 'blocklyDropDownButton');
+                    contentDiv.removeAttribute('aria-activedescendant');
+                    this.activeDescendantIndex = undefined;
+                }
             });
             let buttonImg = document.createElement('img');
             buttonImg.src = content.src;
@@ -278,6 +314,8 @@ export class FieldImageDropdown extends FieldDropdown implements FieldCustom {
      * Callback for when the drop-down is hidden.
      */
     protected onHide_() {
+        this.openingMouseCoords = undefined;
+        this.lastAction = undefined;
         let content = Blockly.DropDownDiv.getContentDiv() as HTMLElement;
         content.removeAttribute('role');
         content.removeAttribute('aria-activedescendant');
