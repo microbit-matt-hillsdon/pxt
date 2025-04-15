@@ -578,35 +578,38 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 ]
             });
 
-
-            const handleKeydown = (e: KeyboardEvent) => {
-                const meta  = pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey;
-                if (e.key === "/" && meta) {
-                    e.preventDefault();
-                    this.parent.toggleBuiltInSideDoc("keyboardNav", false);
-                } else if (e.key === "e" && meta) {
-                    e.preventDefault();
-                    this.parent.editor.focusWorkspace();
-                } else if (e.key === "b" && meta) {
-                    e.preventDefault();
-                    // Note that pxtsim.driver.focus() isn't the same as tabbing to the sim.
-                    (document.querySelector("#boardview") as HTMLElement).focus();
-                } else if (e.key === "d" && meta) {
-                    e.preventDefault();
-                    (async () => {
-                        // TODO: refactor and share with editortoolbar.tsx
-                        const shouldShowPairingDialogOnDownload = pxt.appTarget.appTheme.preferWebUSBDownload
-                            && pxt.appTarget?.compile?.webUSB
-                            && pxt.usb.isEnabled
-                            && !userPrefersDownloadFlagSet();
-                        if (shouldShowPairingDialogOnDownload
-                            && !pxt.packetio.isConnected()
-                            && !pxt.packetio.isConnecting()
-                        ) {
-                            await cmds.pairAsync(true);
-                        }
-                        this.parent.compile();
-                    })();
+            const triggerEditorAction = (action: pxsim.SimulatorActionMessage["type"]) => {
+                switch (action) {
+                    case "toggleShortcutDoc": {
+                        this.parent.toggleBuiltInSideDoc("keyboardNav", false);
+                        return
+                    }
+                    case "focusWorkspace": {
+                        this.parent.editor.focusWorkspace();
+                        return
+                    }
+                    case "focusSimulator": {
+                        // Note that pxtsim.driver.focus() isn't the same as tabbing to the sim.
+                        (document.querySelector("#boardview") as HTMLElement).focus();
+                        return
+                    }
+                    case "webUSBDownload": {
+                        (async () => {
+                            // TODO: refactor and share with editortoolbar.tsx
+                            const shouldShowPairingDialogOnDownload = pxt.appTarget.appTheme.preferWebUSBDownload
+                                && pxt.appTarget?.compile?.webUSB
+                                && pxt.usb.isEnabled
+                                && !userPrefersDownloadFlagSet();
+                            if (shouldShowPairingDialogOnDownload
+                                && !pxt.packetio.isConnected()
+                                && !pxt.packetio.isConnecting()
+                            ) {
+                                await cmds.pairAsync(true);
+                            }
+                            this.parent.compile();
+                        })();
+                        return
+                    }
                 }
             }
 
@@ -615,14 +618,16 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 // Simulator deployed origin.
                 "https://trg-microbit.userpxt.io"
             ]
-            window.addEventListener("message", (e) => {
+            window.addEventListener("message", (e: MessageEvent<pxsim.SimulatorActionMessage>) => {
                 // Listen to simulator iframe keydown post messages.
                 if (simulatorOrigins.includes(e.origin)) {
-                    const event = new KeyboardEvent("keydown", e.data)
-                    handleKeydown(event)
+                    triggerEditorAction(e.data.type)
                 }
             }, false)
-            document.addEventListener("keydown", handleKeydown);
+            document.addEventListener("keydown", (e: KeyboardEvent) => {
+                const action = pxsim.accessibility.getKeyboardShortcutEditorAction(e)
+                triggerEditorAction(action)
+            });
         }
     }
 
