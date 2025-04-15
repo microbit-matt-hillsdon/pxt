@@ -131,7 +131,8 @@ namespace pxtmelody {
             const outer = mkElement("div", {
                 className: "melody-gallery-button melody-editor-card",
                 role: "menuitem",
-                id: `:${i}`
+                id: `:${i}`,
+                tabIndex: "0"
             });
 
             const icon = mkElement("i", {

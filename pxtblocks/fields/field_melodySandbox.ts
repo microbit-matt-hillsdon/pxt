@@ -186,7 +186,6 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         this.doneButton.addEventListener("click", () => this.onDone());
         this.doneButton.addEventListener("keydown", (e) => {
             if (e.code === "Tab" && !e.shiftKey) {
-                this.elt.focus();
                 e.preventDefault();
             }
         });
@@ -601,12 +600,6 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
                 this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${x}${y}`);
                 return;
             }
-            case "Tab":
-                if (e.shiftKey) {
-                    this.doneButton.focus();
-                    e.preventDefault();
-                }
-                return;
             case "Escape": {
                 (this.sourceBlock_.workspace as Blockly.WorkspaceSvg).markFocused();
                 return;
@@ -782,6 +775,7 @@ interface ToggleProps {
 }
 
 class Toggle {
+
     protected leftElement: svg.Group;
     protected leftText: svg.Text;
     protected rightElement: svg.Group;
@@ -882,6 +876,26 @@ class Toggle {
         this.rightElement.appendChild(this.rightText);
 
         this.root.onClick(() => this.toggle());
+        this.root.el.tabIndex = 0;
+        this.root.el.addEventListener(
+            "keydown",
+            (e) => {
+                if ([
+                    "Space",
+                    "ArrowLeft",
+                    "ArrowRight",
+                    "Enter"
+                ].includes(e.code)) {
+                     this.toggle();
+                     e.stopPropagation();
+                     e.preventDefault();
+                     return;
+                }
+                if (e.code === "Tab" && e.shiftKey) {
+                    e.preventDefault();
+                    return;
+                }
+            });
     }
 
     toggle(quiet = false) {
