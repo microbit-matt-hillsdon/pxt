@@ -14,6 +14,13 @@ const KeyboardNavHelp = () => {
             <Shortcut value={[cmd, "Enter"]} />
         </td>
     </tr>
+    const cleanUp = <tr>
+        {/* TODO: this needs to be reconciled with "Format Code" */}
+        <td width="50%">Workspace: Clean up</td>
+        <td width="50%">
+            <Shortcut value={["C"]} /><br />
+        </td>
+    </tr>
     return (
         <aside id="keyboardnavhelp" aria-label={lf("Keyboard Controls")} ref={ref} tabIndex={0}>
             <h2>Keyboard Controls</h2>
@@ -59,6 +66,7 @@ const KeyboardNavHelp = () => {
                             <Shortcut value={[cmd, "C"]} /> / <Shortcut value={[cmd, "V"]} />
                         </td>
                     </tr>
+                    {cleanUp}
                     {contextMenu}
                 </tbody>
             </table>
@@ -118,13 +126,7 @@ const KeyboardNavHelp = () => {
                             <Shortcut value={["W"]} /><br />
                         </td>
                     </tr>
-                    <tr>
-                        {/* TODO: this needs to be reconciled with "Format Code" */}
-                        <td width="50%">Workspace: Clean up</td>
-                        <td width="50%">
-                            <Shortcut value={["C"]} /><br />
-                        </td>
-                    </tr>
+                    {cleanUp}
                     <tr>
                         <td width="50%">Simulator</td>
                         <td width="50%">
