@@ -429,7 +429,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
          * @param {string} message The message to display to the user.
          * @param {function()=} opt_callback The callback when the alert is dismissed.
          */
-        Blockly.dialog.setAlert(function (message, opt_callback) {
+        Blockly.dialog.setAlert((message, opt_callback) => {
             return core.confirmAsync({
                 hideCancel: true,
                 header: lf("Alert"),
@@ -442,6 +442,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 if (opt_callback) {
                     opt_callback();
                 }
+                this.editor.markFocused();
             })
         })
 
@@ -451,7 +452,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
          * @param {string} message The message to display to the user.
          * @param {!function(boolean)} callback The callback for handling user response.
          */
-        Blockly.dialog.setConfirm(function (message, callback) {
+        Blockly.dialog.setConfirm((message, callback) => {
             return core.confirmAsync({
                 header: lf("Confirm"),
                 body: message,
@@ -464,10 +465,11 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 size: "tiny"
             }).then(b => {
                 callback(b == 1);
+                this.editor.markFocused();
             })
         });
 
-        pxtblockly.external.setPrompt(function (message, defaultValue, callback, options?: Partial<core.PromptOptions>) {
+        pxtblockly.external.setPrompt((message, defaultValue, callback, options?: Partial<core.PromptOptions>) => {
             return core.promptAsync({
                 header: message,
                 initialValue: defaultValue,
@@ -477,6 +479,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 ...options
             }).then(value => {
                 callback(value);
+                this.editor.markFocused();
             })
         }, true);
 
