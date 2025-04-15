@@ -8,6 +8,12 @@ const KeyboardNavHelp = () => {
     const cmd = pxt.BrowserUtils.isMac() ? "⌘" : "Ctrl";
     const optionOrCtrl = pxt.BrowserUtils.isMac() ? "⌥" : "Ctrl"
     const enterOrSpace = <Shortcut value={["Enter", "Space"]} joinStyle="or" />
+    const contextMenu = <tr>
+        <td width="50%">Open context menu</td>
+        <td width="50%">
+            <Shortcut value={[cmd, "Enter"]} />
+        </td>
+    </tr>
     return (
         <aside id="keyboardnavhelp" aria-label={lf("Keyboard Controls")} ref={ref} tabIndex={0}>
             <h2>Keyboard Controls</h2>
@@ -53,6 +59,7 @@ const KeyboardNavHelp = () => {
                             <Shortcut value={[cmd, "C"]} /> / <Shortcut value={[cmd, "V"]} />
                         </td>
                     </tr>
+                    {contextMenu}
                 </tbody>
             </table>
             <h3>Editor Overview</h3>
@@ -195,12 +202,7 @@ const KeyboardNavHelp = () => {
                             { pxt.BrowserUtils.isWindows() ? <Shortcut value={["Ctrl", "Y"]} /> : <Shortcut value={[cmd, "Shift", "Z"]} /> }
                         </td>
                     </tr>
-                    <tr>
-                        <td width="50%">Open context menu</td>
-                        <td width="50%">
-                            <Shortcut value={[cmd, "Enter"]} />
-                        </td>
-                    </tr>
+                    {contextMenu}
                 </tbody>
             </table>
             <h3>Moving Blocks</h3>
