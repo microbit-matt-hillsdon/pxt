@@ -184,6 +184,12 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         pxt.BrowserUtils.addClass(this.doneButton, "melody-confirm-button");
         this.doneButton.innerText = lf("Done");
         this.doneButton.addEventListener("click", () => this.onDone());
+        this.doneButton.addEventListener("keydown", (e) => {
+            if (e.code === "Tab" && !e.shiftKey) {
+                this.elt.focus();
+                e.preventDefault();
+            }
+        });
         this.doneButton.style.setProperty("background-color", color);
 
         this.playButton = document.createElement("button");
@@ -543,7 +549,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             parentElement: this.elt
         });
 
-        this.selected = [0, 0];
+        this.selected = undefined;
         this.updateGrid();
         this.attachEventHandlersToMatrix();
         return this.elt;
@@ -553,14 +559,20 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         if ((this.sourceBlock_.workspace as any).isFlyout) return;
 
         this.elt.addEventListener("keydown", this.keyHandler.bind(this));
-        this.elt.addEventListener("focus", () => {
-            const selected: number[] = this.selected ?? [0,0];
-            this.setFocusIndicator(this.cells[selected[0]][selected[1]], this.melody.getValue(selected[1], selected[0]));
+        this.elt.addEventListener("focus", (event) => {
+            if (!this.selected) {
+                return;
+            }
+            this.setFocusIndicator(
+                this.cells[this.selected[0]][this.selected[1]], 
+                this.melody.getValue(this.selected[1], this.selected[0])
+            );
         });
         this.elt.addEventListener("blur", () => {
-            const selected: number[] = this.selected ?? [0,0];
-            this.setFocusIndicator();
-        })
+            if (this.cells) {
+                this.setFocusIndicator();
+            }
+        });
 
         for (let x = 0; x < this.numCol; ++x) {
             for (let y = 0; y < this.numRow; ++y) {
@@ -572,77 +584,92 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
     private attachPointerEventHandlersToCell(x: number, y: number, cellRect: SVGElement) {
         pxsim.pointerEvents.down.forEach(evid => cellRect.addEventListener(evid, (ev: MouseEvent) => {
             this.onNoteSelect(y, x); // row,col is y,x ordering
+            this.setFocusIndicator();
             ev.stopPropagation();
             ev.preventDefault();
         }, false));
     }
 
     private keyHandler(e: KeyboardEvent) {
-        if (!this.selected) {
-            return
-        }
-        const [x, y] = this.selected;
-        const ctrlCmd = pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey;
+        // First handle high level navigation
         switch(e.code) {
-            case "KeyW":
-            case "ArrowUp": {
-                if (y !== 0) {
-                    this.selected = [x, y - 1]
-                }
-                break;
-            }
-            case "KeyS":
-            case "ArrowDown": {
-                if (y !== this.cells[0].length - 1) {
-                    this.selected = [x, y + 1]
-                }
-                break;
-            }
-            case "KeyA":
-            case "ArrowLeft": {
-                if (x !== 0) {
-                    this.selected = [x - 1, y]
-                } else if (y !== 0){
-                    this.selected = [this.numCol - 1, y - 1]
-                }
-                break;
-            }
-            case "KeyD":
-            case "ArrowRight": {
-                if (x !== this.cells.length - 1) {
-                    this.selected = [x + 1, y]
-                } else if (y !== this.numRow - 1) {
-                    this.selected = [0, y + 1]
-                }
-                break;
-            }
-            case "Home": {
-                if (ctrlCmd) {
-                    this.selected = [0, 0]
-                } else {
-                    this.selected = [0, y]
-                }
-                break;
-            }
-            case "End": {
-                if (ctrlCmd) {
-                    this.selected = [this.numCol - 1, this.numRow - 1]
-                } else {
-                    this.selected = [this.numCol - 1, y]
-                }
-                break;
-            }
             case "Enter":
             case "Space": {
-                this.onNoteSelect(y, x);
-                break;
+                const [x, y] = this.selected;
+                this.onNoteSelect(y, x);     
+                this.setFocusIndicator(this.cells[x][y], this.melody.getValue(y, x));
+                this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${x}${y}`);
+                return;
             }
+            case "Tab":
+                if (e.shiftKey) {
+                    this.doneButton.focus();
+                    e.preventDefault();
+                }
+                return;
             case "Escape": {
                 (this.sourceBlock_.workspace as Blockly.WorkspaceSvg).markFocused();
                 return;
             }
-            default: {
-                return
+        }
+        // If there's nothing currently selected, the first keypress just creates the cursor
+        if (!this.selected) {
+            this.selected = [0,0];
+        } else {
+            const [x, y] = this.selected;
+            const ctrlCmd = pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey;
+            switch(e.code) {
+                case "KeyW":
+                case "ArrowUp": {
+                    if (y !== 0) {
+                        this.selected = [x, y - 1]
+                    }
+                    break;
+                }
+                case "KeyS":
+                case "ArrowDown": {
+                    if (y !== this.cells[0].length - 1) {
+                        this.selected = [x, y + 1]
+                    }
+                    break;
+                }
+                case "KeyA":
+                case "ArrowLeft": {
+                    if (x !== 0) {
+                        this.selected = [x - 1, y]
+                    } else if (y !== 0){
+                        this.selected = [this.numCol - 1, y - 1]
+                    }
+                    break;
+                }
+                case "KeyD":
+                case "ArrowRight": {
+                    if (x !== this.cells.length - 1) {
+                        this.selected = [x + 1, y]
+                    } else if (y !== this.numRow - 1) {
+                        this.selected = [0, y + 1]
+                    }
+                    break;
+                }
+                case "Home": {
+                    if (ctrlCmd) {
+                        this.selected = [0, 0]
+                    } else {
+                        this.selected = [0, y]
+                    }
+                    break;
+                }
+                case "End": {
+                    if (ctrlCmd) {
+                        this.selected = [this.numCol - 1, this.numRow - 1]
+                    } else {
+                        this.selected = [this.numCol - 1, y]
+                    }
+                    break;
+                }
+                default: {
+                    return;
+                }
             }
         }
         const [newX, newY] = this.selected;
@@ -650,8 +677,8 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${newX}${newY}`);
         e.preventDefault();
         e.stopPropagation();
-    }
 
+    }
 
     private setFocusIndicator(cell?: SVGRectElement, ledOn?: boolean) {
         this.cells.forEach(cell => cell.forEach(cell => cell.nextElementSibling.firstElementChild.classList.remove("selectedLedOn", "selectedLedOff")));
@@ -936,10 +963,3 @@ function getPlaceholderColor(row: number): string {
     }
     return "#DCDCDC";
 }
-
-
-Blockly.Css.register(`
-    #melody-play-button:focus-visible {
-        outline: 3px solid white;
-    }
-`);
