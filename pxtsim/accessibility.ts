@@ -8,9 +8,7 @@ namespace pxsim.accessibility {
         elem.setAttribute("tabindex", "0");
     }
 
-    // Matching in initAccessibilityBlocks shortcuts in blocks.tsx so that
-    // the keyboard shortcuts are handled the same way in the simulator iframe.
-    const getKeyboardShortcutEditorAction = (e: KeyboardEvent): pxsim.SimulatorActionMessage["type"] | null => {
+    export function getKeyboardShortcutEditorAction(e: KeyboardEvent): pxsim.SimulatorActionMessage["type"] | null {
         const meta  = e.metaKey || e.ctrlKey;
         if (e.key === "/" && meta) {
             e.preventDefault();

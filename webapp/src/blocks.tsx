@@ -578,26 +578,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 ]
             });
 
-            // Duplicated in simulator pxtsim accessibility.ts so that the
-            // the keyboard shortcuts are handled the same way in the simulator iframe.
-            const getKeyboardShortcutEditorAction = (e: KeyboardEvent): pxsim.SimulatorActionMessage["type"] | null => {
-                const meta  = e.metaKey || e.ctrlKey;
-                if (e.key === "/" && meta) {
-                    e.preventDefault();
-                    return "toggleShortcutDoc"
-                } else if (e.key === "e" && meta) {
-                    e.preventDefault();
-                    return "focusWorkspace"
-                } else if (e.key === "b" && meta) {
-                    e.preventDefault();
-                    return "focusSimulator"
-                } else if (e.key === "d" && meta) {
-                    e.preventDefault();
-                    return "webUSBDownload"
-                }
-                return null
-            }
-
             const triggerEditorAction = (action: pxsim.SimulatorActionMessage["type"]) => {
                 switch (action) {
                     case "toggleShortcutDoc": {
@@ -645,7 +625,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 }
             }, false)
             document.addEventListener("keydown", (e: KeyboardEvent) => {
-                const action = getKeyboardShortcutEditorAction(e)
+                const action = pxsim.accessibility.getKeyboardShortcutEditorAction(e)
                 triggerEditorAction(action)
             });
         }
