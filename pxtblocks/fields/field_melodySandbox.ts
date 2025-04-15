@@ -3,7 +3,7 @@
 import * as Blockly from "blockly";
 
 import svg = pxt.svgUtil;
-import { FieldCustom, FieldCustomOptions, setMelodyEditorOpen } from "./field_utils";
+import { createMatrixDisplay, FieldCustom, FieldCustomOptions, setMelodyEditorOpen } from "./field_utils";
 export const HEADER_HEIGHT = 50;
 export const TOTAL_WIDTH = 300;
 
@@ -56,6 +56,8 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
     private root: svg.SVG;
     private gallery: pxtmelody.MelodyGallery;
 
+    private selected: number[] | undefined = undefined;
+
     constructor(value: string, params: U, validator?: Blockly.FieldValidator) {
         super(value, validator);
         this.params = params;
@@ -94,6 +96,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
 
             setMelodyEditorOpen(this.sourceBlock_, false);
         });
+        this.elt.focus();
     }
 
     getValue() {
@@ -436,7 +439,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             const rowClass = pxtmelody.getColorClass(row);
 
             for (let col = 0; col < this.numCol; col++) {
-                const cell = this.cells[row][col];
+                const cell = this.cells[col][row];
 
                 if (this.melody.getValue(row, col)) {
                     pxt.BrowserUtils.removeClass(cell, "melody-default");
@@ -513,7 +516,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
     }
 
     private highlightColumn(col: number, on: boolean) {
-        const cells = this.cells.map(row => row[col]);
+        const cells = this.cells[col];
 
         cells.forEach(cell => {
             if (on) pxt.BrowserUtils.addClass(cell, "playing")
@@ -525,49 +528,137 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         FieldCustomMelody.VIEWBOX_WIDTH = (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_VERTICAL_MARGIN) * this.numCol + FieldCustomMelody.CELL_VERTICAL_MARGIN;
         if (pxt.BrowserUtils.isEdge()) FieldCustomMelody.VIEWBOX_WIDTH += 37;
         FieldCustomMelody.VIEWBOX_HEIGHT = (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_HORIZONTAL_MARGIN) * this.numRow + FieldCustomMelody.CELL_HORIZONTAL_MARGIN;
-        this.elt = pxsim.svg.parseString(`<svg xmlns="http://www.w3.org/2000/svg" class="melody-grid-div" viewBox="0 0 ${FieldCustomMelody.VIEWBOX_WIDTH} ${FieldCustomMelody.VIEWBOX_HEIGHT}"/>`);
+        this.elt = pxsim.svg.parseString(`<svg xmlns="http://www.w3.org/2000/svg" class="melody-grid-div blocklyMatrix" viewBox="0 0 ${FieldCustomMelody.VIEWBOX_WIDTH} ${FieldCustomMelody.VIEWBOX_HEIGHT}" tabindex="0" />`);
 
-        // Create the cells of the matrix that is displayed
-        this.cells = []; // initialize array that holds rect svg elements
-        for (let i = 0; i < this.numRow; i++) {
-            this.cells.push([]);
-        }
-        for (let i = 0; i < this.numRow; i++) {
-            for (let j = 0; j < this.numCol; j++) {
-                this.createCell(i, j);
-            }
-        }
+        this.cells = createMatrixDisplay({
+            blocklyId: this.sourceBlock_.id,
+            cellWidth: FieldCustomMelody.CELL_WIDTH,
+            cellHeight: FieldCustomMelody.CELL_WIDTH,
+            cellLabel: lf("Note"),
+            cellHorizontalMargin: FieldCustomMelody.CELL_HORIZONTAL_MARGIN,
+            cellVerticalMargin: FieldCustomMelody.CELL_VERTICAL_MARGIN,
+            cornerRadius: FieldCustomMelody.CELL_CORNER_RADIUS,
+            matrixHeight: this.numRow,
+            matrixWidth: this.numCol,
+            parentElement: this.elt
+        });
+
+        this.selected = [0, 0];
+        this.updateGrid();
+        this.attachEventHandlersToMatrix();
         return this.elt;
     }
 
-    private createCell(x: number, y: number) {
-        const tx = x * (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_HORIZONTAL_MARGIN) + FieldCustomMelody.CELL_HORIZONTAL_MARGIN;
-        const ty = y * (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_VERTICAL_MARGIN) + FieldCustomMelody.CELL_VERTICAL_MARGIN;
-
-        const cellG = pxsim.svg.child(this.elt, "g", { transform: `translate(${ty} ${tx})` }) as SVGGElement;
-        const cellRect = pxsim.svg.child(cellG, "rect", {
-            'cursor': 'pointer',
-            'width': FieldCustomMelody.CELL_WIDTH,
-            'height': FieldCustomMelody.CELL_WIDTH,
-            'stroke': 'white',
-            'data-x': x,
-            'data-y': y,
-            'rx': FieldCustomMelody.CELL_CORNER_RADIUS
-        }) as SVGRectElement;
-
-        // add appropriate class so the cell has the correct fill color
-        if (this.melody.getValue(x, y)) pxt.BrowserUtils.addClass(cellRect, pxtmelody.getColorClass(x));
-        else pxt.BrowserUtils.addClass(cellRect, "melody-default");
-
+    private attachEventHandlersToMatrix() {
         if ((this.sourceBlock_.workspace as any).isFlyout) return;
 
+        this.elt.addEventListener("keydown", this.keyHandler.bind(this));
+        this.elt.addEventListener("focus", () => {
+            const selected: number[] = this.selected ?? [0,0];
+            this.setFocusIndicator(this.cells[selected[0]][selected[1]], this.melody.getValue(selected[1], selected[0]));
+        });
+        this.elt.addEventListener("blur", () => {
+            const selected: number[] = this.selected ?? [0,0];
+            this.setFocusIndicator();
+        })
+
+        for (let x = 0; x < this.numCol; ++x) {
+            for (let y = 0; y < this.numRow; ++y) {
+                this.attachPointerEventHandlersToCell(x,y,this.cells[x][y]);
+            }
+        }
+    }
+
+    private attachPointerEventHandlersToCell(x: number, y: number, cellRect: SVGElement) {
         pxsim.pointerEvents.down.forEach(evid => cellRect.addEventListener(evid, (ev: MouseEvent) => {
-            this.onNoteSelect(x, y);
+            this.onNoteSelect(y, x); // row,col is y,x ordering
             ev.stopPropagation();
             ev.preventDefault();
         }, false));
+    }
 
-        this.cells[x][y] = cellRect;
+    private keyHandler(e: KeyboardEvent) {
+        if (!this.selected) {
+            return
+        }
+        const [x, y] = this.selected;
+        const ctrlCmd = pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey;
+        switch(e.code) {
+            case "KeyW":
+            case "ArrowUp": {
+                if (y !== 0) {
+                    this.selected = [x, y - 1]
+                }
+                break;
+            }
+            case "KeyS":
+            case "ArrowDown": {
+                if (y !== this.cells[0].length - 1) {
+                    this.selected = [x, y + 1]
+                }
+                break;
+            }
+            case "KeyA":
+            case "ArrowLeft": {
+                if (x !== 0) {
+                    this.selected = [x - 1, y]
+                } else if (y !== 0){
+                    this.selected = [this.numCol - 1, y - 1]
+                }
+                break;
+            }
+            case "KeyD":
+            case "ArrowRight": {
+                if (x !== this.cells.length - 1) {
+                    this.selected = [x + 1, y]
+                } else if (y !== this.numRow - 1) {
+                    this.selected = [0, y + 1]
+                }
+                break;
+            }
+            case "Home": {
+                if (ctrlCmd) {
+                    this.selected = [0, 0]
+                } else {
+                    this.selected = [0, y]
+                }
+                break;
+            }
+            case "End": {
+                if (ctrlCmd) {
+                    this.selected = [this.numCol - 1, this.numRow - 1]
+                } else {
+                    this.selected = [this.numCol - 1, y]
+                }
+                break;
+            }
+            case "Enter":
+            case "Space": {
+                this.onNoteSelect(y, x);
+                break;
+            }
+            case "Escape": {
+                (this.sourceBlock_.workspace as Blockly.WorkspaceSvg).markFocused();
+                return;
+            }
+            default: {
+                return
+            }
+        }
+        const [newX, newY] = this.selected;
+        this.setFocusIndicator(this.cells[newX][newY], this.melody.getValue(newY, newX));
+        this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${newX}${newY}`);
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+
+    private setFocusIndicator(cell?: SVGRectElement, ledOn?: boolean) {
+        this.cells.forEach(cell => cell.forEach(cell => cell.nextElementSibling.firstElementChild.classList.remove("selectedLedOn", "selectedLedOff")));
+        if (cell) {
+            const className = ledOn ? "selectedLedOn" : "selectedLedOff"
+            cell.nextElementSibling.firstElementChild.classList.add(className);
+        }
     }
 
     private togglePlay() {
@@ -845,3 +936,10 @@ function getPlaceholderColor(row: number): string {
     }
     return "#DCDCDC";
 }
+
+
+Blockly.Css.register(`
+    #melody-play-button:focus-visible {
+        outline: 3px solid white;
+    }
+`);
