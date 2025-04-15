@@ -87,8 +87,8 @@ namespace pxsim {
         type: "focusSimulator";
     }
 
-    export interface SimulatorDownloadMessage extends SimulatorMessage {
-        type: "download";
+    export interface SimulatorWebUSBDownloadMessage extends SimulatorMessage {
+        type: "webUSBDownload";
     }
 
     export interface SimulatorStateMessage extends SimulatorMessage {

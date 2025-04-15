@@ -13,7 +13,7 @@ namespace pxsim.accessibility {
     type SimulatorShortcutMessage = pxsim.SimulatorToggleShortcutDocMessage
         | pxsim.SimulatorFocusWorkspaceMessage
         | pxsim.SimulatorFocusSimulatorMessage
-        | pxsim.SimulatorDownloadMessage
+        | pxsim.SimulatorWebUSBDownloadMessage
     type EditorCommand = SimulatorShortcutMessage["type"]
     const getEditorCommand = (e: KeyboardEvent): EditorCommand | null => {
         const meta  = e.metaKey || e.ctrlKey;
@@ -28,7 +28,7 @@ namespace pxsim.accessibility {
             return "focusSimulator"
         } else if (e.key === "d" && meta) {
             e.preventDefault();
-            return "download"
+            return "webUSBDownload"
         }
         return null
     }

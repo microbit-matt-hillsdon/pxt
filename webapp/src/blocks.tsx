@@ -598,7 +598,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                     return "focusSimulator"
                 } else if (e.key === "d" && meta) {
                     e.preventDefault();
-                    return "download"
+                    return "webUSBDownload"
                 }
                 return null
             }
