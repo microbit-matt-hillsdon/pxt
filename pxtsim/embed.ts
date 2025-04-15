@@ -75,20 +75,8 @@ namespace pxsim {
         url: string;
     }
 
-    export interface SimulatorToggleShortcutDocMessage extends SimulatorMessage {
-        type: "toggleShortcutDoc";
-    }
-
-    export interface SimulatorFocusWorkspaceMessage extends SimulatorMessage {
-        type: "focusWorkspace";
-    }
-
-    export interface SimulatorFocusSimulatorMessage extends SimulatorMessage {
-        type: "focusSimulator";
-    }
-
-    export interface SimulatorWebUSBDownloadMessage extends SimulatorMessage {
-        type: "webUSBDownload";
+    export interface SimulatorActionMessage extends SimulatorMessage {
+        type: "toggleShortcutDoc" | "focusWorkspace" | "focusSimulator" | "webUSBDownload";
     }
 
     export interface SimulatorStateMessage extends SimulatorMessage {

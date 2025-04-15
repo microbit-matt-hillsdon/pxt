@@ -580,11 +580,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
             // Duplicated in simulator pxtsim accessibility.ts so that the
             // the keyboard shortcuts are handled the same way in the simulator iframe.
-            type SimulatorShortcutMessage = pxsim.SimulatorToggleShortcutDocMessage
-                | pxsim.SimulatorFocusWorkspaceMessage
-                | pxsim.SimulatorFocusSimulatorMessage
-                | pxsim.SimulatorWebUSBDownloadMessage
-            type EditorCommand = SimulatorShortcutMessage["type"]
+            type EditorCommand = pxsim.SimulatorActionMessage["type"]
             const getEditorCommand = (e: KeyboardEvent): EditorCommand | null => {
                 const meta  = e.metaKey || e.ctrlKey;
                 if (e.key === "/" && meta) {
@@ -643,11 +639,10 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 // Simulator deployed origin.
                 "https://trg-microbit.userpxt.io"
             ]
-            window.addEventListener("message", (e: MessageEvent) => {
+            window.addEventListener("message", (e: MessageEvent<pxsim.SimulatorActionMessage>) => {
                 // Listen to simulator iframe keydown post messages.
                 if (simulatorOrigins.includes(e.origin)) {
-                    const msg = e.data as SimulatorShortcutMessage
-                    triggerEditorCommand(msg.type)
+                    triggerEditorCommand(e.data.type)
                 }
             }, false)
             document.addEventListener("keydown", (e: KeyboardEvent) => {
