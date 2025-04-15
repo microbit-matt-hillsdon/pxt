@@ -10,8 +10,7 @@ namespace pxsim.accessibility {
 
     // Matching in initAccessibilityBlocks shortcuts in blocks.tsx so that
     // the keyboard shortcuts are handled the same way in the simulator iframe.
-    type EditorCommand = pxsim.SimulatorActionMessage["type"]
-    const getEditorCommand = (e: KeyboardEvent): EditorCommand | null => {
+    const getKeyboardShortcutEditorAction = (e: KeyboardEvent): pxsim.SimulatorActionMessage["type"] | null => {
         const meta  = e.metaKey || e.ctrlKey;
         if (e.key === "/" && meta) {
             e.preventDefault();
@@ -31,9 +30,9 @@ namespace pxsim.accessibility {
 
     export function postKeyboardEvent() {
         document.addEventListener("keydown", (e) => {
-            const command = getEditorCommand(e)
-            if (command) {
-                Runtime.postMessage({ type: command })
+            const action = getKeyboardShortcutEditorAction(e)
+            if (action) {
+                Runtime.postMessage({ type: action })
             }
         });
     }

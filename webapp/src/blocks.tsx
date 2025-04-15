@@ -580,8 +580,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
             // Duplicated in simulator pxtsim accessibility.ts so that the
             // the keyboard shortcuts are handled the same way in the simulator iframe.
-            type EditorCommand = pxsim.SimulatorActionMessage["type"]
-            const getEditorCommand = (e: KeyboardEvent): EditorCommand | null => {
+            const getKeyboardShortcutEditorAction = (e: KeyboardEvent): pxsim.SimulatorActionMessage["type"] | null => {
                 const meta  = e.metaKey || e.ctrlKey;
                 if (e.key === "/" && meta) {
                     e.preventDefault();
@@ -599,8 +598,8 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 return null
             }
 
-            const triggerEditorCommand = (command: EditorCommand) => {
-                switch (command) {
+            const triggerEditorAction = (action: pxsim.SimulatorActionMessage["type"]) => {
+                switch (action) {
                     case "toggleShortcutDoc": {
                         this.parent.toggleBuiltInSideDoc("keyboardNav", false);
                         return
@@ -642,12 +641,12 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             window.addEventListener("message", (e: MessageEvent<pxsim.SimulatorActionMessage>) => {
                 // Listen to simulator iframe keydown post messages.
                 if (simulatorOrigins.includes(e.origin)) {
-                    triggerEditorCommand(e.data.type)
+                    triggerEditorAction(e.data.type)
                 }
             }, false)
             document.addEventListener("keydown", (e: KeyboardEvent) => {
-                const command = getEditorCommand(e)
-                triggerEditorCommand(command)
+                const action = getKeyboardShortcutEditorAction(e)
+                triggerEditorAction(action)
             });
         }
     }
