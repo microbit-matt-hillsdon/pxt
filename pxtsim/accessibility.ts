@@ -8,8 +8,13 @@ namespace pxsim.accessibility {
         elem.setAttribute("tabindex", "0");
     }
 
-    // Matching initAccessibilityBlocks shortcuts in blocks.tsx.
-    type EditorCommand = "toggleShortcutDoc" | "focusWorkspace" | "focusSimulator" | "download"
+    // Matching in initAccessibilityBlocks shortcuts in blocks.tsx so that
+    // the keyboard shortcuts are handled the same way in the simulator iframe.
+    type SimulatorShortcutMessage = pxsim.SimulatorToggleShortcutDocMessage
+        | pxsim.SimulatorFocusWorkspaceMessage
+        | pxsim.SimulatorFocusSimulatorMessage
+        | pxsim.SimulatorDownloadMessage
+    type EditorCommand = SimulatorShortcutMessage["type"]
     const getEditorCommand = (e: KeyboardEvent): EditorCommand | null => {
         const meta  = e.metaKey || e.ctrlKey;
         if (e.key === "/" && meta) {
@@ -32,9 +37,7 @@ namespace pxsim.accessibility {
         document.addEventListener("keydown", (e) => {
             const command = getEditorCommand(e)
             if (command) {
-                e.preventDefault()
-                // TODO: origin
-                window.parent.postMessage(command, "*");
+                Runtime.postMessage({ type: command })
             }
         });
     }
