@@ -10,11 +10,14 @@ namespace pxsim.accessibility {
 
     export function postKeyboardEvent() {
         document.addEventListener("keydown", (e) => {
-            // TODO: origin
-            window.parent.postMessage(
-              { key: e.key, metaKey: e.metaKey, ctrlKey: e.ctrlKey },
-              "*"
-            );
+            if (["e", "/", "b", "d"].includes(e.key) && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault()
+                // TODO: origin
+                window.parent.postMessage(
+                    { key: e.key, metaKey: e.metaKey, ctrlKey: e.ctrlKey },
+                    "*"
+                );
+            }
         });
     }
 
