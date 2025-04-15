@@ -614,33 +614,40 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
                 case "KeyW":
                 case "ArrowUp": {
                     if (y !== 0) {
+                        const hasNote = this.getMelodyNote(x) !== undefined;
                         this.selected = [x, y - 1]
+                        if (hasNote) {
+                            this.onNoteSelect(this.selected[1], this.selected[0]);
+                        }
                     }
                     break;
                 }
                 case "KeyS":
                 case "ArrowDown": {
                     if (y !== this.cells[0].length - 1) {
+                        const hasNote = this.getMelodyNote(x) !== undefined;
                         this.selected = [x, y + 1]
+                        if (hasNote) {
+                            this.onNoteSelect(this.selected[1], this.selected[0]);
+                        }
                     }
                     break;
                 }
                 case "KeyA":
                 case "ArrowLeft": {
-                    if (x !== 0) {
-                        this.selected = [x - 1, y]
-                    } else if (y !== 0){
-                        this.selected = [this.numCol - 1, y - 1]
-                    }
+                    const newX = (x + this.numCol - 1) % this.numCol;
+                    const existingY = this.getMelodyNote(newX) ?? y;
+                    this.selected = [newX, existingY]
+                    
                     break;
                 }
                 case "KeyD":
                 case "ArrowRight": {
-                    if (x !== this.cells.length - 1) {
-                        this.selected = [x + 1, y]
-                    } else if (y !== this.numRow - 1) {
-                        this.selected = [0, y + 1]
-                    }
+
+                    const newX = (x + this.numCol + 1) % this.numCol;
+                    const existingY = this.getMelodyNote(newX) ?? y;
+                    this.selected = [newX, existingY]
+
                     break;
                 }
                 case "Home": {
@@ -670,6 +677,15 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         e.preventDefault();
         e.stopPropagation();
 
+    }
+
+    private getMelodyNote(col: number) {
+        for (let i=0; i<this.numRow; ++i) {
+            if (this.melody.getValue(i, col)) {
+                return i;
+            }
+        }
+        return undefined;
     }
 
     private setFocusIndicator(cell?: SVGRectElement) {
