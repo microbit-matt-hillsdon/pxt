@@ -8,15 +8,33 @@ namespace pxsim.accessibility {
         elem.setAttribute("tabindex", "0");
     }
 
+    // Matching initAccessibilityBlocks shortcuts in blocks.tsx.
+    type EditorCommand = "toggleShortcutDoc" | "focusWorkspace" | "focusSimulator" | "download"
+    const getEditorCommand = (e: KeyboardEvent): EditorCommand | null => {
+        const meta  = e.metaKey || e.ctrlKey;
+        if (e.key === "/" && meta) {
+            e.preventDefault();
+            return "toggleShortcutDoc"
+        } else if (e.key === "e" && meta) {
+            e.preventDefault();
+            return "focusWorkspace"
+        } else if (e.key === "b" && meta) {
+            e.preventDefault();
+            return "focusSimulator"
+        } else if (e.key === "d" && meta) {
+            e.preventDefault();
+            return "download"
+        }
+        return null
+    }
+
     export function postKeyboardEvent() {
         document.addEventListener("keydown", (e) => {
-            if (["e", "/", "b", "d"].includes(e.key) && (e.metaKey || e.ctrlKey)) {
+            const command = getEditorCommand(e)
+            if (command) {
                 e.preventDefault()
                 // TODO: origin
-                window.parent.postMessage(
-                    { key: e.key, metaKey: e.metaKey, ctrlKey: e.ctrlKey },
-                    "*"
-                );
+                window.parent.postMessage(command, "*");
             }
         });
     }
