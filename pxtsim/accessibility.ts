@@ -8,13 +8,30 @@ namespace pxsim.accessibility {
         elem.setAttribute("tabindex", "0");
     }
 
+    export function getKeyboardShortcutEditorAction(e: KeyboardEvent): pxsim.SimulatorActionMessage["type"] | null {
+        const meta  = e.metaKey || e.ctrlKey;
+        if (e.key === "/" && meta) {
+            e.preventDefault();
+            return "toggleShortcutDoc"
+        } else if (e.key === "e" && meta) {
+            e.preventDefault();
+            return "focusWorkspace"
+        } else if (e.key === "b" && meta) {
+            e.preventDefault();
+            return "focusSimulator"
+        } else if (e.key === "d" && meta) {
+            e.preventDefault();
+            return "webUSBDownload"
+        }
+        return null
+    }
+
     export function postKeyboardEvent() {
         document.addEventListener("keydown", (e) => {
-            // TODO: origin
-            window.parent.postMessage(
-              { key: e.key, metaKey: e.metaKey, ctrlKey: e.ctrlKey },
-              "*"
-            );
+            const action = getKeyboardShortcutEditorAction(e)
+            if (action) {
+                Runtime.postMessage({ type: action })
+            }
         });
     }
 
