@@ -583,7 +583,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             type SimulatorShortcutMessage = pxsim.SimulatorToggleShortcutDocMessage
                 | pxsim.SimulatorFocusWorkspaceMessage
                 | pxsim.SimulatorFocusSimulatorMessage
-                | pxsim.SimulatorDownloadMessage
+                | pxsim.SimulatorWebUSBDownloadMessage
             type EditorCommand = SimulatorShortcutMessage["type"]
             const getEditorCommand = (e: KeyboardEvent): EditorCommand | null => {
                 const meta  = e.metaKey || e.ctrlKey;
@@ -618,7 +618,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                         (document.querySelector("#boardview") as HTMLElement).focus();
                         return
                     }
-                    case "download": {
+                    case "webUSBDownload": {
                         (async () => {
                             // TODO: refactor and share with editortoolbar.tsx
                             const shouldShowPairingDialogOnDownload = pxt.appTarget.appTheme.preferWebUSBDownload
