@@ -5,8 +5,8 @@ const KeyboardNavHelp = () => {
     React.useEffect(() => {
         ref.current?.focus()
     }, []);
-    const cmd = pxt.BrowserUtils.isMac() ? "⌘" : "Ctrl+";
-    const optionOrCtrl = pxt.BrowserUtils.isMac() ? "⌥" : "Ctrl+"
+    const cmd = pxt.BrowserUtils.isMac() ? "⌘" : "Ctrl";
+    const optionOrCtrl = pxt.BrowserUtils.isMac() ? "⌥" : "Ctrl"
     const enterOrSpace = <Shortcut value={["Enter", "Space"]} joinStyle="or" />
     return (
         <aside id="keyboardnavhelp" aria-label={lf("Keyboard Controls")} ref={ref} tabIndex={0}>
