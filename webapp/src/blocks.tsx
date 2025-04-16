@@ -567,15 +567,12 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             Blockly.ShortcutRegistry.registry.unregister(cleanUpWorkspace.name);
             Blockly.ShortcutRegistry.registry.register({
                 ...cleanUpWorkspace,
-                keyCodes: [
-                    Blockly.ShortcutRegistry.registry.createSerializedKey(Blockly.utils.KeyCodes.C, null),
-                ],
+                keyCodes: [Blockly.ShortcutRegistry.registry.createSerializedKey(cleanUpWorkspace.keyCodes[0] as number, null)],
                 callback: (workspace) => {
                     flow(workspace, { useViewWidth: true });
                     return true
                 }
             });
-
         }
     }
 
