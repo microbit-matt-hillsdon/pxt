@@ -52,14 +52,10 @@ const KeyboardNavHelp = () => {
                             {enterOrSpace}
                         </td>
                     </tr>
-                    <tr>
-                        <td>Move mode</td>
-                        <td>
-                            <Shortcut value={["Shift", "M"]} />
-                            <br /><span className="hint">Move with arrow keys</span>
-                            <br /><span className="hint">Hold {optionOrCtrl} for free movement</span>
-                        </td>
-                    </tr>
+                    <MoveModeRow>
+                        <br /><span className="hint">Move with arrow keys</span>
+                        <br /><span className="hint">Hold {optionOrCtrl} for free movement</span>
+                    </MoveModeRow>
                     <tr>
                         <td>Copy / paste</td>
                         <td>
@@ -210,12 +206,7 @@ const KeyboardNavHelp = () => {
             <h3>Moving Blocks</h3>
             <table>
                 <tbody>
-                    <tr>
-                        <td>Move mode</td>
-                        <td>
-                            <Shortcut value={["Shift", "M"]} />
-                        </td>
-                    </tr>
+                    <MoveModeRow />
                     <tr>
                         <td>
                             Move mode: Move to new position
@@ -284,5 +275,15 @@ const Shortcut = ({ value, joinStyle = "and" }: { value: string[], joinStyle?: J
 const Key = ({ value }: { value: string }) => {
     return <span className="key">{value}</span>
 }
+
+const MoveModeRow = ({ children }: { children?: React.ReactNode}) => (
+    <tr>
+        <td>Move mode</td>
+        <td>
+            <Shortcut value={["M"]} />
+            {children}
+        </td>
+    </tr>
+)
 
 export default KeyboardNavHelp;
