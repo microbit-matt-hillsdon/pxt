@@ -131,16 +131,17 @@ export class BaseFieldTextDropdown extends Blockly.FieldTextInput {
             throw new Blockly.UnattachedFieldError();
         }
         this.dropdownCreate();
+        if (!this.menu_) return;
         if (e && typeof e.clientX === 'number') {
-            this.menu_!.openingCoords = new Blockly.utils.Coordinate(e.clientX, e.clientY);
+            this.menu_.openingCoords = new Blockly.utils.Coordinate(e.clientX, e.clientY);
         } else {
-            this.menu_!.openingCoords = null;
+            this.menu_.openingCoords = null;
         }
 
         // Remove any pre-existing elements in the dropdown.
         Blockly.DropDownDiv.clearContent();
         // Element gets created in render.
-        const menuElement = this.menu_!.render(Blockly.DropDownDiv.getContentDiv());
+        const menuElement = this.menu_.render(Blockly.DropDownDiv.getContentDiv());
         Blockly.utils.dom.addClass(menuElement, 'blocklyDropdownMenu');
 
         const parent = block.getParent() as Blockly.BlockSvg;
@@ -153,19 +154,14 @@ export class BaseFieldTextDropdown extends Blockly.FieldTextInput {
 
         Blockly.DropDownDiv.showPositionedByField(this, this.dropdownDispose_.bind(this));
 
+        Blockly.DropDownDiv.getContentDiv().style.height = `${this.menu_.getSize().height}px`;
+
         // Focusing needs to be handled after the menu is rendered and positioned.
         // Otherwise it will cause a page scroll to get the misplaced menu in
         // view. See issue #1329.
         // this.menu_!.focus();
 
-        if (this.selectedMenuItem) {
-            this.menu_!.setHighlighted(this.selectedMenuItem);
-            Blockly.utils.style.scrollIntoContainerView(
-                this.selectedMenuItem.getElement()!,
-                Blockly.DropDownDiv.getContentDiv(),
-                true,
-            );
-        }
+        this.menu_.setHighlighted(this.selectedMenuItem);
 
         this.applyColour();
     }
