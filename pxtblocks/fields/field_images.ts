@@ -44,6 +44,7 @@ export class FieldImages extends FieldImageDropdown implements FieldCustom {
         Blockly.DropDownDiv.clearContent();
         // Populate the drop-down with the icons for this field.
         let dropdownDiv = Blockly.DropDownDiv.getContentDiv() as HTMLElement;
+        dropdownDiv.classList.add('imageDropdownDiv');
         let contentDiv = document.createElement('div');
         // Accessibility properties
         contentDiv.setAttribute('role', 'grid');
@@ -161,6 +162,8 @@ export class FieldImages extends FieldImageDropdown implements FieldCustom {
         content.removeAttribute('aria-activedescendant');
         this.activeDescendantIndex = undefined;
         this.buttons = [];
+        let dropdownDiv = Blockly.DropDownDiv.getContentDiv() as HTMLElement;
+        dropdownDiv.classList.remove('imageDropdownDiv');
         let source = this.sourceBlock_ as Blockly.BlockSvg;
         if (source?.isShadow()) {
             source.setColour(this.savedPrimary_);

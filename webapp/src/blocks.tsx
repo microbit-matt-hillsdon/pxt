@@ -37,6 +37,7 @@ import { DuplicateOnDragConnectionChecker } from "../../pxtblocks/plugins/duplic
 import { PathObject } from "../../pxtblocks/plugins/renderer/pathObject";
 import { Measurements } from "./constants";
 import { userPrefersDownloadFlagSet } from "./webusb";
+import { flow } from "../../pxtblocks";
 
 interface CopyDataEntry {
     version: 1;
@@ -567,6 +568,17 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 delete focusRingDiv.dataset.focused;
             });
 
+            const cleanUpWorkspace = Blockly.ShortcutRegistry.registry.getRegistry()["clean_up_workspace"];
+            Blockly.ShortcutRegistry.registry.unregister(cleanUpWorkspace.name);
+            Blockly.ShortcutRegistry.registry.register({
+                ...cleanUpWorkspace,
+                keyCodes: [Blockly.ShortcutRegistry.registry.createSerializedKey(cleanUpWorkspace.keyCodes[0] as number, null)],
+                callback: (workspace) => {
+                    flow(workspace, { useViewWidth: true });
+                    return true
+                }
+            });
+
             const listShortcuts = Blockly.ShortcutRegistry.registry.getRegistry()["list_shortcuts"];
             Blockly.ShortcutRegistry.registry.unregister(listShortcuts.name);
             Blockly.ShortcutRegistry.registry.register({
@@ -630,7 +642,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             document.addEventListener("keydown", (e: KeyboardEvent) => {
                 const action = pxsim.accessibility.getKeyboardShortcutEditorAction(e)
                 triggerEditorAction(action)
-            });
+            })
         }
     }
 
