@@ -1748,7 +1748,7 @@ export class NotChromeOrChromiumEdgeDialog extends data.Component<ISettingsProps
     renderCore() {
         return (
           <sui.Modal
-            header={lf("Incompatible browser")}
+            header="Incompatible browser"
             isOpen={true}
             dimmer={true}
             closeOnDimmerClick={false}
@@ -1756,12 +1756,10 @@ export class NotChromeOrChromiumEdgeDialog extends data.Component<ISettingsProps
           >
             <div>
               <p>
-                {lf(
-                  "The browser you are using is not yet supported by this demo of MakeCode keyboard navigation."
-                )}
+                    The browser you are using is not yet supported by this demo of MakeCode keyboard navigation.
               </p>
               <p>
-                {lf("Please use Google Chrome or Microsoft Edge to continue.")}
+                    Please use Google Chrome or Microsoft Edge to continue.
               </p>
             </div>
           </sui.Modal>
