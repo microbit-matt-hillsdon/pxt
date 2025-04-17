@@ -1739,3 +1739,32 @@ export class ChooseHwDialog extends data.Component<ISettingsProps, ChooseHwDialo
         )
     }
 }
+
+export class NotChromeOrChromiumEdgeDialog extends data.Component<ISettingsProps, {}> {
+    constructor(props: ISettingsProps) {
+        super(props);
+    }
+
+    renderCore() {
+        return (
+          <sui.Modal
+            header={lf("Incompatible browser")}
+            isOpen={true}
+            dimmer={true}
+            closeOnDimmerClick={false}
+            size="tiny"
+          >
+            <div>
+              <p>
+                {lf(
+                  "The browser you are using is not yet supported by this demo of MakeCode keyboard navigation."
+                )}
+              </p>
+              <p>
+                {lf("Please use Google Chrome or Microsoft Edge to continue.")}
+              </p>
+            </div>
+          </sui.Modal>
+        );
+    }
+}

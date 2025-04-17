@@ -5434,6 +5434,7 @@ export class ProjectView
             && !(isBlocks
                 || (pkg.mainPkg && pkg.mainPkg.config && (pkg.mainPkg.config.preferredEditor == pxt.BLOCKS_PROJECT_NAME)));
         const hasIdentity = pxt.auth.hasIdentity();
+        const isNotChromeOrChromiumEdge = !pxt.BrowserUtils.isChromiumEdge() && !pxt.BrowserUtils.isChrome();
         return (
             <div id='root' className={rootClasses}>
                 {this.state.extensionsVisible &&
@@ -5512,6 +5513,7 @@ export class ProjectView
                     shouldFocusAfterRender={false} closable={true} onClose={this.hideLightbox} /> : undefined}
                 {this.state.onboarding && <Tour tourSteps={this.state.onboarding} onClose={this.hideOnboarding} />}
                 {this.state.themePickerOpen && <ThemePickerModal themes={this.themeManager.getAllColorThemes()} onThemeClicked={theme => this.setColorThemeById(theme?.id, true)} onClose={this.hideThemePicker} />}
+                {isNotChromeOrChromiumEdge && <projects.NotChromeOrChromiumEdgeDialog parent={this}/>}
             </div>
         );
     }
