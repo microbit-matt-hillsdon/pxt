@@ -165,7 +165,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             }
         });
         this.toggle.layout();
-        this.toggle.translate((TOTAL_WIDTH - this.toggle.width()) / 2, 0);
+        this.toggle.translate((TOTAL_WIDTH - this.toggle.width()) / 2, TOGGLE_PAD_TOP);
 
         div.appendChild(this.topDiv);
         div.appendChild(this.gallery.getElement());
@@ -563,8 +563,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
                 return;
             }
             this.setFocusIndicator(
-                this.cells[this.selected[0]][this.selected[1]], 
-                this.melody.getValue(this.selected[1], this.selected[0])
+                this.cells[this.selected[0]][this.selected[1]]
             );
         });
         this.elt.addEventListener("blur", () => {
@@ -596,7 +595,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             case "Space": {
                 const [x, y] = this.selected;
                 this.onNoteSelect(y, x);     
-                this.setFocusIndicator(this.cells[x][y], this.melody.getValue(y, x));
+                this.setFocusIndicator(this.cells[x][y]);
                 this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${x}${y}`);
                 return;
             }
@@ -666,17 +665,17 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             }
         }
         const [newX, newY] = this.selected;
-        this.setFocusIndicator(this.cells[newX][newY], this.melody.getValue(newY, newX));
+        this.setFocusIndicator(this.cells[newX][newY]);
         this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${newX}${newY}`);
         e.preventDefault();
         e.stopPropagation();
 
     }
 
-    private setFocusIndicator(cell?: SVGRectElement, ledOn?: boolean) {
+    private setFocusIndicator(cell?: SVGRectElement) {
         this.cells.forEach(cell => cell.forEach(cell => cell.nextElementSibling.firstElementChild.classList.remove("selectedLedOn", "selectedLedOff")));
         if (cell) {
-            const className = ledOn ? "selectedLedOn" : "selectedLedOff"
+            const className = "selectedLedOff"; // larger matrix better suited to the thicker highlight
             cell.nextElementSibling.firstElementChild.classList.add(className);
         }
     }
@@ -754,6 +753,7 @@ const TOGGLE_WIDTH = 200;
 const TOGGLE_HEIGHT = 40;
 const TOGGLE_BORDER_WIDTH = 2;
 const TOGGLE_CORNER_RADIUS = 4;
+const TOGGLE_PAD_TOP = 3;
 
 const BUTTON_CORNER_RADIUS = 2;
 const BUTTON_BORDER_WIDTH = 1;
@@ -827,20 +827,21 @@ class Toggle {
         }
         `);
 
-
         // The outer border has an inner-stroke so we need to clip out the outer part
         // because SVG's don't support "inner borders"
         const clip = this.root.def().create("clipPath", "sprite-editor-toggle-border")
             .clipPathUnits(true);
 
         clip.draw("rect")
-            .at(0, 0)
-            .corners(TOGGLE_CORNER_RADIUS / TOGGLE_WIDTH, TOGGLE_CORNER_RADIUS / TOGGLE_HEIGHT)
+            .at(0, TOGGLE_PAD_TOP)
+            .corners(TOGGLE_CORNER_RADIUS / TOGGLE_WIDTH, TOGGLE_CORNER_RADIUS / TOGGLE_HEIGHT - TOGGLE_PAD_TOP * 2)
             .size(1, 1);
 
+            
         // Draw the outer border
         this.root.draw("rect")
-            .size(TOGGLE_WIDTH, TOGGLE_HEIGHT)
+            .at(0, TOGGLE_PAD_TOP)
+            .size(TOGGLE_WIDTH, TOGGLE_HEIGHT - TOGGLE_PAD_TOP * 2)
             .fill(this.props.baseColor)
             .stroke(this.props.borderColor, TOGGLE_BORDER_WIDTH * 2)
             .corners(TOGGLE_CORNER_RADIUS, TOGGLE_CORNER_RADIUS)
@@ -849,15 +850,15 @@ class Toggle {
 
         // Draw the background
         this.root.draw("rect")
-            .at(TOGGLE_BORDER_WIDTH, TOGGLE_BORDER_WIDTH)
-            .size(TOGGLE_WIDTH - TOGGLE_BORDER_WIDTH * 2, TOGGLE_HEIGHT - TOGGLE_BORDER_WIDTH * 2)
+            .at(TOGGLE_BORDER_WIDTH, TOGGLE_BORDER_WIDTH+TOGGLE_PAD_TOP)
+            .size(TOGGLE_WIDTH - TOGGLE_BORDER_WIDTH * 2, TOGGLE_HEIGHT - TOGGLE_BORDER_WIDTH * 2 - TOGGLE_PAD_TOP)
             .fill(this.props.backgroundColor)
             .corners(TOGGLE_CORNER_RADIUS, TOGGLE_CORNER_RADIUS);
 
         // Draw the switch
         this.switch = this.root.draw("rect")
-            .at(TOGGLE_BORDER_WIDTH, TOGGLE_BORDER_WIDTH)
-            .size((TOGGLE_WIDTH - TOGGLE_BORDER_WIDTH * 2) / 2, TOGGLE_HEIGHT - TOGGLE_BORDER_WIDTH * 2)
+            .at(TOGGLE_BORDER_WIDTH, TOGGLE_BORDER_WIDTH + TOGGLE_PAD_TOP)
+            .size((TOGGLE_WIDTH - TOGGLE_BORDER_WIDTH * 2) / 2, TOGGLE_HEIGHT - (TOGGLE_BORDER_WIDTH + TOGGLE_PAD_TOP) * 2)
             .fill(this.props.switchColor)
             .corners(TOGGLE_CORNER_RADIUS, TOGGLE_CORNER_RADIUS);
 
@@ -875,8 +876,13 @@ class Toggle {
             .fill(this.props.unselectedTextColor);
         this.rightElement.appendChild(this.rightText);
 
+        // TODO give ourselves a rect with a class
+        // and the class has a focus state
+
+
         this.root.onClick(() => this.toggle());
         this.root.el.tabIndex = 0;
+        this.root.el.classList.add("melody-editor-toggle-buttons");
         this.root.el.addEventListener(
             "keydown",
             (e) => {
@@ -933,7 +939,7 @@ class Toggle {
     }
 
     height() {
-        return TOGGLE_HEIGHT;
+        return TOGGLE_HEIGHT + 2 * TOGGLE_PAD_TOP;
     }
 
     width() {

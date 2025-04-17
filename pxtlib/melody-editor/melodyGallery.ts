@@ -135,6 +135,14 @@ namespace pxtmelody {
                 tabIndex: "0"
             });
 
+            outer.addEventListener("keydown", (e) => {
+                if (["Space", "Enter"].includes(e.code)) {
+                    this.handleSelection(sample);
+                } else if (e.code === "ArrowRight") {
+                    this.previewMelody(sample);
+                }
+            });
+
             const icon = mkElement("i", {
                 className: "music icon melody-icon"
             });
