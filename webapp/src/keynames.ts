@@ -1,4 +1,10 @@
 /**
+ * @license
+ * Copyright 2024 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
  * Key names for common characters. These should be used with keyup/keydown
  * events, since the .keyCode property on those is meant to indicate the
  * _physical key_ the user held down on the keyboard. Hence the mapping uses
