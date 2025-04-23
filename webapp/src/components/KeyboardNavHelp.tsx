@@ -113,7 +113,7 @@ const Row = ({ name, shortcuts = [], joiner, children}: RowProps) => {
     return joiner === "row" ? (
         <>
             <tr>
-                <td width="50%" rowSpan={shortcuts.length}>Move between menus, simulator and the workspace</td>
+                <td width="50%" rowSpan={shortcuts.length}>{name}</td>
                 <td width="50%">
                     {shortcutElements[0]}
                 </td>
@@ -121,10 +121,10 @@ const Row = ({ name, shortcuts = [], joiner, children}: RowProps) => {
             {shortcutElements.map((el, idx) => idx === 0
                 ? undefined
                 : (<tr>
-                    <td width="50%">
-                        {el}
-                    </td>
-                </tr>))}
+                        <td width="50%">
+                            {el}
+                        </td>
+                    </tr>))}
         </>
     ) : (
         <tr>
