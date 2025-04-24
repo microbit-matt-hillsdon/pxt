@@ -2065,6 +2065,10 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
         // this pasting code is adapted from Blockly/core/shortcut_items.ts
         const doPaste = () => {
+            // TODO: For keyboard-experiment, we need to adapt pasteCallback in
+            // clipboard.ts so that we can paste data from local storage. We 
+            // will need access KeyboardNavigation private variables/methods.
+
             const metricsManager = copyWorkspace.getMetricsManager();
             const { left, top, width, height } = metricsManager
                 .getViewMetrics(true);
@@ -2276,6 +2280,11 @@ function resolveLocalizedMarkdown(url: string) {
 
 // adapted from Blockly/core/shortcut_items.ts
 function copy(workspace: Blockly.WorkspaceSvg, e: Event) {
+    // TODO: For keyboard-experiment, we need to adapt copyCallback in
+    // clipboard.ts to access the copied data in keyboard-experiment plugin so 
+    // that we can store it in local storage. To achieve this, we need access
+    // to KeyboardNavigation private variables/methods.
+
     // Prevent the default copy behavior, which may beep or otherwise indicate
     // an error due to the lack of a selection.
     e.preventDefault();
@@ -2306,6 +2315,10 @@ function copy(workspace: Blockly.WorkspaceSvg, e: Event) {
 
 // adapted from Blockly/core/shortcut_items.ts
 function cut(workspace: Blockly.WorkspaceSvg, e: Event) {
+    // TODO: For keyboard-experiment, we need to adapt cutCallback in
+    // clipboard.ts to access the copied data in keyboard-experiment plugin so 
+    // that we can store it in local storage. To achieve this, we need access
+    // to KeyboardNavigation private variables/methods.
     const selected = Blockly.common.getSelected();
 
     if (selected instanceof Blockly.BlockSvg) {

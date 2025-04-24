@@ -16,6 +16,17 @@ export function initCopyPaste() {
     oldCut = { ...shortcuts[Blockly.ShortcutItems.names.CUT] };
     oldPaste = { ...shortcuts[Blockly.ShortcutItems.names.PASTE] };
 
+    const enabled = pxt.appTarget.appTheme?.accessibleBlocks;
+    if (enabled) {
+        oldCopy = { ...shortcuts["keyboard_nav_copy"] };
+        oldCut = { ...shortcuts["keyboard_nav_cut"] };
+        // TODO: Understand why replacing paste doesn't work
+        // oldPaste = { ...shortcuts["keyboard_nav_paste"] };
+    }
+
+    Blockly.ShortcutRegistry.registry.unregister("keyboard_nav_copy");
+    Blockly.ShortcutRegistry.registry.unregister("keyboard_nav_cut");
+    Blockly.ShortcutRegistry.registry.unregister("keyboard_nav_paste");
     Blockly.ShortcutRegistry.registry.unregister(Blockly.ShortcutItems.names.COPY);
     Blockly.ShortcutRegistry.registry.unregister(Blockly.ShortcutItems.names.CUT);
     Blockly.ShortcutRegistry.registry.unregister(Blockly.ShortcutItems.names.PASTE);
