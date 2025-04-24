@@ -636,17 +636,24 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
                 case "KeyA":
                 case "ArrowLeft": {
                     const newX = (x + this.numCol - 1) % this.numCol;
-                    const existingY = this.getMelodyNote(newX) ?? y;
-                    this.selected = [newX, existingY]
+                    const existingY = this.getMelodyNote(newX);
+                    this.selected = [newX, existingY ?? y]
+
+                    if (existingY !== undefined && !this.isPlaying) {
+                        this.playNote(existingY, newX);
+                    }
                     
                     break;
                 }
                 case "KeyD":
                 case "ArrowRight": {
+                    const newX = (x + 1) % this.numCol;
+                    const existingY = this.getMelodyNote(newX);
+                    this.selected = [newX, existingY ?? y]
 
-                    const newX = (x + this.numCol + 1) % this.numCol;
-                    const existingY = this.getMelodyNote(newX) ?? y;
-                    this.selected = [newX, existingY]
+                    if (existingY !== undefined && !this.isPlaying) {
+                        this.playNote(existingY, newX);
+                    }
 
                     break;
                 }
