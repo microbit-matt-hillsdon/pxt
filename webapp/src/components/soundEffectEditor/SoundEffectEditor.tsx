@@ -5,6 +5,7 @@ import { SoundEffectHeader } from "./SoundEffectHeader";
 import { SoundGallery } from "./SoundGallery";
 import { SoundPreview } from "./SoundPreview";
 import { getGallerySounds, soundToCodalSound } from "./soundUtil";
+import { FocusTrap, FocusTrapRegion } from "../../../../react-common/components/controls/FocusTrap";
 
 export interface SoundEffectEditorProps {
     onSoundChange?: (newValue: pxt.assets.Sound) => void;
@@ -116,6 +117,7 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
     }
 
     const handleSoundChange = (newSound: pxt.assets.Sound, setSoundSeed = true) => {
+        console.log("setting sound");
         if (cancelToken) cancel();
         if (setSoundSeed) setSimilarSoundSeed(undefined);
         if (onSoundChange) onSoundChange(newSound);
@@ -128,48 +130,55 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
     }
 
     return <div className="sound-effect-editor">
-        <SoundEffectHeader
-            selectedView={selectedView}
-            onViewSelected={onViewSelected}
-            onClose={handleClose}
-        />
-        <div className="sound-effect-editor-content">
-            <SoundPreview
-                sound={sound}
-                handleStartAnimationRef={handlePreviewAnimationRef}
-                handleSynthListenerRef={handleSynthListenerRef} />
-            <Button
-                className="sound-effect-play-button"
-                title={cancelToken ? lf("Stop") : lf("Play")}
-                onClick={handlePlayButtonClick}
-                leftIcon={cancelToken ? "fas fa-stop" : "fas fa-play"}
-                />
-            <SoundControls sound={sound} onSoundChange={handleSoundChange} handleStartAnimationRef={handleControlsAnimationRef} />
-            <Button
-                className="link-button generate-similar"
-                leftIcon="fas fa-sync"
-                label={pxt.U.lf("Generate Similar Sound")}
-                title={pxt.U.lf("Generate Similar Sound")}
-                onClick={() => {
-                    let newSound: pxt.assets.Sound;
-                    if (!similarSoundSeed) {
-                        setSimilarSoundSeed(sound);
-                        newSound = generateSimilarSound(sound);
-                    }
-                    else {
-                        newSound = generateSimilarSound(similarSoundSeed);
-                    }
-                    handleSoundChange(newSound, false);
-                    play(newSound);
-                }}
+        <FocusTrap onEscape={handleClose}>
+            <SoundEffectHeader
+                selectedView={selectedView}
+                onViewSelected={onViewSelected}
+                onClose={handleClose}
             />
-            <SoundGallery
-                sounds={getGallerySounds(useMixerSynthesizer)}
-                onSoundSelected={handleGallerySelection}
-                visible={selectedView === "gallery"}
-                useMixerSynthesizer={useMixerSynthesizer}
-                />
-        </div>
+            <div className="sound-effect-editor-content">
+                <FocusTrapRegion enabled={selectedView === "editor"}>
+                    <SoundPreview
+                        sound={sound}
+                        handleStartAnimationRef={handlePreviewAnimationRef}
+                        handleSynthListenerRef={handleSynthListenerRef} />
+                    <Button
+                        className="sound-effect-play-button"
+                        title={cancelToken ? lf("Stop") : lf("Play")}
+                        onClick={handlePlayButtonClick}
+                        leftIcon={cancelToken ? "fas fa-stop" : "fas fa-play"}
+                        />
+                    <SoundControls sound={sound} onSoundChange={handleSoundChange} handleStartAnimationRef={handleControlsAnimationRef} />
+                    <Button
+                        className="link-button generate-similar"
+                        leftIcon="fas fa-sync"
+                        label={pxt.U.lf("Generate Similar Sound")}
+                        title={pxt.U.lf("Generate Similar Sound")}
+                        onClick={() => {
+                            let newSound: pxt.assets.Sound;
+                            if (!similarSoundSeed) {
+                                setSimilarSoundSeed(sound);
+                                newSound = generateSimilarSound(sound);
+                            }
+                            else {
+                                newSound = generateSimilarSound(similarSoundSeed);
+                            }
+                            handleSoundChange(newSound, false);
+                            play(newSound);
+                        }}
+                    />
+                </FocusTrapRegion>
+
+                <FocusTrapRegion enabled={selectedView === "gallery"}>
+                    <SoundGallery
+                        sounds={getGallerySounds(useMixerSynthesizer)}
+                        onSoundSelected={handleGallerySelection}
+                        visible={selectedView === "gallery"}
+                        useMixerSynthesizer={useMixerSynthesizer}
+                        />
+                </FocusTrapRegion>
+            </div>
+        </FocusTrap>
     </div>
 }
 
