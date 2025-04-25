@@ -178,8 +178,9 @@
     }
 }
 
-.common-button.sound-effect-play-button:focus::after {
-    border-radius: 2rem;
+.common-button.sound-effect-play-button:focus-visible {
+    outline: 3px solid var(--pxt-focus-border);
+    outline-offset: 3px;
 }
 
 .sound-preview-baseline {
@@ -223,6 +224,18 @@
 .sound-gallery-scroller > .common-button {
     margin-bottom: 0.5rem;
     padding: 0.6rem 1rem 0.6rem;
+
+    &:focus-visible {
+        outline: 5px solid var(--pxt-focus-border);
+        outline-offset: -7px;
+
+        span > i {
+            display: none;
+        }
+        .common-button-flex::after {
+            content: "P";
+        }
+    }
 }
 
 .sound-gallery-item-label {

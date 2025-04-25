@@ -117,7 +117,6 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
     }
 
     const handleSoundChange = (newSound: pxt.assets.Sound, setSoundSeed = true) => {
-        console.log("setting sound");
         if (cancelToken) cancel();
         if (setSoundSeed) setSimilarSoundSeed(undefined);
         if (onSoundChange) onSoundChange(newSound);

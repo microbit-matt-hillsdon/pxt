@@ -109,6 +109,15 @@ export const DraggableGraph = (props: DraggableGraphProps) => {
                 const svg = screenToSVGCoord(ref.ownerSVGElement, coord);
                 throttledSetDragValue(index, svgCoordToValue(svg));
             };
+
+            ref.onkeydown = ev => {
+                const step = (max - min) / 100;
+                if (ev.code === "ArrowDown") {
+                    onPointChange(index, Math.max(min, points[index] - step));
+                } else if (ev.code === "ArrowUp") {
+                    onPointChange(index, Math.min(max, points[index] + step));
+                } 
+            }
         });
     }, [dragIndex, onPointChange])
 
@@ -201,7 +210,7 @@ export const DraggableGraph = (props: DraggableGraphProps) => {
                             height={height}
                             fill="white"
                             opacity={0}
-
+                            tabIndex={0}
                             />
                     </g>
             })}

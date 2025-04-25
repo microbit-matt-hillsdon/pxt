@@ -23,25 +23,45 @@ interface SoundGalleryItemProps extends SoundGalleryItem {
 export const SoundGallery = (props: SoundGalleryProps) => {
     const { sounds, onSoundSelected, visible, useMixerSynthesizer } = props;
 
+    const soundItemRefs = React.useRef<Record<string,HTMLElement>>({});
+
+    function listNav(
+        prev: number,
+        next: number,
+        event: React.KeyboardEvent<HTMLElement>) {
+            if (event.code === "ArrowDown") {
+                soundItemRefs.current[next].focus();
+                event.preventDefault();
+            } else if (event.code === "ArrowUp") {
+                soundItemRefs.current[prev].focus();
+                event.preventDefault();
+            } else {
+                fireClickOnEnter(event);
+            }
+    }
+
     return <div className={classList("sound-gallery", visible && "visible")} aria-hidden={!visible}>
         <div className="sound-gallery-scroller">
-            {sounds.map((item, index) =>
-                <div
-                    key={index}
-                    className="common-button"
-                    title={item.name}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={fireClickOnEnter}
-                    onClick={() => onSoundSelected(item.sound)}>
+            {sounds.map((item, index) => {
+                    const prev = (index + sounds.length - 1) % sounds.length;
+                    const next = (index + 1) % sounds.length;
+                    return(<div
+                        key={index}
+                        ref={ref => soundItemRefs.current[index] = ref}
+                        className="common-button"
+                        title={item.name}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={e => listNav(prev, next, e)}
+                        onClick={() => onSoundSelected(item.sound)}>
 
-                    <SoundGalleryEntry {...item} useMixerSynthesizer={useMixerSynthesizer} />
-                </div>
-            )}
+                        <SoundGalleryEntry {...item} useMixerSynthesizer={useMixerSynthesizer} />
+                    </div>);
+                })
+            }
         </div>
     </div>
 }
-
 
 const SoundGalleryEntry = (props: SoundGalleryItemProps) => {
     const { sound, name, useMixerSynthesizer } = props;
