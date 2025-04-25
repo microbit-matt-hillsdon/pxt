@@ -38,7 +38,6 @@ import * as make from "./make";
 import * as blocklyToolbox from "./blocksSnippets";
 import * as monacoToolbox from "./monacoSnippets";
 import * as greenscreen from "./greenscreen";
-import * as accessibleblocks from "./accessibleblocks";
 import * as socketbridge from "./socketbridge";
 import * as webusb from "./webusb";
 import * as auth from "./auth";
@@ -5442,8 +5441,6 @@ export class ProjectView
                     />
                 }
                 {greenScreen ? <greenscreen.WebCam close={this.toggleGreenScreen} /> : undefined}
-                {/* TODO: Discuss when this onboarding dialog should be shown if accessibleBlocks is enabled by default */}
-                {/* {accessibleBlocks && <accessibleblocks.AccessibleBlocksInfo />} */}
                 {hideMenuBar || inHome ? undefined :
                     <header className="menubar" role="banner">
                         {inEditor ? <accessibility.EditorAccessibilityMenu parent={this} highContrast={hc} /> : undefined}
