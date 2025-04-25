@@ -5172,10 +5172,9 @@ export class ProjectView
         this.setState({ greenScreen: greenScreenOn });
     }
 
-    toggleAccessibleBlocks() {
-        core.toggleAccessibleBlocks().then(() => {
-            this.reloadEditor();
-        });
+    async toggleAccessibleBlocks() {
+        await core.toggleAccessibleBlocks()
+        this.reloadEditor();
     }
 
     setBannerVisible(b: boolean) {
