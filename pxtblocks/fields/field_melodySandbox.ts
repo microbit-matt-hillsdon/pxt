@@ -606,7 +606,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         }
         // If there's nothing currently selected, the first keypress just creates the cursor
         if (!this.selected) {
-            this.selected = [0,0];
+            this.selected = [0,this.getMelodyNote(0) ?? 0];
         } else {
             const [x, y] = this.selected;
             const ctrlCmd = pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey;
