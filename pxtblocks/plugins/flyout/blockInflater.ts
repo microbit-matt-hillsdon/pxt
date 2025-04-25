@@ -43,6 +43,7 @@ export class MultiFlyoutRecyclableBlockInflater extends Blockly.BlockFlyoutInfla
         this.blockToKey.set(block, key);
 
         block.removeClass(HIDDEN_CLASS_NAME);
+        block.setDisabledReason(false, 'hidden');
         return block;
     }
 
@@ -72,6 +73,7 @@ export class MultiFlyoutRecyclableBlockInflater extends Blockly.BlockFlyoutInfla
         const xy = block.getRelativeToSurfaceXY();
         block.moveBy(-xy.x, -xy.y);
         block.addClass(HIDDEN_CLASS_NAME);
+        block.setDisabledReason(true, 'hidden');
         const key = this.blockToKey.get(block);
         this.keyToBlock.set(key, block);
         this.removeListeners(block.id);

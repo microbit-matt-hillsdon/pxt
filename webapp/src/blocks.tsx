@@ -961,9 +961,49 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
     public moveFocusToFlyout() {
         if (this.keyboardNavigation) {
-            const flyout = this.editor.getFlyout()
-            const element = ((flyout as any).svgGroup_ as SVGElement);
+            const flyout = this.editor.getFlyout();
+            const element = (flyout as any).svgGroup_ as SVGElement;
             element?.focus();
+            this.defaultFlyoutCursorIfNeeded(flyout);
+        }
+    }
+
+    // Modified from Blockly keyboard-navigation-experimentation plugin
+    private isFlyoutItemDisposed(node: Blockly.ASTNode) {
+        const sourceBlock = node.getSourceBlock();
+        if (sourceBlock?.disposed || !sourceBlock?.isEnabled()) {
+          return true;
+        }
+        const location = node.getLocation();
+        if (location instanceof Blockly.FlyoutButton) {
+          // No nice way to tell for a button. In Blockly v12 we could use getSvgGroup().
+          return (location as any).svgGroup.parentNode === null;
+        }
+        return false;
+      }
+
+    // Copied from Blockly keyboard-navigation-experimentation plugin
+    private defaultFlyoutCursorIfNeeded(flyout: Blockly.IFlyout): void {
+        const flyoutCursor = flyout.getWorkspace().getCursor();
+        if (!flyoutCursor) {
+            return;
+        }
+        const curNode = flyoutCursor.getCurNode();
+        if (curNode && !this.isFlyoutItemDisposed(curNode)) {
+            return;
+        }
+        const flyoutContents = flyout.getContents();
+        const defaultFlyoutItem = flyoutContents[0];
+        if (!defaultFlyoutItem) {
+            return;
+        }
+        const defaultFlyoutItemElement = defaultFlyoutItem.getElement();
+        if (defaultFlyoutItemElement instanceof Blockly.FlyoutButton) {
+            const astNode = Blockly.ASTNode.createButtonNode(defaultFlyoutItemElement as Blockly.FlyoutButton);
+            flyoutCursor.setCurNode(astNode);
+        } else if (defaultFlyoutItemElement instanceof Blockly.BlockSvg) {
+            const astNode = Blockly.ASTNode.createStackNode(defaultFlyoutItemElement as Blockly.BlockSvg);
+            flyoutCursor.setCurNode(astNode);
         }
     }
 
