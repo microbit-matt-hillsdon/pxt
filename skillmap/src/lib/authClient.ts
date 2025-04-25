@@ -195,6 +195,14 @@ export async function setHighContrastPrefAsync(pref: boolean): Promise<pxt.auth.
     }, { immediate: true })
 }
 
+export async function setAccessibleBlocksPrefAsync(pref: boolean): Promise<pxt.auth.SetPrefResult | undefined> {
+    return await patchUserPreferencesAsync({
+        op: 'replace',
+        path: ['accessibleBlocks'],
+        value: pref
+    }, { immediate: true })
+}
+
 export async function setLanguagePreference(pref: string): Promise<pxt.auth.SetPrefResult | undefined> {
     return await patchUserPreferencesAsync({
         op: 'replace',
