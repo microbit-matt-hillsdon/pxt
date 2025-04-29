@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as Blockly from "blockly";
 import { classList, ControlProps } from "../util";
 
 import { Button } from "./Button";
@@ -30,6 +31,32 @@ export interface InputProps extends ControlProps {
     onFocus?: (value: string) => void;
     onBlur?: (value: string) => void;
     onOptionSelected?: (value: string) => void;
+}
+
+const suspendBlocklyEscape = (onEscape: () => void) => {
+    const shortcuts = Blockly.ShortcutRegistry.registry.getRegistry()
+
+    const oldExit = { ...shortcuts["exit"] };
+    const oldEscape = { ...shortcuts[Blockly.ShortcutItems.names.ESCAPE] };
+
+    Blockly.ShortcutRegistry.registry.unregister(Blockly.ShortcutItems.names.ESCAPE);
+    Blockly.ShortcutRegistry.registry.unregister("exit");
+    const escapeShortcut: Blockly.ShortcutRegistry.KeyboardShortcut = {
+            name: Blockly.ShortcutItems.names.ESCAPE,
+            callback() {
+                onEscape();
+                return true;
+            },
+            keyCodes: [27],
+        };
+    
+    Blockly.ShortcutRegistry.registry.register(escapeShortcut);
+
+    return () => {
+        Blockly.ShortcutRegistry.registry.unregister(Blockly.ShortcutItems.names.ESCAPE);
+        Blockly.ShortcutRegistry.registry.register(oldExit);
+        Blockly.ShortcutRegistry.registry.register(oldEscape);
+    }
 }
 
 export const Input = (props: InputProps) => {
@@ -73,6 +100,17 @@ export const Input = (props: InputProps) => {
         setValue(initialValue || "");
     }, [initialValue]);
 
+    React.useEffect(() => {
+        if (expanded) {
+            return suspendBlocklyEscape(() => 
+                {
+                    setExpanded(false);
+                    document.getElementById(id)?.focus();
+                });
+        }
+        return undefined;
+    },[expanded]);
+
     const handleContainerRef = (ref: HTMLDivElement) => {
         if (!ref) return;
         container = ref;
@@ -108,6 +146,10 @@ export const Input = (props: InputProps) => {
                 e.preventDefault();
                 onEnterKey(value);
             }
+        } else if (options && !expanded && e.key === "ArrowDown") {
+            expandButtonClickHandler();
+            e.preventDefault();
+            e.stopPropagation(); 
         } else if (options && expanded && e.key === "ArrowDown") {
             document.getElementById(getDropdownOptionId(Object.values(options)[0]))?.focus();
             e.preventDefault();
@@ -115,6 +157,11 @@ export const Input = (props: InputProps) => {
         } else if (options && expanded && e.key === "ArrowUp") {
             const optionVals = Object.values(options);
             document.getElementById(getDropdownOptionId(optionVals[optionVals.length - 1]))?.focus();
+            e.preventDefault();
+            e.stopPropagation();
+        } else if (options && expanded && e.key === "Escape") {
+            console.log("escaping");
+            expandButtonClickHandler();
             e.preventDefault();
             e.stopPropagation();
         }
@@ -212,6 +259,7 @@ export const Input = (props: InputProps) => {
                         ariaHasPopup="listbox"
                         ariaExpanded={expanded}
                         ariaLabel={ariaLabel}
+                        tabIndex={-1}
                         onClick={expandButtonClickHandler} />}
             </div>
             {expanded &&
