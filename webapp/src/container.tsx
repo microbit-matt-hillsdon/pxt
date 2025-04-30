@@ -86,9 +86,10 @@ export class DocsMenu extends data.PureComponent<DocsMenuProps, {}> {
     renderCore() {
         const parent = this.props.parent;
         const targetTheme = pxt.appTarget.appTheme;
+        const accessibleBlocksEnabled = data.getData<boolean>(auth.ACCESSIBLE_BLOCKS);
         return <sui.DropdownMenu role="menuitem" icon="help circle large"
             className="item mobile hide help-dropdown-menuitem" textClass={"landscape only"} title={lf("Help")} >
-            { pxt.appTarget.appTheme?.accessibleBlocks && getKeyboardNavHelpItem(parent)}
+            {accessibleBlocksEnabled && getKeyboardNavHelpItem(parent)}
             {targetTheme.tours?.editor && getTourItem(parent)}
             {renderDocItems(parent, targetTheme.docMenu)}
             {getDocsLanguageItem(this.props.editor, parent)}
