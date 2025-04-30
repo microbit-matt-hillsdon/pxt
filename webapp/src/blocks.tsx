@@ -843,7 +843,8 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     }
 
     focusWorkspace() {
-        if (pxt.appTarget.appTheme?.accessibleBlocks) {
+        const enabled = data.getData<boolean>(auth.ACCESSIBLE_BLOCKS)
+        if (enabled) {
             (this.editor.getSvgGroup() as SVGElement).focus();
         }
     }
