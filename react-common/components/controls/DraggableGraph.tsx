@@ -35,6 +35,8 @@ export const DraggableGraph = (props: DraggableGraphProps) => {
         valueUnits
     } = props;
 
+    const [focused, setFocused] = React.useState<number | undefined>();
+ 
     const width = 1000;
     const height = (1 / aspectRatio) * width;
 
@@ -112,10 +114,14 @@ export const DraggableGraph = (props: DraggableGraphProps) => {
 
             ref.onkeydown = ev => {
                 const step = (max - min) / 100;
-                if (ev.code === "ArrowDown") {
+                if (ev.code === "ArrowDown" || ev.code === "ArrowLeft") {
                     onPointChange(index, Math.max(min, points[index] - step));
-                } else if (ev.code === "ArrowUp") {
+                    ev.stopPropagation();
+                    ev.preventDefault();
+                } else if (ev.code === "ArrowUp" || ev.code === "ArrowRight") {
                     onPointChange(index, Math.min(max, points[index] + step));
+                    ev.stopPropagation();
+                    ev.preventDefault();
                 } 
             }
         });
@@ -156,15 +162,16 @@ export const DraggableGraph = (props: DraggableGraphProps) => {
                     </feMerge>
                 </filter>
             </defs>
-            {points.map((val, index) => {
+            {points.map((_, index) => {
+                const sliderValue = getValue(index); // Provides clamping
                 const isNotLast = index < points.length - 1;
                 const x = Math.max(xSlice * index - halfUnit, unit);
-                const y = yOffset + Math.max(yScale * (max - getValue(index)) - halfUnit, halfUnit);
+                const y = yOffset + Math.max(yScale * (max - sliderValue) - halfUnit, halfUnit);
 
                 // Move the labels out of the way of the graph
                 const shouldFlipLabel = (
-                    isNotLast && getValue(index + 1) > getValue(index) ||
-                    !isNotLast && getValue(index - 1) > getValue(index)
+                    isNotLast && getValue(index + 1) > sliderValue ||
+                    !isNotLast && getValue(index - 1) > sliderValue
                 );
 
                 return <g key={index} className="draggable-graph-column">
@@ -193,24 +200,44 @@ export const DraggableGraph = (props: DraggableGraphProps) => {
                             fill="white"
                             filter="url(#dropshadow)"
                         />
+
+                        {focused === index && 
+                            <circle
+                                className="draggable-graph-point-focus"
+                                cx={x + halfUnit}
+                                cy={y}
+                                r={unit+4}
+                                stroke="var(--pxt-focus-border)"
+                                fill="transparent"
+                                strokeWidth={8}
+                            />
+                        }
+
                         <text
                             className="common-draggable-graph-text"
                             x={isNotLast ? x + unit * 2 : x - unit}
                             y={shouldFlipLabel ? y + unit * 2 : Math.max(y - unit, unit)}
                             textAnchor={isNotLast ? "start" : "end"}
                             fontSize={unit}>
-                            {Math.round(getValue(index)) + (valueUnits || "")}
+                            {Math.round(sliderValue) + (valueUnits || "")}
                         </text>
                         <rect
                             className="draggable-graph-surface"
                             ref={getPointRefHandler(index)}
-                            x={x - xSlice / 6}
+                            x={x - halfUnit -2}
                             y={0}
-                            width={xSlice / 3}
+                            width={xSlice / 4}
                             height={height}
                             fill="white"
                             opacity={0}
                             tabIndex={0}
+                            role="slider"
+                            aria-label={`${ariaLabel}, position ${index}`}
+                            aria-valuemin={min}
+                            aria-valuemax={max}
+                            aria-valuenow={sliderValue}
+                            onFocus={() => setFocused(index)}
+                            onBlur={() => focused === index && setFocused(undefined)}
                             />
                     </g>
             })}

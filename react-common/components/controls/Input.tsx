@@ -33,16 +33,24 @@ export interface InputProps extends ControlProps {
     onOptionSelected?: (value: string) => void;
 }
 
-const suspendBlocklyEscape = (onEscape: () => void) => {
-    const shortcuts = Blockly.ShortcutRegistry.registry.getRegistry()
+const suspendBlocklyKeyHandlers = (onEscape: () => void) => {
+    const suspendKeycodes = ["13","27"];
+    const closeDropdownShortcut = "close_dropdown";
 
-    const oldExit = { ...shortcuts["exit"] };
-    const oldEscape = { ...shortcuts[Blockly.ShortcutItems.names.ESCAPE] };
+    const oldHandlerKeys = suspendKeycodes.reduce((p, c) => ({
+            ...p,
+            [c]: [...Blockly.ShortcutRegistry.registry.getShortcutNamesByKeyCode(c)]
+        })
+        , {} as {[k: string]: string});
 
-    Blockly.ShortcutRegistry.registry.unregister(Blockly.ShortcutItems.names.ESCAPE);
-    Blockly.ShortcutRegistry.registry.unregister("exit");
-    const escapeShortcut: Blockly.ShortcutRegistry.KeyboardShortcut = {
-            name: Blockly.ShortcutItems.names.ESCAPE,
+    for (const keycode of Object.keys(oldHandlerKeys)) {
+        for (const handlerKey of oldHandlerKeys[keycode]) {
+            Blockly.ShortcutRegistry.registry.removeKeyMapping(keycode, handlerKey);
+        }
+    }
+
+    const closeDropdownHandler: Blockly.ShortcutRegistry.KeyboardShortcut = {
+            name: closeDropdownShortcut,
             callback() {
                 onEscape();
                 return true;
@@ -50,12 +58,14 @@ const suspendBlocklyEscape = (onEscape: () => void) => {
             keyCodes: [27],
         };
     
-    Blockly.ShortcutRegistry.registry.register(escapeShortcut);
-
+    Blockly.ShortcutRegistry.registry.register(closeDropdownHandler);
     return () => {
-        Blockly.ShortcutRegistry.registry.unregister(Blockly.ShortcutItems.names.ESCAPE);
-        Blockly.ShortcutRegistry.registry.register(oldExit);
-        Blockly.ShortcutRegistry.registry.register(oldEscape);
+        Blockly.ShortcutRegistry.registry.unregister(closeDropdownShortcut);
+        for (const keycode of Object.keys(oldHandlerKeys)) {
+            for (const handlerKey of oldHandlerKeys[keycode]) {
+                Blockly.ShortcutRegistry.registry.addKeyMapping(keycode, handlerKey, true);
+            }
+        }
     }
 }
 
@@ -102,7 +112,7 @@ export const Input = (props: InputProps) => {
 
     React.useEffect(() => {
         if (expanded) {
-            return suspendBlocklyEscape(() => 
+            return suspendBlocklyKeyHandlers(() => 
                 {
                     setExpanded(false);
                     document.getElementById(id)?.focus();
@@ -140,6 +150,7 @@ export const Input = (props: InputProps) => {
     }
 
     const keyDownHandler = (e: React.KeyboardEvent) => {
+        console.log("handling", e.code);
         const charCode = (typeof e.which == "number") ? e.which : e.keyCode;
         if (charCode === /*enter*/13 || props.treatSpaceAsEnter && charCode === /*space*/32) {
             if (onEnterKey) {
@@ -160,7 +171,6 @@ export const Input = (props: InputProps) => {
             e.preventDefault();
             e.stopPropagation();
         } else if (options && expanded && e.key === "Escape") {
-            console.log("escaping");
             expandButtonClickHandler();
             e.preventDefault();
             e.stopPropagation();

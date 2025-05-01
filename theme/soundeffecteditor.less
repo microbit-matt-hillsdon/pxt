@@ -94,6 +94,12 @@
     & > span {
         flex-grow: 1;
     }
+
+    .common-dropdown-button:focus-visible,
+    .common-dropdown-item:focus-visible {
+        outline: 3px solid var(--pxt-focus-border);
+        outline-offset: -3px;
+    }
 }
 
 .frequency-graph {

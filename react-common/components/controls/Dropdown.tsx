@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as Blockly from "blockly";
 import { classList, ControlProps } from "../util";
 import { Button, ButtonViewProps } from "./Button";
 import { FocusList } from "./FocusList";
@@ -31,12 +32,24 @@ export const Dropdown = (props: DropdownProps) => {
 
     const [ expanded, setExpanded ] = React.useState(false);
 
-    let container: HTMLDivElement;
+    const container = React.useRef<HTMLDivElement>();
+    const dropdownButton = React.useRef<HTMLButtonElement>();
+    const focusableItems = React.useRef<{[k: string]: HTMLButtonElement}>({});
 
-    const handleContainerRef = (ref: HTMLDivElement) => {
-        if (!ref) return;
-        container = ref;
-    }
+    React.useEffect(() => {
+
+        if (expanded) {
+            if (Object.keys(focusableItems.current).length) {
+                focusableItems.current[selectedId ?? 0].focus();
+            }
+            return suspendBlocklyEscape(() => 
+                {
+                    setExpanded(false);
+                    dropdownButton.current.focus();
+                });
+        }
+        return undefined;
+    }, [expanded]);
 
     const onMenuButtonClick = () => {
         setExpanded(!expanded);
@@ -44,7 +57,7 @@ export const Dropdown = (props: DropdownProps) => {
 
     const onBlur = (e: React.FocusEvent) => {
         if (!container) return;
-        if (expanded && !container.contains(e.relatedTarget as HTMLElement)) setExpanded(false);
+        if (expanded && !container.current?.contains(e.relatedTarget as HTMLElement)) setExpanded(false);
     }
 
     const classes = classList("common-dropdown", className);
@@ -58,11 +71,15 @@ export const Dropdown = (props: DropdownProps) => {
         const selectedIndex = items.indexOf(selected)
 
         if (e.key === "ArrowDown") {
-            if (selectedIndex < items.length - 1) {
-                onItemSelected(items[selectedIndex + 1].id);
-                e.preventDefault();
-                e.stopPropagation();
+            if (expanded) {
+                if (selectedIndex < items.length - 1) {
+                    onItemSelected(items[selectedIndex + 1].id);
+                }
+            } else {
+                setExpanded(true);
             }
+            e.preventDefault();
+            e.stopPropagation();
         }
         else if (e.key === "ArrowUp") {
             if (selectedIndex > 0) {
@@ -78,10 +95,11 @@ export const Dropdown = (props: DropdownProps) => {
         }
     }
 
-    return <div className={classes} ref={handleContainerRef} onBlur={onBlur}>
+    return <div className={classes} ref={container} onBlur={onBlur}>
         <Button
             {...selected}
             id={id}
+            buttonRef={ref => dropdownButton.current = ref}
             tabIndex={tabIndex}
             rightIcon={expanded ? "fas fa-chevron-up" : "fas fa-chevron-down"}
             role={role}
@@ -105,10 +123,14 @@ export const Dropdown = (props: DropdownProps) => {
                             <li key={item.id} role="presentation">
                                 <Button
                                     {...item}
+                                    buttonRef={ref => focusableItems.current[item.id] = ref}
                                     className={classList("common-dropdown-item", item.className)}
-                                    onClick={() => {
+                                    onClick={(e) => {
                                         setExpanded(false);
                                         onItemSelected(item.id);
+                                        dropdownButton.current?.focus();
+                                        e.stopPropagation();
+                                        e.preventDefault();
                                     }}
                                     ariaSelected={item.id === selectedId}
                                     role="option"/>
@@ -118,4 +140,31 @@ export const Dropdown = (props: DropdownProps) => {
             </FocusList>
         }
     </div>
+}
+
+
+const suspendBlocklyEscape = (onEscape: () => void) => {
+    const shortcuts = Blockly.ShortcutRegistry.registry.getRegistry()
+
+    const oldExit = { ...shortcuts["exit"] };
+    const oldEscape = { ...shortcuts[Blockly.ShortcutItems.names.ESCAPE] };
+
+    Blockly.ShortcutRegistry.registry.unregister(Blockly.ShortcutItems.names.ESCAPE);
+    Blockly.ShortcutRegistry.registry.unregister("exit");
+    const escapeShortcut: Blockly.ShortcutRegistry.KeyboardShortcut = {
+            name: Blockly.ShortcutItems.names.ESCAPE,
+            callback() {
+                onEscape();
+                return true;
+            },
+            keyCodes: [27],
+        };
+    
+    Blockly.ShortcutRegistry.registry.register(escapeShortcut);
+
+    return () => {
+        Blockly.ShortcutRegistry.registry.unregister(Blockly.ShortcutItems.names.ESCAPE);
+        Blockly.ShortcutRegistry.registry.register(oldExit);
+        Blockly.ShortcutRegistry.registry.register(oldEscape);
+    }
 }

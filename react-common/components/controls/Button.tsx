@@ -27,7 +27,7 @@ export interface ButtonViewProps extends ContainerProps {
 
 
 export interface ButtonProps extends ButtonViewProps {
-    onClick: () => void;
+    onClick: (evt?: React.MouseEvent<Element>) => void;
     onRightClick?: () => void;
     onBlur?: () => void;
     onFocus?: () => void;
@@ -82,7 +82,7 @@ export const Button = (props: ButtonProps) => {
     );
 
     let clickHandler = (ev: React.MouseEvent) => {
-        if (onClick) onClick();
+        if (onClick) onClick(ev);
         if (href) window.open(href, target || "_blank", "noopener,noreferrer")
         ev.stopPropagation();
         ev.preventDefault();
