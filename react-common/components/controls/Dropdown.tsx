@@ -125,12 +125,10 @@ export const Dropdown = (props: DropdownProps) => {
                                     {...item}
                                     buttonRef={ref => focusableItems.current[item.id] = ref}
                                     className={classList("common-dropdown-item", item.className)}
-                                    onClick={(e) => {
+                                    onClick={() => {
                                         setExpanded(false);
                                         onItemSelected(item.id);
                                         dropdownButton.current?.focus();
-                                        e.stopPropagation();
-                                        e.preventDefault();
                                     }}
                                     ariaSelected={item.id === selectedId}
                                     role="option"/>
