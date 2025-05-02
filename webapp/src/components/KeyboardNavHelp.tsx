@@ -6,12 +6,13 @@ const KeyboardNavHelp = () => {
     React.useEffect(() => {
         ref.current?.focus()
     }, []);
-    const cmd = pxt.BrowserUtils.isMac() ? "⌘" : "Ctrl";
-    const optionOrCtrl = pxt.BrowserUtils.isMac() ? "⌥" : "Ctrl";
+    const ctrl = lf("Ctrl");
+    const cmd = pxt.BrowserUtils.isMac() ? "⌘" : ctrl;
+    const optionOrCtrl = pxt.BrowserUtils.isMac() ? "⌥" : ctrl;
     const contextMenuRow = <Row name={lf("Open context menu")} shortcuts={[SHORTCUT_NAMES.MENU]} />
     const cleanUpRow = <Row name={lf("Workspace: Format code")} shortcuts={[SHORTCUT_NAMES.CLEAN_UP]} />
     const orAsJoiner = lf("or")
-    const enterOrSpace = { shortcuts: [["Enter"], ["Space"]], joiner: orAsJoiner}
+    const enterOrSpace = { shortcuts: [[lf("Enter")], [lf("Space")]], joiner: orAsJoiner}
     const editOrConfirmRow = <Row name={lf("Edit or confirm")} {...enterOrSpace} />
     return (
         <aside id="keyboardnavhelp" aria-label={lf("Keyboard Controls")} ref={ref} tabIndex={0}>
@@ -34,7 +35,7 @@ const KeyboardNavHelp = () => {
             <h3>{lf("Editor Overview")}</h3>
             <table>
                 <tbody>
-                    <Row name={lf("Move between menus, simulator and the workspace")} shortcuts={[["Tab"], ["Shift", "Tab"]]} joiner="row"/>
+                    <Row name={lf("Move between menus, simulator and the workspace")} shortcuts={[[lf("Tab")], [lf("Shift"), lf("Tab")]]} joiner="row"/>
                     <Row name={lf("Exit")} shortcuts={[SHORTCUT_NAMES.EXIT]} />
                     <Row name={lf("Toolbox")} shortcuts={[SHORTCUT_NAMES.TOOLBOX]} />
                     <Row name={lf("Toolbox: Move in and out of categories")} shortcuts={[SHORTCUT_NAMES.LEFT, SHORTCUT_NAMES.RIGHT]} />
@@ -57,7 +58,7 @@ const KeyboardNavHelp = () => {
                     <Row name={lf("Copy")} shortcuts={[SHORTCUT_NAMES.COPY]} />
                     <Row name={lf("Paste")} shortcuts={[SHORTCUT_NAMES.PASTE]} />
                     <Row name={lf("Cut")} shortcuts={[SHORTCUT_NAMES.CUT]} />
-                    <Row name={lf("Delete")} shortcuts={[SHORTCUT_NAMES.DELETE, ["Backspace"]]} joiner={orAsJoiner} />
+                    <Row name={lf("Delete")} shortcuts={[SHORTCUT_NAMES.DELETE, [lf("Backspace")]]} joiner={orAsJoiner} />
                     <Row name={lf("Undo")} shortcuts={[SHORTCUT_NAMES.UNDO]} />
                     <Row name={lf("Redo")} shortcuts={[SHORTCUT_NAMES.REDO]} />
                     {contextMenuRow}
