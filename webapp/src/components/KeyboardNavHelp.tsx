@@ -101,13 +101,13 @@ interface RowProps {
 }
 
 const Row = ({ name, shortcuts = [], joiner, children}: RowProps) => {
-    const shortcutElements = shortcuts.map(s => {
+    const shortcutElements = shortcuts.map((s, idx) => {
         if (typeof s === "string") {
             // Pull keys from shortcut registry.
-            return <Shortcut keys={getActionShortcut(s)} />
+            return <Shortcut key={idx} keys={getActionShortcut(s)} />
         } else {
             // Display keys as specified.
-            return <Shortcut keys={s} />
+            return <Shortcut key={idx} keys={s} />
         }
     })
     return joiner === "row" ? (
@@ -120,7 +120,7 @@ const Row = ({ name, shortcuts = [], joiner, children}: RowProps) => {
             </tr>
             {shortcutElements.map((el, idx) => idx === 0
                 ? undefined
-                : (<tr>
+                : (<tr key={idx}>
                         <td width="50%">
                             {el}
                         </td>
