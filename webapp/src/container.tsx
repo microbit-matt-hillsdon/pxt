@@ -590,7 +590,7 @@ export interface SideDocsState {
     sideDocsCollapsed?: boolean;
 }
 
-const builtInPrefix = "/builtin/";
+export const builtInPrefix = "/builtin/";
 
 export class SideDocs extends data.Component<SideDocsProps, SideDocsState> {
     private openingSideDoc = false;

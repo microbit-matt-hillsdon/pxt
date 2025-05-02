@@ -1802,6 +1802,13 @@ export class ProjectView
                 this.shouldTryDecompile = true;
             }
 
+            // Onboard accessible blocks if accessible blocks has just been enabled
+            const onboardAccessibleBlocks = pxt.storage.getLocal("onboardAccessibleBlocks") === "1"
+            const sideDocsLoadUrl = onboardAccessibleBlocks ? `${container.builtInPrefix}keyboardNav` : ""
+            if (onboardAccessibleBlocks) {
+                pxt.storage.setLocal("onboardAccessibleBlocks", "0")
+            }
+
             this.setState({
                 home: false,
                 showFiles: h.githubId ? true : false,
@@ -1810,7 +1817,7 @@ export class ProjectView
                 header: h,
                 projectName: h.name,
                 currFile: file,
-                sideDocsLoadUrl: '',
+                sideDocsLoadUrl: sideDocsLoadUrl,
                 debugging: false,
                 isMultiplayerGame: false
             });
@@ -5179,6 +5186,10 @@ export class ProjectView
     }
 
     async toggleAccessibleBlocks() {
+        const nextEnabled = !this.getData<boolean>(auth.ACCESSIBLE_BLOCKS);
+        if (nextEnabled) {
+            pxt.storage.setLocal("onboardAccessibleBlocks", "1")
+        }
         await core.toggleAccessibleBlocks()
         this.reloadEditor();
     }
