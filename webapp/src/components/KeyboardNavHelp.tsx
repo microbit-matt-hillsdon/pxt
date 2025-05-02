@@ -143,7 +143,7 @@ const Row = ({ name, shortcuts = [], joiner, children}: RowProps) => {
 }
 
 const Key = ({ value }: { value: string }) => {
-    return <span className="key">{lf(value)}</span>
+    return <span className="key">{lf("{0}", value)}</span>
 }
 
 export default KeyboardNavHelp;
