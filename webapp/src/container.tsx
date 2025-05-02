@@ -697,6 +697,17 @@ export class SideDocs extends data.Component<SideDocsProps, SideDocsState> {
             || this.state.docsUrl != nextState.docsUrl;
     }
 
+    protected handleRef = (el: HTMLDivElement) => {
+        if (el) {
+            el.addEventListener("keydown", (ev: KeyboardEvent) => {
+                if (ev.key == "Escape") {
+                    ev.preventDefault();
+                    this.collapse();
+                }
+            });
+        }
+    }
+
     renderCore() {
         const { sideDocsCollapsed, docsUrl } = this.state;
         const isRTL = pxt.Util.isUserLanguageRtl();
@@ -713,7 +724,7 @@ export class SideDocs extends data.Component<SideDocsProps, SideDocsState> {
             <button id="sidedocstoggle" role="button" aria-label={sideDocsCollapsed ? lf("Expand the side documentation") : lf("Collapse the side documentation")} className="ui icon button large" onClick={this.toggleVisibility}>
                 <sui.Icon icon={`icon inverted chevron ${showLeftChevron ? 'left' : 'right'}`} />
             </button>
-            <div id="sidedocs">
+            <div id="sidedocs" ref={this.handleRef}>
                 <div id="sidedocsframe-wrapper">
                     {this.renderContent(url, isBuiltIn, lockedEditor)}
                 </div>
