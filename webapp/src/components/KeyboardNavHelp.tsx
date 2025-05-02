@@ -144,7 +144,34 @@ const Row = ({ name, shortcuts = [], joiner, children}: RowProps) => {
 }
 
 const Key = ({ value }: { value: string }) => {
-    return <span className="key">{lf("{0}", value)}</span>
+    let aria;
+    switch (value) {
+        case "↑": {
+            aria = lf("Up Arrow");
+            break;
+        }
+        case "↓": {
+            aria = lf("Down Arrow");
+            break;
+        }
+        case "←": {
+            aria = lf("Left Arrow");
+            break;
+        }
+        case "→": {
+            aria = lf("Right Arrow");
+            break;
+        }
+        case "⌘": {
+            aria = lf("Command");
+            break;
+        }
+        case "⌥": {
+            aria = lf("Option");
+            break;
+        }
+    }
+    return <span className="key" aria-label={aria}>{lf("{0}", value)}</span>
 }
 
 export default KeyboardNavHelp;
