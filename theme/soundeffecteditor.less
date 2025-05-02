@@ -245,20 +245,14 @@
 
 .sound-gallery-scroller > .common-button {
     margin-bottom: 0.5rem;
-    padding: 0.6rem 1rem 0.6rem;
+    padding: 0.3rem 1rem 0.3rem 0.5rem;
 
     &:focus-visible {
         outline: 5px solid var(--pxt-focus-border);
         outline-offset: -7px;
-
-        span > i {
-            display: none;
-        }
-        .common-button-flex::after {
-            content: "P";
-        }
     }
 }
+
 
 .sound-gallery-item-label {
     display: flex;
@@ -270,6 +264,15 @@
         margin-top: 0;
         z-index: 2;
     }
+}
+
+.sound-gallery-item-label-inner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 1;
+    margin-right: 0.5rem;
+    padding: 0.3rem 0 0.3rem 0.5rem;
 
     .sound-effect-name {
         font-size: 22px;
