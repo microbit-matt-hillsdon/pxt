@@ -697,7 +697,7 @@ export class SideDocs extends data.Component<SideDocsProps, SideDocsState> {
             || this.state.docsUrl != nextState.docsUrl;
     }
 
-    protected handleOnKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (ev) => {
+    protected handleOnKeyDown = (ev: React.KeyboardEvent<HTMLElement>) => {
         if (ev.key == "Escape") {
             this.collapse();
         }
