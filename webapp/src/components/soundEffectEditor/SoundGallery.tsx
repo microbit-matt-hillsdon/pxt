@@ -51,6 +51,11 @@ export const SoundGallery = (props: SoundGalleryProps) => {
                 playItemRefs.current[current].focus();
                 event.preventDefault();
                 break;
+            case "Space":
+            case "Enter":
+                selectItemRefs.current[current].click();
+                event.stopPropagation();
+                event.preventDefault();
             default:
         }
     }

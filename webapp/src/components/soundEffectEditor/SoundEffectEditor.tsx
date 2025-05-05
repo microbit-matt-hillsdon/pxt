@@ -52,6 +52,9 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
             // Ignore when a text input is focused
             if (document.activeElement && document.activeElement.tagName === "INPUT" && (document.activeElement as HTMLInputElement).type === "text") return;
 
+            // Ignore in gallery view
+            if (selectedView === "gallery") return;
+
             play();
         };
 
@@ -124,8 +127,9 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
     }
 
     const handleGallerySelection = (newSound: pxt.assets.Sound) => {
-        handleSoundChange(newSound)
+        handleSoundChange(newSound);
         setSelectedView("editor");
+        document.getElementById("sound-effect-play-button").focus();
     }
 
     return <div className="sound-effect-editor">
@@ -142,6 +146,7 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
                         handleStartAnimationRef={handlePreviewAnimationRef}
                         handleSynthListenerRef={handleSynthListenerRef} />
                     <Button
+                        id="sound-effect-play-button"
                         className="sound-effect-play-button"
                         title={cancelToken ? lf("Stop") : lf("Play")}
                         onClick={handlePlayButtonClick}
