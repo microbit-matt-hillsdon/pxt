@@ -200,7 +200,7 @@ export const Input = (props: InputProps) => {
                     readOnly={!!readOnly}
                     onClick={clickHandler}
                     onChange={changeHandler}
-                    onKeyDownCapture={keyDownHandler}
+                    onKeyDown={keyDownHandler}
                     onBlur={blurHandler}
                     onFocus={focusHandler}
                     autoComplete={autoComplete ? "" : "off"}
