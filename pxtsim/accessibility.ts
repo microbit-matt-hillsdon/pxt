@@ -19,6 +19,9 @@ namespace pxsim.accessibility {
         } else if (e.key === "d" && meta) {
             e.preventDefault();
             return "webUSBDownload"
+        } else if (e.key === "j" && meta) {
+            e.preventDefault();
+            return "navigateRegions"
         }
         return null
     }

@@ -76,7 +76,7 @@ namespace pxsim {
     }
 
     export interface SimulatorActionMessage extends SimulatorMessage {
-        type: "toggleShortcutDoc" | "focusWorkspace" | "focusSimulator" | "webUSBDownload";
+        type: "toggleShortcutDoc" | "focusWorkspace" | "focusSimulator" | "webUSBDownload" | "navigateRegions";
     }
 
     export interface SimulatorStateMessage extends SimulatorMessage {

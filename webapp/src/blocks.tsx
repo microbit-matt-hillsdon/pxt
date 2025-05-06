@@ -616,6 +616,10 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                         })();
                         return
                     }
+                    case "navigateRegions" : {
+                        this.parent.showNavigateRegions();
+                        return
+                    }
                 }
             }
 
