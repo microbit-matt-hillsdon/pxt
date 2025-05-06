@@ -11,7 +11,9 @@ namespace pxtmelody {
         protected visible = false;
         protected pending: (res: string) => void;
 
-        protected buttons: HTMLElement[];
+        protected playIcons: HTMLElement[];
+        protected selectionButtons: HTMLElement[];
+        protected previewButtons: HTMLElement[];
 
         private timeouts: number[] = []; // keep track of timeout
         private numSamples: number = pxtmelody.SampleMelodies.length;
@@ -76,13 +78,19 @@ namespace pxtmelody {
             this.containerDiv.style.height = height + "px";
         }
 
+        getLastTabStop() {
+            return this.previewButtons[this.previewButtons.length-1];
+        }
+
         protected buildDom() {
             while (this.contentDiv.firstChild) this.contentDiv.removeChild(this.contentDiv.firstChild);
             const buttonWidth = "255px";
             const buttonHeight = "45px";
             const samples = pxtmelody.SampleMelodies;
 
-            this.buttons = [];
+            this.playIcons = [];
+            this.selectionButtons = [];
+            this.previewButtons = [];
             for (let i = 0; i < samples.length; i++) {
                 this.mkButton(samples[i], i, buttonWidth, buttonHeight);
             }
@@ -130,8 +138,7 @@ namespace pxtmelody {
         protected mkButton(sample: pxtmelody.MelodyInfo, i: number, width: string, height: string) {
             const outer = mkElement("div", {
                 className: "melody-gallery-button melody-editor-card",
-                role: "menuitem",
-                id: `:${i}`
+                id: `:${i}`,
             });
 
             const icon = mkElement("i", {
@@ -148,31 +155,76 @@ namespace pxtmelody {
 
             const leftButton = mkElement("div", {
                 className: "melody-editor-button left-button",
-                role: "button",
-                title: sample.name
+                title: sample.name,
+                role: "menuitem",
+                tabIndex: 0,
             }, () => this.handleSelection(sample))
 
             leftButton.appendChild(icon);
             leftButton.appendChild(label);
             leftButton.appendChild(preview);
 
-
             outer.appendChild(leftButton);
 
+            this.selectionButtons[i] = leftButton;
+ 
             const rightButton = mkElement("div", {
                 className: "melody-editor-button right-button",
                 role: "button",
-                title: lf("Preview {0}", sample.name)
+                title: lf("Preview {0}", sample.name),
+                tabIndex: 0,
             }, () => this.togglePlay(sample, i));
 
             const playIcon = mkElement("i", {
                 className: "play icon"
             });
 
-            this.buttons[i] = playIcon;
+            this.playIcons[i] = playIcon;
 
             rightButton.appendChild(playIcon);
             outer.appendChild(rightButton);
+
+            this.previewButtons[i] = rightButton;
+              
+            leftButton.addEventListener("keydown", (e) => {
+                if (["Space", "Enter"].includes(e.code)) {
+                    this.handleSelection(sample);
+                    e.stopPropagation();
+                    e.preventDefault();
+                } else if (e.code === "ArrowRight") {
+                    rightButton.focus();
+                    e.stopPropagation();
+                    e.preventDefault();
+                } else if (e.code === "ArrowDown") {
+                    this.selectionButtons[(i + 1) % this.selectionButtons.length].focus();
+                    e.stopPropagation();
+                    e.preventDefault();
+                } else if (e.code === "ArrowUp") {
+                    this.selectionButtons[(i - 1 + this.selectionButtons.length) % this.selectionButtons.length].focus();
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            });
+
+            rightButton.addEventListener("keydown", (e) => {
+                if (["Space", "Enter"].includes(e.code)) {
+                    this.previewMelody(sample);
+                    e.stopPropagation();
+                    e.preventDefault();
+                } else if (e.code === "ArrowLeft") {
+                    leftButton.focus();
+                    e.stopPropagation();
+                    e.preventDefault();
+                } else if (e.code === "ArrowDown") {
+                    this.previewButtons[(i + 1) % this.previewButtons.length].focus();
+                    e.stopPropagation();
+                    e.preventDefault();
+                } else if (e.code === "ArrowUp") {
+                    this.previewButtons[(i - 1 + this.previewButtons.length) % this.previewButtons.length].focus();
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            });
 
             this.contentDiv.appendChild(outer);
         }
@@ -224,7 +276,7 @@ namespace pxtmelody {
         }
 
         private togglePlay(sample: pxtmelody.MelodyInfo, i: number) {
-            let button = this.buttons[i];
+            let button = this.playIcons[i];
 
             if (pxt.BrowserUtils.containsClass(button, "play icon")) {
                 // check for other stop icons and toggle back to play
@@ -251,7 +303,7 @@ namespace pxtmelody {
 
         private resetPlayIcons(): void {
             for (let i = 0; i < this.numSamples; i++) {
-                let button = this.buttons[i];
+                let button = this.playIcons[i];
                 if (pxt.BrowserUtils.containsClass(button, "stop icon")) {
                     pxt.BrowserUtils.removeClass(button, "stop icon");
                     pxt.BrowserUtils.addClass(button, "play icon");

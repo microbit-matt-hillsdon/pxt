@@ -2,7 +2,7 @@
 /// <reference path="../../built/pxtsim.d.ts" />
 
 import * as Blockly from "blockly";
-import { FieldCustom } from "./field_utils";
+import { createMatrixDisplay, FieldCustom } from "./field_utils";
 
 const rowRegex = /^.*[\.#].*$/;
 
@@ -200,7 +200,6 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             // Initialize the matrix that holds the state
             for (let i = 0; i < this.matrixWidth; i++) {
                 this.cellState.push([])
-                this.cells.push([]);
                 for (let j = 0; j < this.matrixHeight; j++) {
                     this.cellState[i].push(false);
                 }
@@ -208,14 +207,22 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
 
             this.restoreStateFromString();
 
-            // Create the cells of the matrix that is displayed
-            for (let y = 0; y < this.matrixHeight; y++) {
-                const row = this.createRow()
-                for (let x = 0; x < this.matrixWidth; x++) {
-                    this.createCell(x, y, row);
-                }
-            }
-
+            this.cells = createMatrixDisplay({
+                blocklyId: this.sourceBlock_.id,
+                cellWidth: FieldMatrix.CELL_WIDTH,
+                cellHeight: FieldMatrix.CELL_WIDTH,
+                cellLabel: lf("LED"),
+                cellHorizontalMargin: FieldMatrix.CELL_HORIZONTAL_MARGIN,
+                cellVerticalMargin: FieldMatrix.CELL_VERTICAL_MARGIN,
+                cornerRadius: FieldMatrix.CELL_CORNER_RADIUS,
+                matrixHeight: this.matrixHeight,
+                matrixWidth: this.matrixWidth,
+                offColor: this.offColor,
+                padLeft: this.getYAxisWidth(),
+                parentElement: this.elt,
+                scale: this.scale
+            });
+            
             this.updateValue();
 
             if (this.xAxisLabel !== LabelMode.None) {
@@ -238,10 +245,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             }
 
             this.fieldGroup_.replaceChild(this.elt, this.fieldGroup_.firstChild);
-            if (!this.sourceBlock_.isInFlyout) {
-                this.elt.addEventListener("keydown", this.keyHandler.bind(this));
-                this.elt.addEventListener("blur", this.blurHandler.bind(this));
-            }
+            this.attachEventHandlersToMatrix();
         }
     }
 
@@ -289,44 +293,21 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
         super.updateEditable();
     }
 
-    private createRow() {
-        return pxsim.svg.child(this.elt, "g", { 'role': 'row' });
-    }
-
-    private createCell(x: number, y: number, row: SVGElement) {
-        const tx = this.scale * x * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_HORIZONTAL_MARGIN) + FieldMatrix.CELL_HORIZONTAL_MARGIN + this.getYAxisWidth();
-        const ty = this.scale * y * (FieldMatrix.CELL_WIDTH + FieldMatrix.CELL_VERTICAL_MARGIN) + FieldMatrix.CELL_VERTICAL_MARGIN;
-
-        const cellG = pxsim.svg.child(row, "g", { transform: `translate(${tx} ${ty})`, 'role': 'gridcell' });
-        const cellRect = pxsim.svg.child(cellG, "rect", {
-            'id': `${this.sourceBlock_.id}:${x}${y}`, // For aria-activedescendant
-            'class': `blocklyLed${this.cellState[x][y] ? 'On' : 'Off'}`,
-            'aria-label': lf("LED"),
-            'role': 'switch',
-            'aria-checked': this.cellState[x][y].toString(),
-            width: this.scale * FieldMatrix.CELL_WIDTH, height: this.scale * FieldMatrix.CELL_WIDTH,
-            fill: this.getColor(x, y),
-            'data-x': x,
-            'data-y': y,
-            rx: Math.max(2, this.scale * FieldMatrix.CELL_CORNER_RADIUS) }) as SVGRectElement;
-        this.cells[x][y] = cellRect;
-
-        // Borders and box-shadow do not work in this context and outlines do not follow border-radius.
-        // Stroke is harder to manage given the difference in stroke for an LED when it is on vs off.
-        // This foreignObject/div is used to create a focus indicator for the LED when selected via keyboard navigation.
-        const foreignObject = pxsim.svg.child(cellG, "foreignObject", {
-            transform: 'translate(-4, -4)',
-            width: this.scale * FieldMatrix.CELL_WIDTH + 8,
-            height: this.scale * FieldMatrix.CELL_WIDTH + 8,
-        });
-        foreignObject.style.pointerEvents = "none";
-        const div = document.createElement("div");
-        div.classList.add("blocklyLedFocusIndicator");
-        div.style.borderRadius = `${Math.max(2, this.scale * FieldMatrix.CELL_CORNER_RADIUS)}px`;
-        foreignObject.append(div);
-
+    private attachEventHandlersToMatrix() {
         if ((this.sourceBlock_.workspace as any).isFlyout) return;
 
+        this.elt.addEventListener("keydown", this.keyHandler.bind(this));
+        this.elt.addEventListener("blur", this.blurHandler.bind(this));
+
+        for (let x = 0; x < this.matrixWidth; ++x) {
+            for (let y = 0; y < this.matrixHeight; ++y) {
+                this.attachPointerEventHandlersToCell(x,y,this.cells[x][y]);
+            }
+        }
+    }
+
+    private attachPointerEventHandlersToCell(x: number, y: number, cellRect: SVGElement) {
+        
         pxsim.pointerEvents.down.forEach(evid => cellRect.addEventListener(evid, (ev: MouseEvent) => {
             if (!this.sourceBlock_.isEditable()) return;
 
@@ -352,8 +333,6 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             // Clear event listeners and selection used for keyboard navigation.
             this.removeKeyboardFocusHandlers();
             this.clearSelection();
-            // This enables keyboard navigation in the Blockly workspace if not focused already.
-            (this.sourceBlock_.workspace as Blockly.WorkspaceSvg).markFocused();
         }, false));
     }
 
@@ -437,10 +416,6 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
         return `\`\n${FieldMatrix.TAB}${text}\n${FieldMatrix.TAB}\``;
     }
 
-    getFieldDescription(): string {
-        return lf("{0}x{1} LED Grid", this.matrixWidth, this.matrixHeight);
-    }
-
     // Restores the block state from the text value of the field
     private restoreStateFromString() {
         let r = this.value_ as string;
@@ -507,31 +482,3 @@ function removeQuotes(str: string) {
     }
     return str;
 }
-
-Blockly.Css.register(`
-.blocklyMatrix:focus-visible {
-    outline: none;
-}
-
-.blocklyMatrix .blocklyLedFocusIndicator {
-    border: 4px solid transparent;
-    height: 100%;
-}
-
-.blocklyMatrix .blocklyLedFocusIndicator.selectedLedOn,
-.blocklyMatrix .blocklyLedFocusIndicator.selectedLedOff {
-    border-color: white;
-    transform: translateZ(0);
-}
-
-.blocklyMatrix .blocklyLedFocusIndicator.selectedLedOn:after {
-    content: "";
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    border: 2px solid black;
-    border-radius: inherit;
-}
-`)
