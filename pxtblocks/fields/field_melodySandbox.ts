@@ -3,7 +3,7 @@
 import * as Blockly from "blockly";
 
 import svg = pxt.svgUtil;
-import { clearDropDownDiv, FieldCustom, FieldCustomOptions, setMelodyEditorOpen } from "./field_utils";
+import { createMatrixDisplay, clearDropDownDiv, FieldCustom, FieldCustomOptions, setMelodyEditorOpen } from "./field_utils";
 export const HEADER_HEIGHT = 50;
 export const TOTAL_WIDTH = 300;
 
@@ -32,6 +32,8 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
     private playButton: HTMLButtonElement;
     private playIcon: HTMLElement;
     private tempoInput: HTMLInputElement;
+    private focusTrapFirst: SVGElement;
+    private focusTrapLast: HTMLElement;
 
     // grid elements
     private static CELL_WIDTH = 25;
@@ -51,15 +53,38 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
     private static COLOR_BLOCK_SPACING = 2;
     private static MUSIC_ICON_WIDTH = 20;
 
+    private firstFocusTabHandler: (e: KeyboardEvent) => void;
+    private lastFocusTabHandler: (e: KeyboardEvent) => void;
+
     // Use toggle from sprite editor
     private toggle: Toggle;
     private root: svg.SVG;
     private gallery: pxtmelody.MelodyGallery;
 
+    private selected: number[] | undefined = undefined;
+
     constructor(value: string, params: U, validator?: Blockly.FieldValidator) {
         super(value, validator);
         this.params = params;
         this.createMelodyIfDoesntExist();
+
+        // Defining these handlers this way means "this" is correctly bound without
+        // adding anonymous indirection that would break removeEventListener.
+        this.firstFocusTabHandler = (e: KeyboardEvent) => {
+            if (e.code === "Tab" && e.shiftKey) {
+                this.focusTrapLast.focus();
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        }
+
+        this.lastFocusTabHandler = (e: KeyboardEvent) => {
+            if (e.code === "Tab" && !e.shiftKey) {
+                this.focusTrapFirst.focus();
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        }
     }
 
     init() {
@@ -94,6 +119,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
 
             setMelodyEditorOpen(this.sourceBlock_, false);
         });
+        this.elt.focus();
     }
 
     getValue() {
@@ -113,11 +139,6 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
     getText_() {
         if (this.invalidString) return pxt.Util.lf("Invalid Input");
         else return this.getValue();
-    }
-
-    getFieldDescription(): string {
-        const melodyString = this.melody.getStringRepresentation()?.replace(/-/g, "")?.trim();
-        return melodyString || lf("empty");
     }
 
     // This will be run when the field is created (i.e. when it appears on the workspace)
@@ -166,8 +187,11 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
                 this.showGallery();
             }
         });
+        this.focusTrapFirst = this.toggle.getTabStop();
+        this.focusTrapFirst.addEventListener("keydown", this.firstFocusTabHandler);
+
         this.toggle.layout();
-        this.toggle.translate((TOTAL_WIDTH - this.toggle.width()) / 2, 0);
+        this.toggle.translate((TOTAL_WIDTH - this.toggle.width()) / 2, TOGGLE_PAD_TOP);
 
         div.appendChild(this.topDiv);
         div.appendChild(this.gallery.getElement());
@@ -186,7 +210,9 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         pxt.BrowserUtils.addClass(this.doneButton, "melody-confirm-button");
         this.doneButton.innerText = lf("Done");
         this.doneButton.addEventListener("click", () => this.onDone());
+        this.doneButton.addEventListener("keydown", this.lastFocusTabHandler);
         this.doneButton.style.setProperty("background-color", color);
+        this.setFocusTrapLast(this.doneButton);
 
         this.playButton = document.createElement("button");
         this.playButton.id = "melody-play-button";
@@ -441,7 +467,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             const rowClass = pxtmelody.getColorClass(row);
 
             for (let col = 0; col < this.numCol; col++) {
-                const cell = this.cells[row][col];
+                const cell = this.cells[col][row];
 
                 if (this.melody.getValue(row, col)) {
                     pxt.BrowserUtils.removeClass(cell, "melody-default");
@@ -518,7 +544,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
     }
 
     private highlightColumn(col: number, on: boolean) {
-        const cells = this.cells.map(row => row[col]);
+        const cells = this.cells[col];
 
         cells.forEach(cell => {
             if (on) pxt.BrowserUtils.addClass(cell, "playing")
@@ -530,49 +556,167 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         FieldCustomMelody.VIEWBOX_WIDTH = (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_VERTICAL_MARGIN) * this.numCol + FieldCustomMelody.CELL_VERTICAL_MARGIN;
         if (pxt.BrowserUtils.isEdge()) FieldCustomMelody.VIEWBOX_WIDTH += 37;
         FieldCustomMelody.VIEWBOX_HEIGHT = (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_HORIZONTAL_MARGIN) * this.numRow + FieldCustomMelody.CELL_HORIZONTAL_MARGIN;
-        this.elt = pxsim.svg.parseString(`<svg xmlns="http://www.w3.org/2000/svg" class="melody-grid-div" viewBox="0 0 ${FieldCustomMelody.VIEWBOX_WIDTH} ${FieldCustomMelody.VIEWBOX_HEIGHT}"/>`);
+        this.elt = pxsim.svg.parseString(`<svg xmlns="http://www.w3.org/2000/svg" class="melody-grid-div blocklyMatrix" viewBox="0 0 ${FieldCustomMelody.VIEWBOX_WIDTH} ${FieldCustomMelody.VIEWBOX_HEIGHT}" tabindex="0" />`);
 
-        // Create the cells of the matrix that is displayed
-        this.cells = []; // initialize array that holds rect svg elements
-        for (let i = 0; i < this.numRow; i++) {
-            this.cells.push([]);
-        }
-        for (let i = 0; i < this.numRow; i++) {
-            for (let j = 0; j < this.numCol; j++) {
-                this.createCell(i, j);
-            }
-        }
+        this.cells = createMatrixDisplay({
+            blocklyId: this.sourceBlock_.id,
+            cellWidth: FieldCustomMelody.CELL_WIDTH,
+            cellHeight: FieldCustomMelody.CELL_WIDTH,
+            cellLabel: lf("Note"),
+            cellHorizontalMargin: FieldCustomMelody.CELL_HORIZONTAL_MARGIN,
+            cellVerticalMargin: FieldCustomMelody.CELL_VERTICAL_MARGIN,
+            cornerRadius: FieldCustomMelody.CELL_CORNER_RADIUS,
+            matrixHeight: this.numRow,
+            matrixWidth: this.numCol,
+            parentElement: this.elt
+        });
+
+        this.selected = undefined;
+        this.updateGrid();
+        this.attachEventHandlersToMatrix();
         return this.elt;
     }
 
-    private createCell(x: number, y: number) {
-        const tx = x * (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_HORIZONTAL_MARGIN) + FieldCustomMelody.CELL_HORIZONTAL_MARGIN;
-        const ty = y * (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_VERTICAL_MARGIN) + FieldCustomMelody.CELL_VERTICAL_MARGIN;
-
-        const cellG = pxsim.svg.child(this.elt, "g", { transform: `translate(${ty} ${tx})` }) as SVGGElement;
-        const cellRect = pxsim.svg.child(cellG, "rect", {
-            'cursor': 'pointer',
-            'width': FieldCustomMelody.CELL_WIDTH,
-            'height': FieldCustomMelody.CELL_WIDTH,
-            'stroke': 'white',
-            'data-x': x,
-            'data-y': y,
-            'rx': FieldCustomMelody.CELL_CORNER_RADIUS
-        }) as SVGRectElement;
-
-        // add appropriate class so the cell has the correct fill color
-        if (this.melody.getValue(x, y)) pxt.BrowserUtils.addClass(cellRect, pxtmelody.getColorClass(x));
-        else pxt.BrowserUtils.addClass(cellRect, "melody-default");
-
+    private attachEventHandlersToMatrix() {
         if ((this.sourceBlock_.workspace as any).isFlyout) return;
 
+        this.elt.addEventListener("keydown", this.keyHandler.bind(this));
+        this.elt.addEventListener("focus", (event) => {
+            if (!this.selected) {
+                return;
+            }
+            this.setFocusIndicator(
+                this.cells[this.selected[0]][this.selected[1]]
+            );
+        });
+        this.elt.addEventListener("blur", () => {
+            if (this.cells) {
+                this.setFocusIndicator();
+            }
+        });
+
+        for (let x = 0; x < this.numCol; ++x) {
+            for (let y = 0; y < this.numRow; ++y) {
+                this.attachPointerEventHandlersToCell(x,y,this.cells[x][y]);
+            }
+        }
+    }
+
+    private attachPointerEventHandlersToCell(x: number, y: number, cellRect: SVGElement) {
         pxsim.pointerEvents.down.forEach(evid => cellRect.addEventListener(evid, (ev: MouseEvent) => {
-            this.onNoteSelect(x, y);
+            this.onNoteSelect(y, x); // row,col is y,x ordering
+            this.setFocusIndicator();
             ev.stopPropagation();
             ev.preventDefault();
         }, false));
+    }
 
-        this.cells[x][y] = cellRect;
+    private keyHandler(e: KeyboardEvent) {
+        // First handle high level navigation
+        switch(e.code) {
+            case "Enter":
+            case "Space": {
+                const [x, y] = this.selected;
+                this.onNoteSelect(y, x);
+                this.setFocusIndicator(this.cells[x][y]);
+                this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${x}${y}`);
+                return;
+            }
+            case "Escape": {
+                (this.sourceBlock_.workspace as Blockly.WorkspaceSvg).markFocused();
+                return;
+            }
+        }
+        // If there's nothing currently selected, the first keypress just creates the cursor
+        if (!this.selected) {
+            this.selected = [0,this.getMelodyNote(0) ?? 0];
+        } else {
+            const [x, y] = this.selected;
+            const ctrlCmd = pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey;
+            switch(e.code) {
+                case "KeyW":
+                case "ArrowUp": {
+                    if (y !== 0) {
+                        const hasNote = this.getMelodyNote(x) !== undefined;
+                        this.selected = [x, y - 1]
+                        if (hasNote) {
+                            this.onNoteSelect(this.selected[1], this.selected[0]);
+                        }
+                    }
+                    break;
+                }
+                case "KeyS":
+                case "ArrowDown": {
+                    if (y !== this.cells[0].length - 1) {
+                        const hasNote = this.getMelodyNote(x) !== undefined;
+                        this.selected = [x, y + 1]
+                        if (hasNote) {
+                            this.onNoteSelect(this.selected[1], this.selected[0]);
+                        }
+                    }
+                    break;
+                }
+                case "KeyA":
+                case "ArrowLeft": {
+                    const newX = (x + this.numCol - 1) % this.numCol;
+                    const existingY = this.getMelodyNote(newX) ?? y;
+                    this.selected = [newX, existingY]
+
+                    break;
+                }
+                case "KeyD":
+                case "ArrowRight": {
+
+                    const newX = (x + this.numCol + 1) % this.numCol;
+                    const existingY = this.getMelodyNote(newX) ?? y;
+                    this.selected = [newX, existingY]
+
+                    break;
+                }
+                case "Home": {
+                    if (ctrlCmd) {
+                        this.selected = [0, 0]
+                    } else {
+                        this.selected = [0, y]
+                    }
+                    break;
+                }
+                case "End": {
+                    if (ctrlCmd) {
+                        this.selected = [this.numCol - 1, this.numRow - 1]
+                    } else {
+                        this.selected = [this.numCol - 1, y]
+                    }
+                    break;
+                }
+                default: {
+                    return;
+                }
+            }
+        }
+        const [newX, newY] = this.selected;
+        this.setFocusIndicator(this.cells[newX][newY]);
+        this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${newX}${newY}`);
+        e.preventDefault();
+        e.stopPropagation();
+
+    }
+
+    private getMelodyNote(col: number) {
+        for (let i=0; i<this.numRow; ++i) {
+            if (this.melody.getValue(i, col)) {
+                return i;
+            }
+        }
+        return undefined;
+    }
+
+    private setFocusIndicator(cell?: SVGRectElement) {
+        this.cells.forEach(cell => cell.forEach(cell => cell.nextElementSibling.firstElementChild.classList.remove("selectedLedOn", "selectedLedOff")));
+        if (cell) {
+            const className = "selectedLedOff"; // larger matrix better suited to the thicker highlight
+            cell.nextElementSibling.firstElementChild.classList.add(className);
+        }
     }
 
     private togglePlay() {
@@ -631,10 +775,23 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
                 this.updateGrid();
             }
         });
+
+        this.setFocusTrapLast(this.gallery.getLastTabStop());
+    }
+
+    private setFocusTrapLast(el: HTMLElement) {
+        if (this.focusTrapLast) {
+            this.focusTrapLast.removeEventListener("keydown", this.lastFocusTabHandler);
+        }
+
+        this.focusTrapLast = el;
+        this.focusTrapLast.addEventListener("keydown", this.lastFocusTabHandler);
     }
 
     private hideGallery() {
         this.gallery.hide();
+
+        this.setFocusTrapLast(this.doneButton);
     }
 }
 
@@ -648,10 +805,7 @@ const TOGGLE_WIDTH = 200;
 const TOGGLE_HEIGHT = 40;
 const TOGGLE_BORDER_WIDTH = 2;
 const TOGGLE_CORNER_RADIUS = 4;
-
-const BUTTON_CORNER_RADIUS = 2;
-const BUTTON_BORDER_WIDTH = 1;
-const BUTTON_BOTTOM_BORDER_WIDTH = 2;
+const TOGGLE_PAD_TOP = 3;
 
 interface ToggleProps {
     baseColor: string;
@@ -669,6 +823,7 @@ interface ToggleProps {
 }
 
 class Toggle {
+
     protected leftElement: svg.Group;
     protected leftText: svg.Text;
     protected rightElement: svg.Group;
@@ -720,20 +875,21 @@ class Toggle {
         }
         `);
 
-
         // The outer border has an inner-stroke so we need to clip out the outer part
         // because SVG's don't support "inner borders"
         const clip = this.root.def().create("clipPath", "sprite-editor-toggle-border")
             .clipPathUnits(true);
 
         clip.draw("rect")
-            .at(0, 0)
-            .corners(TOGGLE_CORNER_RADIUS / TOGGLE_WIDTH, TOGGLE_CORNER_RADIUS / TOGGLE_HEIGHT)
+            .at(0, TOGGLE_PAD_TOP)
+            .corners(TOGGLE_CORNER_RADIUS / TOGGLE_WIDTH, TOGGLE_CORNER_RADIUS / TOGGLE_HEIGHT - TOGGLE_PAD_TOP * 2)
             .size(1, 1);
 
+            
         // Draw the outer border
         this.root.draw("rect")
-            .size(TOGGLE_WIDTH, TOGGLE_HEIGHT)
+            .at(0, TOGGLE_PAD_TOP)
+            .size(TOGGLE_WIDTH, TOGGLE_HEIGHT - TOGGLE_PAD_TOP * 2)
             .fill(this.props.baseColor)
             .stroke(this.props.borderColor, TOGGLE_BORDER_WIDTH * 2)
             .corners(TOGGLE_CORNER_RADIUS, TOGGLE_CORNER_RADIUS)
@@ -742,15 +898,15 @@ class Toggle {
 
         // Draw the background
         this.root.draw("rect")
-            .at(TOGGLE_BORDER_WIDTH, TOGGLE_BORDER_WIDTH)
-            .size(TOGGLE_WIDTH - TOGGLE_BORDER_WIDTH * 2, TOGGLE_HEIGHT - TOGGLE_BORDER_WIDTH * 2)
+            .at(TOGGLE_BORDER_WIDTH, TOGGLE_BORDER_WIDTH+TOGGLE_PAD_TOP)
+            .size(TOGGLE_WIDTH - TOGGLE_BORDER_WIDTH * 2, TOGGLE_HEIGHT - TOGGLE_BORDER_WIDTH * 2 - TOGGLE_PAD_TOP)
             .fill(this.props.backgroundColor)
             .corners(TOGGLE_CORNER_RADIUS, TOGGLE_CORNER_RADIUS);
 
         // Draw the switch
         this.switch = this.root.draw("rect")
-            .at(TOGGLE_BORDER_WIDTH, TOGGLE_BORDER_WIDTH)
-            .size((TOGGLE_WIDTH - TOGGLE_BORDER_WIDTH * 2) / 2, TOGGLE_HEIGHT - TOGGLE_BORDER_WIDTH * 2)
+            .at(TOGGLE_BORDER_WIDTH, TOGGLE_BORDER_WIDTH + TOGGLE_PAD_TOP)
+            .size((TOGGLE_WIDTH - TOGGLE_BORDER_WIDTH * 2) / 2, TOGGLE_HEIGHT - (TOGGLE_BORDER_WIDTH + TOGGLE_PAD_TOP) * 2)
             .fill(this.props.switchColor)
             .corners(TOGGLE_CORNER_RADIUS, TOGGLE_CORNER_RADIUS);
 
@@ -769,6 +925,23 @@ class Toggle {
         this.rightElement.appendChild(this.rightText);
 
         this.root.onClick(() => this.toggle());
+        this.root.el.tabIndex = 0;
+        this.root.el.classList.add("melody-editor-toggle-buttons");
+        this.root.el.addEventListener(
+            "keydown",
+            (e) => {
+                if ([
+                    "Space",
+                    "ArrowLeft",
+                    "ArrowRight",
+                    "Enter"
+                ].includes(e.code)) {
+                     this.toggle();
+                     e.stopPropagation();
+                     e.preventDefault();
+                     return;
+                }
+            });
     }
 
     toggle(quiet = false) {
@@ -806,11 +979,15 @@ class Toggle {
     }
 
     height() {
-        return TOGGLE_HEIGHT;
+        return TOGGLE_HEIGHT + 2 * TOGGLE_PAD_TOP;
     }
 
     width() {
         return TOGGLE_WIDTH;
+    }
+
+    getTabStop() {
+        return this.root.el;
     }
 }
 

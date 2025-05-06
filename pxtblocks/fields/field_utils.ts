@@ -694,3 +694,122 @@ export function clearDropDownDiv() {
     Blockly.DropDownDiv.clearContent();
     Blockly.DropDownDiv.getContentDiv().style.height = "";
 }
+
+interface MatrixDisplayProps {
+    blocklyId: string;
+    cellClasses?: string;
+    cellWidth: number;
+    cellHeight: number;
+    cellLabel: string;
+    cellHorizontalMargin: number;
+    cellVerticalMargin: number;
+    cornerRadius: number;
+    matrixWidth: number;
+    matrixHeight: number;
+    offColor?: string;
+    padLeft?: number;
+    parentElement: SVGGElement;
+    scale?: number;
+}
+
+export function createMatrixDisplay({
+    blocklyId,
+    cellClasses,
+    cellWidth,
+    cellHeight,
+    cellLabel,
+    cellHorizontalMargin,
+    cellVerticalMargin,
+    cornerRadius = 0,
+    matrixHeight,
+    matrixWidth,
+    offColor,
+    padLeft = 0,
+    parentElement,
+    scale = 1
+}: MatrixDisplayProps) {
+    let cells: SVGRectElement[][] = [];
+    // Initialize the matrix that holds the state
+    for (let i = 0; i < matrixWidth; i++) {
+        cells.push([]);
+    }
+
+    // Create the cells of the matrix that is displayed
+    for (let y = 0; y < matrixHeight; y++) {
+        const row = pxsim.svg.child(parentElement, "g", { 'role': 'row' });
+        for (let x = 0; x < matrixWidth; x++) {
+            createCell(x, y, row);
+        }
+    }
+
+    // TODO: things to sync
+    // on-off class vs styles
+    // sizes
+    // pointer styles oneditable
+    function createCell(x: number, y: number, row: SVGElement) {
+        const tx = scale * x * (cellWidth + cellVerticalMargin) + cellVerticalMargin + padLeft;
+        const ty = scale * y * (cellHeight + cellHorizontalMargin) + cellHorizontalMargin;
+
+        const cellG = pxsim.svg.child(row, "g", { transform: `translate(${tx} ${ty})`, 'role': 'gridcell' });
+        const rectOptions = {
+            'id': `${blocklyId}:${x}${y}`,  // For aria-activedescendant
+            'class': `blocklyLedOff`,
+            'aria-label': cellLabel,
+            'role': 'switch',
+            'aria-checked': "false",
+            'width': scale * cellWidth,
+            'height': scale * cellHeight,
+            'fill': offColor,
+            'data-x': x,
+            'data-y': y,
+            'rx': Math.max(2, scale * cornerRadius) };
+        if (offColor) {
+            rectOptions['fill'] = offColor;
+        }
+        const cellRect = pxsim.svg.child(cellG, "rect", rectOptions) as SVGRectElement;
+        cells[x][y] = cellRect;
+
+        // Borders and box-shadow do not work in this context and outlines do not follow border-radius.
+        // Stroke is harder to manage given the difference in stroke for an LED when it is on vs off.
+        // This foreignObject/div is used to create a focus indicator for the LED when selected via keyboard navigation.
+        const foreignObject = pxsim.svg.child(cellG, "foreignObject", {
+            transform: 'translate(-4, -4)',
+            width: scale * cellWidth + 8,
+            height: scale * cellWidth + 8,
+        });
+        foreignObject.style.pointerEvents = "none";
+        const div = document.createElement("div");
+        div.classList.add("blocklyLedFocusIndicator");
+        div.style.borderRadius = `${Math.max(2, scale * cornerRadius)}px`;
+        foreignObject.append(div);
+    }
+    return cells;
+}
+
+Blockly.Css.register(`
+    .blocklyMatrix:focus-visible {
+        outline: none;
+    }
+
+    .blocklyMatrix .blocklyLedFocusIndicator {
+        border: 4px solid transparent;
+        height: 100%;
+    }
+
+    .blocklyMatrix .blocklyLedFocusIndicator.selectedLedOn,
+    .blocklyMatrix .blocklyLedFocusIndicator.selectedLedOff {
+        border-color: white;
+        transform: translateZ(0);
+    }
+
+    .blocklyMatrix .blocklyLedFocusIndicator.selectedLedOn:after {
+        content: "";
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        border: 2px solid black;
+        border-radius: inherit;
+    }
+`);
