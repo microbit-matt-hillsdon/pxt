@@ -36,6 +36,7 @@ const FocusTrapInner = (props: FocusTrapProps) => {
     const containerRef = React.useRef<HTMLDivElement | null>(null);
     const previouslyFocused = React.useRef<Element>(document.activeElement);
     const [stoleFocus, setStoleFocus] = React.useState(false);
+    const lastValidTabElement = React.useRef<HTMLElement>();
 
     const { regions } = useFocusTrapState();
 
@@ -116,7 +117,14 @@ const FocusTrapInner = (props: FocusTrapProps) => {
 
             if (!focusable.length) return;
 
-            const index = focusable.indexOf(e.target as HTMLElement);
+            let index = focusable.indexOf(e.target as HTMLElement);
+            if (index < 0) {
+                // If we have arrived at a non-indexed focusable, it's probably
+                // been triggered by a calling focus() on an element with
+                // tabindex=-1, from the last focusable element, so try to use
+                // that.
+                index = focusable.indexOf(lastValidTabElement.current);
+            }
 
             if (forward) {
                 if (goToEnd) {
@@ -140,6 +148,7 @@ const FocusTrapInner = (props: FocusTrapProps) => {
                     findNextFocusableElement(focusable, index, Math.max(index - 1, 0), forward).focus();
                 }
             }
+            lastValidTabElement.current = document.activeElement as HTMLElement;
 
             e.preventDefault();
             e.stopPropagation();

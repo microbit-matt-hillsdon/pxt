@@ -33,6 +33,10 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
 
     const [ cancelToken, setCancelToken ] = React.useState<CancellationToken>(null);
 
+    React.useEffect(() => {
+        document.getElementById("sound-effect-editor-toggle-option-0").focus();
+    }, []);
+
     let startPreviewAnimation: (duration: number) => void;
     let startControlsAnimation: (duration: number) => void;
     let previewSynthListener: (freq: number, vol: number, sound: pxt.assets.Sound, cancelToken: CancellationToken) => void;
@@ -47,11 +51,13 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
     React.useEffect(() => {
         const keyListener = (ev: KeyboardEvent) => {
             // Ignore all keys that could be used for accessibility navigation
-            if (ev.key.length !== 1 || ev.metaKey || ev.ctrlKey || /[0-9]/.test(ev.key)) return;
+            if ((ev.key.length !== 1 && ev.code !== "Enter") || ev.metaKey || ev.ctrlKey || /[0-9]/.test(ev.key)) return;
 
             // Ignore when a text input is focused
-            if (document.activeElement && document.activeElement.tagName === "INPUT" && (document.activeElement as HTMLInputElement).type === "text") return;
-
+            if (document.activeElement) {
+                if (document.activeElement.tagName === "INPUT" && (document.activeElement as HTMLInputElement).type === "text") return;
+                if (document.activeElement.id === "effect-dropdown" || document.activeElement.id === "interpolation-dropdown") return;
+            }
             // Ignore in gallery view
             if (selectedView === "gallery") return;
 
