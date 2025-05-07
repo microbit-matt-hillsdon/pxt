@@ -88,6 +88,8 @@ export const NavigateRegionsOverlay = ({ parent }: NavigateRegionsOverlayProps) 
     }, [])
 
     useEffect(() => {
+        parent.setSimulatorFullScreen(false);
+
         const listener = (e: KeyboardEvent) => {
             const region = shortcutToRegion[e.key]
             focusRegion(region)
@@ -97,7 +99,6 @@ export const NavigateRegionsOverlay = ({ parent }: NavigateRegionsOverlayProps) 
         const observer = new ResizeObserver(() => {
             setRegionRects(getRects())
         });
-
         observer.observe(document.body);
 
         return () => {
