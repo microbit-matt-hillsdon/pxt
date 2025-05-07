@@ -221,7 +221,6 @@ export class ProjectView
         this.hwDebug = this.hwDebug.bind(this);
         this.hideLightbox = this.hideLightbox.bind(this);
         this.hideOnboarding = this.hideOnboarding.bind(this);
-        this.hideNavigateRegions = this.hideNavigateRegions.bind(this);
         this.hideFeedback = this.hideFeedback.bind(this);
         this.openSimSerial = this.openSimSerial.bind(this);
         this.openDeviceSerial = this.openDeviceSerial.bind(this);
@@ -5521,7 +5520,7 @@ export class ProjectView
                 {lightbox ? <sui.Dimmer isOpen={true} active={lightbox} portalClassName={'tutorial'} className={'ui modal'}
                     shouldFocusAfterRender={false} closable={true} onClose={this.hideLightbox} /> : undefined}
                 {this.state.onboarding && <Tour tourSteps={this.state.onboarding} onClose={this.hideOnboarding} />}
-                {accessibleBlocks && this.state.navigateRegions && <NavigateRegionsOverlay parent={this} onClose={this.hideNavigateRegions}/>}
+                {accessibleBlocks && this.state.navigateRegions && <NavigateRegionsOverlay parent={this}/>}
                 {this.state.themePickerOpen && <ThemePickerModal themes={this.themeManager.getAllColorThemes()} onThemeClicked={theme => this.setColorThemeById(theme?.id, true)} onClose={this.hideThemePicker} />}
             </div>
         );

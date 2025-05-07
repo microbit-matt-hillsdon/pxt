@@ -7,7 +7,6 @@ import IProjectView = pxt.editor.IProjectView;
 
 interface NavigateRegionsOverlayProps {
     parent: IProjectView;
-    onClose: () => void;
 }
 
 interface RectBounds {
@@ -35,11 +34,12 @@ const regionToShortcut = Object.entries(shortcutToRegion).reduce((acc, entry) =>
     return acc;
   }, {} as Record<Region, string>);
 
-export const NavigateRegionsOverlay = ({ parent, onClose }: NavigateRegionsOverlayProps) => {
+export const NavigateRegionsOverlay = ({ parent }: NavigateRegionsOverlayProps) => {
+    const isSimMini = () => !!document.querySelector(".miniSim")
     const previouslyFocused = useRef<Element>(document.activeElement);
     const getRects = () => ({
         simulator: (
-            !!document.querySelector(".miniSim")
+            isSimMini()
                 ? document.querySelector(".simPanel")
                 : document.querySelector("#editorSidebar")
             ).getBoundingClientRect(),
@@ -54,30 +54,34 @@ export const NavigateRegionsOverlay = ({ parent, onClose }: NavigateRegionsOverl
         switch (region) {
             case "mainmenu": {
                 (document.querySelector(".blocks-menuitem") as HTMLElement).focus();
-                onClose();
+                parent.hideNavigateRegions();
                 return
             }
             case "simulator": {
                 // Note that pxtsim.driver.focus() isn't the same as tabbing to the sim.
-                (document.querySelector("#boardview") as HTMLElement).focus();
-                onClose()
+                if (isSimMini()) {
+                    parent.setSimulatorFullScreen(true)
+                } else {
+                    (document.querySelector("#boardview") as HTMLElement).focus();
+                }
+                parent.hideNavigateRegions()
                 return
             }
             case "workspace": {
                 parent.editor.focusWorkspace();
-                onClose();
+                parent.hideNavigateRegions();
                 return
             }
             case "toolbox": {
                 parent.editor.focusToolbox();
-                onClose();
+                parent.hideNavigateRegions();
                 return
             }
             case "editortools": {
                 ((!!document.querySelector(".miniSim")
                     ? document.querySelector(".download-button-full")
                     : document.querySelector(".download-button.large")) as HTMLElement).focus();
-                onClose();
+                parent.hideNavigateRegions();
                 return
             }
         }
@@ -106,7 +110,7 @@ export const NavigateRegionsOverlay = ({ parent, onClose }: NavigateRegionsOverl
         if (previouslyFocused.current) {
             (previouslyFocused.current as HTMLElement).focus()
         }
-        onClose();
+        parent.hideNavigateRegions();
     }
 
     return ReactDOM.createPortal(<FocusTrap dontRestoreFocus onEscape={handleEscape}>
