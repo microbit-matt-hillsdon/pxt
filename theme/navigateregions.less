@@ -47,11 +47,21 @@
             margin: auto;
             padding-right: 1em;
             padding-left: 1em;
-            border-radius: 5px
+            border-radius: 5px;
+
+            @media only screen and (max-width: @largestMobileScreen) {
+                padding-right: 0.5em;
+                padding-left: 0.5em;
+            }
         }
         p {
             color: white;
             font-size: 2rem;
+
+            @media only screen and (max-width: @largestTabletScreen), 
+            only screen and (max-height: @tallEditorBreakpoint) and (min-width: @largestMobileScreen) {
+                font-size: 1.5rem;
+            }
         }
     }
 }
