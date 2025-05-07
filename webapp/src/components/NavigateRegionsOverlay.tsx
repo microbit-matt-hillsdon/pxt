@@ -19,14 +19,14 @@ interface RectBounds {
     height: number;
 }
 
-type Region = "topbar" | "simulator" | "toolbox" | "workspace" | "bottombar"
+type Region = "mainmenu" | "simulator" | "toolbox" | "workspace" | "editortools"
 
 const shortcutToRegion: Record<string, Region> = {
-    "1": "topbar",
+    "1": "mainmenu",
     "2": "simulator",
     "3": "toolbox",
     "4": "workspace",
-    "5": "bottombar"
+    "5": "editortools"
 }
 
 const regionToShortcut = Object.entries(shortcutToRegion).reduce((acc, entry) => {
@@ -45,14 +45,14 @@ export const NavigateRegionsOverlay = ({ parent, onClose }: NavigateRegionsOverl
             ).getBoundingClientRect(),
         toolbox: document.querySelector(".blocklyToolbox").getBoundingClientRect(),
         workspace: document.querySelector(".blocklySvg").getBoundingClientRect(),
-        topbar: document.querySelector("#mainmenu").getBoundingClientRect(),
-        bottombar: document.querySelector("#editortools").getBoundingClientRect(),
+        mainmenu: document.querySelector("#mainmenu").getBoundingClientRect(),
+        editortools: document.querySelector("#editortools").getBoundingClientRect(),
     })
     const [regionRects, setRegionRects] = useState(getRects())
 
     const focusRegion = useCallback((region: Region) => {
         switch (region) {
-            case "topbar": {
+            case "mainmenu": {
                 (document.querySelector(".blocks-menuitem") as HTMLElement).focus();
                 onClose();
                 return
@@ -73,7 +73,7 @@ export const NavigateRegionsOverlay = ({ parent, onClose }: NavigateRegionsOverl
                 onClose();
                 return
             }
-            case "bottombar": {
+            case "editortools": {
                 ((!!document.querySelector(".miniSim")
                     ? document.querySelector(".download-button-full")
                     : document.querySelector(".download-button.large")) as HTMLElement).focus();
@@ -112,9 +112,9 @@ export const NavigateRegionsOverlay = ({ parent, onClose }: NavigateRegionsOverl
     return ReactDOM.createPortal(<FocusTrap dontRestoreFocus onEscape={handleEscape}>
         <div className="navigate-regions-container">
             <RegionButton
-                title={regionToShortcut["topbar"]}
-                bounds={regionRects.topbar}
-                onClick={() => focusRegion("topbar")}
+                title={regionToShortcut["mainmenu"]}
+                bounds={regionRects.mainmenu}
+                onClick={() => focusRegion("mainmenu")}
                 ariaLabel={lf("Main menu")}
             />
             <RegionButton
@@ -144,10 +144,10 @@ export const NavigateRegionsOverlay = ({ parent, onClose }: NavigateRegionsOverl
                 ariaLabel={lf("Workspace")}
             />
             <RegionButton
-                title={regionToShortcut["bottombar"]}
-                bounds={regionRects.bottombar}
-                onClick={() => focusRegion("bottombar")}
-                ariaLabel={lf("Project menu")}
+                title={regionToShortcut["editortools"]}
+                bounds={regionRects.editortools}
+                onClick={() => focusRegion("editortools")}
+                ariaLabel={lf("Editor toolbar")}
             />
         </div>
     </FocusTrap>, document.getElementById("root") || document.body)
