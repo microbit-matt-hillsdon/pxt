@@ -467,7 +467,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             const rowClass = pxtmelody.getColorClass(row);
 
             for (let col = 0; col < this.numCol; col++) {
-                const cell = this.cells[col][row];
+                const cell = this.cells[row][col];
 
                 if (this.melody.getValue(row, col)) {
                     pxt.BrowserUtils.removeClass(cell, "melody-default");
@@ -544,7 +544,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
     }
 
     private highlightColumn(col: number, on: boolean) {
-        const cells = this.cells[col];
+        const cells = this.cells.map(row => row[col]);
 
         cells.forEach(cell => {
             if (on) pxt.BrowserUtils.addClass(cell, "playing")
@@ -568,7 +568,8 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             cornerRadius: FieldCustomMelody.CELL_CORNER_RADIUS,
             matrixHeight: this.numRow,
             matrixWidth: this.numCol,
-            parentElement: this.elt
+            parentElement: this.elt,
+            paintOrder: 'column',
         });
 
         this.selected = undefined;
@@ -695,7 +696,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             }
         }
         const [newX, newY] = this.selected;
-        this.setFocusIndicator(this.cells[newX][newY]);
+        this.setFocusIndicator(this.cells[newY][newX]);
         this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${newX}${newY}`);
         e.preventDefault();
         e.stopPropagation();
@@ -885,7 +886,6 @@ class Toggle {
             .corners(TOGGLE_CORNER_RADIUS / TOGGLE_WIDTH, TOGGLE_CORNER_RADIUS / TOGGLE_HEIGHT - TOGGLE_PAD_TOP * 2)
             .size(1, 1);
 
-            
         // Draw the outer border
         this.root.draw("rect")
             .at(0, TOGGLE_PAD_TOP)

@@ -222,7 +222,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
                 parentElement: this.elt,
                 scale: this.scale
             });
-            
+
             this.updateValue();
 
             if (this.xAxisLabel !== LabelMode.None) {
@@ -307,7 +307,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
     }
 
     private attachPointerEventHandlersToCell(x: number, y: number, cellRect: SVGElement) {
-        
+
         pxsim.pointerEvents.down.forEach(evid => cellRect.addEventListener(evid, (ev: MouseEvent) => {
             if (!this.sourceBlock_.isEditable()) return;
 

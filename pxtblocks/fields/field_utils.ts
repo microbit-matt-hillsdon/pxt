@@ -710,6 +710,7 @@ interface MatrixDisplayProps {
     padLeft?: number;
     parentElement: SVGGElement;
     scale?: number;
+    paintOrder?: 'row'| 'column';
 }
 
 export function createMatrixDisplay({
@@ -726,7 +727,8 @@ export function createMatrixDisplay({
     offColor,
     padLeft = 0,
     parentElement,
-    scale = 1
+    scale = 1,
+    paintOrder = 'row'
 }: MatrixDisplayProps) {
     let cells: SVGRectElement[][] = [];
     // Initialize the matrix that holds the state
@@ -747,12 +749,12 @@ export function createMatrixDisplay({
     // sizes
     // pointer styles oneditable
     function createCell(x: number, y: number, row: SVGElement) {
-        const tx = scale * x * (cellWidth + cellVerticalMargin) + cellVerticalMargin + padLeft;
-        const ty = scale * y * (cellHeight + cellHorizontalMargin) + cellHorizontalMargin;
+        const tx = scale * x * (cellWidth + cellHorizontalMargin) + cellHorizontalMargin + padLeft;
+        const ty = scale * y * (cellHeight + cellVerticalMargin) + cellVerticalMargin;
 
-        const cellG = pxsim.svg.child(row, "g", { transform: `translate(${tx} ${ty})`, 'role': 'gridcell' });
+        const cellG = pxsim.svg.child(row, "g", { transform: `translate(${paintOrder === 'row' ? tx : ty} ${paintOrder === 'row' ? ty : tx})`, 'role': 'gridcell' });
         const rectOptions = {
-            'id': `${blocklyId}:${x}${y}`,  // For aria-activedescendant
+            'id': `${blocklyId}:${paintOrder === 'row' ? x : y}${paintOrder === 'row' ? y : x}`,  // For aria-activedescendant
             'class': `blocklyLedOff`,
             'aria-label': cellLabel,
             'role': 'switch',
