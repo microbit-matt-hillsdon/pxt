@@ -590,15 +590,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
             const triggerEditorAction = (action: pxsim.SimulatorActionMessage["type"]) => {
                 switch (action) {
-                    case "focusWorkspace": {
-                        this.parent.editor.focusWorkspace();
-                        return
-                    }
-                    case "focusSimulator": {
-                        // Note that pxtsim.driver.focus() isn't the same as tabbing to the sim.
-                        (document.querySelector("#boardview") as HTMLElement).focus();
-                        return
-                    }
                     case "webUSBDownload": {
                         (async () => {
                             // TODO: refactor and share with editortoolbar.tsx

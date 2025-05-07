@@ -10,13 +10,7 @@ namespace pxsim.accessibility {
 
     export function getKeyboardShortcutEditorAction(e: KeyboardEvent): pxsim.SimulatorActionMessage["type"] | null {
         const meta  = e.metaKey || e.ctrlKey;
-        if (e.key === "e" && meta) {
-            e.preventDefault();
-            return "focusWorkspace"
-        } else if (e.key === "b" && meta) {
-            e.preventDefault();
-            return "focusSimulator"
-        } else if (e.key === "d" && meta) {
+        if (e.key === "d" && meta) {
             e.preventDefault();
             return "webUSBDownload"
         } else if (e.key === "j" && meta) {
