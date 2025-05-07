@@ -36,6 +36,7 @@ const regionToShortcut = Object.entries(shortcutToRegion).reduce((acc, entry) =>
   }, {} as Record<Region, string>);
 
 export const NavigateRegionsOverlay = ({ parent, onClose }: NavigateRegionsOverlayProps) => {
+    const previouslyFocused = useRef<Element>(document.activeElement);
     const getRects = () => ({
         simulator: (
             !!document.querySelector(".miniSim")
@@ -101,7 +102,14 @@ export const NavigateRegionsOverlay = ({ parent, onClose }: NavigateRegionsOverl
         }
     }, [])
 
-    return ReactDOM.createPortal(<FocusTrap dontRestoreFocus onEscape={onClose}>
+    const handleEscape = () => {
+        if (previouslyFocused.current) {
+            (previouslyFocused.current as HTMLElement).focus()
+        }
+        onClose();
+    }
+
+    return ReactDOM.createPortal(<FocusTrap dontRestoreFocus onEscape={handleEscape}>
         <div className="navigate-regions-container">
             <RegionButton
                 title={regionToShortcut["topbar"]}
