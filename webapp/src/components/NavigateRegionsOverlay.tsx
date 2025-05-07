@@ -118,7 +118,7 @@ export const NavigateRegionsOverlay = ({ parent, onClose }: NavigateRegionsOverl
                 ariaLabel={lf("Main menu")}
             />
             <RegionButton
-                className={!!document.querySelector(".miniSim") && "mini-sim-region"}
+                className="simulator-region"
                 title={regionToShortcut["simulator"]}
                 bounds={regionRects.simulator}
                 onClick={() => focusRegion("simulator")}
