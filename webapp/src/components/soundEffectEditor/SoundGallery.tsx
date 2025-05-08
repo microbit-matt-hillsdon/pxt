@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button } from "../../../../react-common/components/controls/Button";
-import { classList, fireClickOnEnter } from "../../../../react-common/components/util";
+import { classList } from "../../../../react-common/components/util";
 import { CancellationToken } from "./SoundEffectEditor";
 import { soundToCodalSound } from "./soundUtil";
 
@@ -28,54 +28,53 @@ interface SoundGalleryItemProps extends SoundGalleryItem {
 export const SoundGallery = (props: SoundGalleryProps) => {
     const { sounds, onSoundSelected, visible, useMixerSynthesizer } = props;
 
-    const selectItemRefs = React.useRef<Record<string,HTMLElement>>({});
-    const playItemRefs = React.useRef<Record<string,HTMLElement>>({});
+    const selectItemRefs = React.useRef<Record<string,HTMLElement>[]>([{},{}]);
+    const selectedCoord = React.useRef<{row: number, col: "select" | "preview"}>({row: 0, col: "select"});
 
-    function selectNav(
+    const selectNav = (
         prev: number,
         next: number,
         current: number,
-        event: React.KeyboardEvent<HTMLElement>) {
-            console.log("Selectnav", event.code);
+        event: React.KeyboardEvent<HTMLElement>) => {
         switch(event.code) {
             case "ArrowDown":
-                selectItemRefs.current[next].focus();
-                console.log("focused ",selectItemRefs.current, next);
+                selectedCoord.current.row = next;
+                selectItemRefs.current[0][next].focus();
                 event.preventDefault();
                 break;
             case "ArrowUp":
-                selectItemRefs.current[prev].focus();
+                selectedCoord.current.row = prev;
+                selectItemRefs.current[0][prev].focus();
+                event.preventDefault();
+                break;
+            case "ArrowLeft":
+                selectedCoord.current.col = "select";
+                selectItemRefs.current[0][current].focus();
                 event.preventDefault();
                 break;
             case "ArrowRight":
-                playItemRefs.current[current].focus();
+                selectedCoord.current.col = "preview";
+                selectItemRefs.current[1][current].focus();
                 event.preventDefault();
                 break;
             case "Space":
             case "Enter":
-                selectItemRefs.current[current].click();
+                if (selectedCoord.current.col === "select") {
+                    selectItemRefs.current[0][current].click();
+                    event.stopPropagation();
+                    event.preventDefault();
+                }
+                break;
+            case "Home":
+                selectedCoord.current = {col: "select", row: 0};
+                selectItemRefs.current[0][0].focus();
                 event.stopPropagation();
                 event.preventDefault();
-            default:
-        }
-    }
-
-    function previewNav(
-        prev: number,
-        next: number,
-        current: number,
-        event: React.KeyboardEvent<HTMLElement>) {
-        switch(event.code) {
-            case "ArrowDown":
-                playItemRefs.current[next].focus();
-                event.preventDefault();
                 break;
-            case "ArrowUp":
-                playItemRefs.current[prev].focus();
-                event.preventDefault();
-                break;
-            case "ArrowLeft":
-                selectItemRefs.current[current].focus();
+            case "End":
+                selectedCoord.current = {col: "preview", row: sounds.length - 1};
+                selectItemRefs.current[1][sounds.length-1].focus();
+                event.stopPropagation();
                 event.preventDefault();
                 break;
             default:
@@ -83,10 +82,14 @@ export const SoundGallery = (props: SoundGalleryProps) => {
     }
 
     return <div className={classList("sound-gallery", visible && "visible")} aria-hidden={!visible}>
-        <div className="sound-gallery-scroller">
+        <div className="sound-gallery-scroller"
+            tabIndex={0}
+            onFocus={() => {
+                selectItemRefs.current[selectedCoord.current.col === "select" ? 0 : 1][selectedCoord.current.row].focus();
+            }}>
             {sounds.map((item, index) => {
-                    const prev = (index + sounds.length - 1) % sounds.length;
-                    const next = (index + 1) % sounds.length;
+                    const prev = Math.max(index - 1, 0);
+                    const next = Math.min(index + 1, sounds.length-1);
                     return(<div
                         key={index}
                         onClick={() => onSoundSelected(item.sound)}
@@ -97,10 +100,10 @@ export const SoundGallery = (props: SoundGalleryProps) => {
                             useMixerSynthesizer={useMixerSynthesizer}
                             onClick={() => onSoundSelected(item.sound)}
 
-                            playReference={ref => playItemRefs.current[index] = ref}
-                            selectReference={ref => selectItemRefs.current[index] = ref}
+                            playReference={ref => selectItemRefs.current[1][index] = ref}
+                            selectReference={ref => selectItemRefs.current[0][index] = ref}
 
-                            previewKeyDown={evt => previewNav(prev, next, index, evt)}
+                            previewKeyDown={evt => selectNav(prev, next, index, evt)}
                             selectKeyDown={evt => selectNav(prev, next, index, evt)}
                         />
                     </div>);
@@ -111,7 +114,7 @@ export const SoundGallery = (props: SoundGalleryProps) => {
 }
 
 const SoundGalleryEntry = (props: SoundGalleryItemProps) => {
-    const { 
+    const {
         sound,
         name,
         onClick,
@@ -149,7 +152,7 @@ const SoundGalleryEntry = (props: SoundGalleryItemProps) => {
 
     return <div className="sound-gallery-item-label">
         <div className="sound-gallery-item-label-inner"
-            tabIndex={0}
+            tabIndex={-1}
             ref={selectReference}
             onClick={onClick}
             onKeyDown={selectKeyDown}
@@ -171,6 +174,7 @@ const SoundGalleryEntry = (props: SoundGalleryItemProps) => {
         <Button
             className="sound-effect-play-button"
             buttonRef={playReference}
+            tabIndex={-1}
             title={cancelToken ? lf("Stop Sound Preview") : lf("Preview Sound")}
             onClick={handlePlayButtonClick}
             onKeydown={previewKeyDown}

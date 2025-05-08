@@ -274,7 +274,7 @@ export const SoundControls = (props: SoundControlsProps) => {
                 <DraggableGraph
                     min={1}
                     max={pxt.assets.MAX_FREQUENCY}
-                    ariaLabel="Frequency over time"
+                    ariaLabel={lf("Frequency over time")}
                     aspectRatio={3}
                     valueUnits={pxt.U.lf("Hz")}
                     points={[sound.startFrequency, sound.endFrequency]}
@@ -293,7 +293,7 @@ export const SoundControls = (props: SoundControlsProps) => {
                 <DraggableGraph
                     min={0}
                     max={pxt.assets.MAX_VOLUME}
-                    ariaLabel="Volume over time"
+                    ariaLabel={lf("Volume over time")}
                     aspectRatio={5}
                     points={[sound.startVolume, sound.endVolume]}
                     interpolation="linear"

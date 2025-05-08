@@ -31,8 +31,8 @@ export const Dropdown = (props: DropdownProps) => {
 
     const [ expanded, setExpanded ] = React.useState(false);
 
-    const container = React.useRef<HTMLDivElement>();
-    const dropdownButton = React.useRef<HTMLButtonElement>();
+    const container = React.useRef<HTMLDivElement | null>();
+    const dropdownButton = React.useRef<HTMLButtonElement | null>();
     const focusableItems = React.useRef<{[k: string]: HTMLButtonElement}>({});
 
     React.useEffect(() => {

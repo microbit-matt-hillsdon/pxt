@@ -33,6 +33,8 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
 
     const [ cancelToken, setCancelToken ] = React.useState<CancellationToken>(null);
 
+    const playButtonRef = React.useRef<HTMLElement>();
+
     React.useEffect(() => {
         document.getElementById("sound-effect-editor-toggle-option-0").focus();
     }, []);
@@ -57,14 +59,15 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
             if (document.activeElement) {
                 if (document.activeElement.tagName === "INPUT" && (document.activeElement as HTMLInputElement).type === "text") return;
                 if (document.activeElement.id === "effect-dropdown" || document.activeElement.id === "interpolation-dropdown") return;
+                if (document.activeElement.id  === "sound-effect-play-button") return;
             }
             // Ignore in gallery view
             if (selectedView === "gallery") return;
 
             play();
         };
-
-        document.addEventListener("keydown", keyListener);
+        // Debounce any keypress that opened this editor
+        setTimeout(() => document.addEventListener("keydown", keyListener), 100);
 
         return () => document.removeEventListener("keydown", keyListener);
     })
@@ -135,7 +138,7 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
     const handleGallerySelection = (newSound: pxt.assets.Sound) => {
         handleSoundChange(newSound);
         setSelectedView("editor");
-        document.getElementById("sound-effect-play-button").focus();
+        playButtonRef.current.focus();
     }
 
     return <div className="sound-effect-editor">
@@ -153,6 +156,7 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
                         handleSynthListenerRef={handleSynthListenerRef} />
                     <Button
                         id="sound-effect-play-button"
+                        buttonRef={ref => playButtonRef.current = ref}
                         className="sound-effect-play-button"
                         title={cancelToken ? lf("Stop") : lf("Play")}
                         onClick={handlePlayButtonClick}

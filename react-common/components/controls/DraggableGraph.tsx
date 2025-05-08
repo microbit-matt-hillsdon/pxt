@@ -35,7 +35,7 @@ export const DraggableGraph = (props: DraggableGraphProps) => {
         valueUnits
     } = props;
 
-    const [focused, setFocused] = React.useState<number | undefined>();
+    const [focused, setFocusedIndex] = React.useState<number | undefined>();
  
     const width = 1000;
     const height = (1 / aspectRatio) * width;
@@ -235,8 +235,8 @@ export const DraggableGraph = (props: DraggableGraphProps) => {
                             aria-valuemin={min}
                             aria-valuemax={max}
                             aria-valuenow={getValue(index)}
-                            onFocus={() => setFocused(index)}
-                            onBlur={() => focused === index && setFocused(undefined)}
+                            onFocus={() => setFocusedIndex(index)}
+                            onBlur={() => focused === index && setFocusedIndex(undefined)}
                             />
                     </g>
             })}
