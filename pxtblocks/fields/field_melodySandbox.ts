@@ -92,7 +92,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         this.onInit();
     }
 
-    showEditor_() {
+    showEditor_(event?: MouseEvent) {
         // If there is an existing drop-down someone else owns, hide it immediately and clear it.
         Blockly.DropDownDiv.hideWithoutAnimation();
         clearDropDownDiv();
@@ -119,10 +119,13 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
 
             setMelodyEditorOpen(this.sourceBlock_, false);
         });
-        this.elt.focus();
-        const startNote = this.getMelodyNote(0) ?? 0;
-        this.selected = [0, startNote];
-        this.updateSelectionFocus();
+
+        if (!event) {
+            this.elt.focus();
+            const startNote = this.getMelodyNote(0) ?? 0;
+            this.selected = [0, startNote];
+            this.updateSelectionFocus();
+        }
     }
 
     getValue() {
