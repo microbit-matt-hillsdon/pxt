@@ -37,8 +37,8 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
 
     // grid elements
     private static CELL_WIDTH = 25;
-    private static CELL_HORIZONTAL_MARGIN = 7;
-    private static CELL_VERTICAL_MARGIN = 5;
+    private static CELL_HORIZONTAL_MARGIN = 5;
+    private static CELL_VERTICAL_MARGIN = 7;
     private static CELL_CORNER_RADIUS = 5;
     private elt: SVGSVGElement;
     private cells: SVGRectElement[][];
@@ -61,7 +61,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
     private root: svg.SVG;
     private gallery: pxtmelody.MelodyGallery;
 
-    private selected: number[] | undefined = undefined;
+    private selected: [column: number, row: number] | undefined = undefined;
 
     constructor(value: string, params: U, validator?: Blockly.FieldValidator) {
         super(value, validator);
@@ -120,6 +120,9 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             setMelodyEditorOpen(this.sourceBlock_, false);
         });
         this.elt.focus();
+        const startNote = this.getMelodyNote(0) ?? 0;
+        this.selected = [0, startNote];
+        this.updateSelectionFocus();
     }
 
     getValue() {
@@ -553,9 +556,9 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
     }
 
     private createGridDisplay(): SVGSVGElement {
-        FieldCustomMelody.VIEWBOX_WIDTH = (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_VERTICAL_MARGIN) * this.numCol + FieldCustomMelody.CELL_VERTICAL_MARGIN;
+        FieldCustomMelody.VIEWBOX_WIDTH = (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_HORIZONTAL_MARGIN) * this.numCol + FieldCustomMelody.CELL_HORIZONTAL_MARGIN;
         if (pxt.BrowserUtils.isEdge()) FieldCustomMelody.VIEWBOX_WIDTH += 37;
-        FieldCustomMelody.VIEWBOX_HEIGHT = (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_HORIZONTAL_MARGIN) * this.numRow + FieldCustomMelody.CELL_HORIZONTAL_MARGIN;
+        FieldCustomMelody.VIEWBOX_HEIGHT = (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_VERTICAL_MARGIN) * this.numRow + FieldCustomMelody.CELL_VERTICAL_MARGIN;
         this.elt = pxsim.svg.parseString(`<svg xmlns="http://www.w3.org/2000/svg" class="melody-grid-div blocklyMatrix" viewBox="0 0 ${FieldCustomMelody.VIEWBOX_WIDTH} ${FieldCustomMelody.VIEWBOX_HEIGHT}" tabindex="0" />`);
 
         this.cells = createMatrixDisplay({
@@ -563,6 +566,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             cellWidth: FieldCustomMelody.CELL_WIDTH,
             cellHeight: FieldCustomMelody.CELL_WIDTH,
             cellLabel: lf("Note"),
+            borderColor: "white",
             cellHorizontalMargin: FieldCustomMelody.CELL_HORIZONTAL_MARGIN,
             cellVerticalMargin: FieldCustomMelody.CELL_VERTICAL_MARGIN,
             cornerRadius: FieldCustomMelody.CELL_CORNER_RADIUS,
@@ -634,7 +638,6 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             const [x, y] = this.selected;
             const ctrlCmd = pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey;
             switch(e.code) {
-                case "KeyW":
                 case "ArrowUp": {
                     if (y !== 0) {
                         const hasNote = this.getMelodyNote(x) !== undefined;
@@ -645,7 +648,6 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
                     }
                     break;
                 }
-                case "KeyS":
                 case "ArrowDown": {
                     if (y !== this.cells[0].length - 1) {
                         const hasNote = this.getMelodyNote(x) !== undefined;
@@ -656,7 +658,6 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
                     }
                     break;
                 }
-                case "KeyA":
                 case "ArrowLeft": {
                     const newX = (x + this.numCol - 1) % this.numCol;
                     const existingY = this.getMelodyNote(newX) ?? y;
@@ -664,7 +665,6 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
 
                     break;
                 }
-                case "KeyD":
                 case "ArrowRight": {
 
                     const newX = (x + this.numCol + 1) % this.numCol;
@@ -694,12 +694,16 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
                 }
             }
         }
-        const [newX, newY] = this.selected;
-        this.setFocusIndicator(this.cells[newX][newY]);
-        this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${newX}${newY}`);
+        this.updateSelectionFocus();
         e.preventDefault();
         e.stopPropagation();
 
+    }
+
+    private updateSelectionFocus() {
+        const [newX, newY] = this.selected;
+        this.setFocusIndicator(this.cells[newX][newY]);
+        this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${newX}${newY}`);
     }
 
     private getMelodyNote(col: number) {
@@ -882,10 +886,10 @@ class Toggle {
 
         clip.draw("rect")
             .at(0, TOGGLE_PAD_TOP)
-            .corners(TOGGLE_CORNER_RADIUS / TOGGLE_WIDTH, TOGGLE_CORNER_RADIUS / TOGGLE_HEIGHT - TOGGLE_PAD_TOP * 2)
+            .corners(TOGGLE_CORNER_RADIUS / TOGGLE_WIDTH, TOGGLE_CORNER_RADIUS / TOGGLE_HEIGHT)
             .size(1, 1);
 
-            
+
         // Draw the outer border
         this.root.draw("rect")
             .at(0, TOGGLE_PAD_TOP)
