@@ -706,6 +706,7 @@ interface MatrixDisplayProps {
     cornerRadius: number;
     matrixWidth: number;
     matrixHeight: number;
+    borderColor?: string;
     offColor?: string;
     padLeft?: number;
     parentElement: SVGGElement;
@@ -724,6 +725,7 @@ export function createMatrixDisplay({
     matrixHeight,
     matrixWidth,
     offColor,
+    borderColor: strokeColor,
     padLeft = 0,
     parentElement,
     scale = 1
@@ -742,13 +744,9 @@ export function createMatrixDisplay({
         }
     }
 
-    // TODO: things to sync
-    // on-off class vs styles
-    // sizes
-    // pointer styles oneditable
     function createCell(x: number, y: number, row: SVGElement) {
-        const tx = scale * x * (cellWidth + cellVerticalMargin) + cellVerticalMargin + padLeft;
-        const ty = scale * y * (cellHeight + cellHorizontalMargin) + cellHorizontalMargin;
+        const tx = scale * x * (cellWidth + cellHorizontalMargin) + cellHorizontalMargin + padLeft;
+        const ty = scale * y * (cellHeight + cellVerticalMargin) + cellVerticalMargin;
 
         const cellG = pxsim.svg.child(row, "g", { transform: `translate(${tx} ${ty})`, 'role': 'gridcell' });
         const rectOptions = {
@@ -760,6 +758,7 @@ export function createMatrixDisplay({
             'width': scale * cellWidth,
             'height': scale * cellHeight,
             'fill': offColor,
+            'stroke': strokeColor,
             'data-x': x,
             'data-y': y,
             'rx': Math.max(2, scale * cornerRadius) };

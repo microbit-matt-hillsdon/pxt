@@ -167,7 +167,7 @@ namespace pxtmelody {
             outer.appendChild(leftButton);
 
             this.selectionButtons[i] = leftButton;
- 
+
             const rightButton = mkElement("div", {
                 className: "melody-editor-button right-button",
                 role: "button",
@@ -185,7 +185,7 @@ namespace pxtmelody {
             outer.appendChild(rightButton);
 
             this.previewButtons[i] = rightButton;
-              
+
             leftButton.addEventListener("keydown", (e) => {
                 if (["Space", "Enter"].includes(e.code)) {
                     this.handleSelection(sample);
