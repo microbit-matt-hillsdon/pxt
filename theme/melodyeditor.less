@@ -16,7 +16,8 @@
 }
 
 #melody-editor-header-controls {
-    height: 40px;
+    height: 46px;
+    display: block;
 }
 
 .melody-grid-div {
@@ -32,7 +33,7 @@
 }
 
 .melody-top-bar-div {
-    padding: 6px 0px 0px 0px;
+    padding: 0;
     float: center;
     text-align: center;
 }
@@ -82,6 +83,11 @@
     line-height: 2.5rem;
 }
 
+.melody-editor-card:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 3px;
+}
+
 .melody-gallery-button .melody-color-block {
     margin-top: 0.5rem;
 }
@@ -106,15 +112,25 @@
     border-top: 1px #ffffff solid;
 }
 
+.melody-editor-toggle-buttons:focus {
+    outline: 3px solid white;
+    outline-offset: 1px 1px 0 0;
+    border-radius: 2px;
+}
+
 .melody-editor-button {
     background-color: #dcdcdc;
     color: rgb(0, 0, 0, 0.6);
 
     transition: color .1s, background-color .1s;
 }
-.melody-editor-button:hover {
+
+.melody-editor-button:hover,
+.melody-editor-button:focus-visible {
     background-color: #cacbcd;
     color: rgb(0, 0, 0, 0.8);
+    outline: 3px solid var(--pxt-focus-border);
+    outline-offset: -5px;
 }
 
 .melody-editor-button.right-button .icon {
@@ -142,10 +158,6 @@
 .melody-confirm-button:hover {
     background-color: #9e0986;
     border: 1px solid #e30fc0;
-}
-
-.melody-confirm-button:focus {
-    outline: none !important;
 }
 
 .melody-editor-text {
@@ -207,8 +219,8 @@
     border: 1px solid #7f8c8d;
 }
 
-#melody-play-button:focus {
-    outline: none !important;
+.melody-bottom-bar-div button:focus-visible {
+    outline: 3px solid white;
 }
 
 .melody-bottom-bar-div {
