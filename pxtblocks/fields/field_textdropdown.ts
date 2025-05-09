@@ -44,6 +44,7 @@ export class BaseFieldTextDropdown extends Blockly.FieldTextInput {
 
     private inputKeydownListener(e: KeyboardEvent) {
         if (e.key === "ArrowDown") {
+            e.preventDefault();
             this.menu_.focus();
             if (this.selectedMenuItem) {
                 this.menu_.setHighlighted(this.selectedMenuItem);
@@ -58,6 +59,7 @@ export class BaseFieldTextDropdown extends Blockly.FieldTextInput {
         // If this was the UpArrow or DownArrow, the highlighted menu item has already been updated.
         const highlightedMenuElement = this.menu_.getElement().querySelector(".blocklyMenuItemHighlight");
         if (e.key === "ArrowUp" && (highlightedMenuElement === this.lastHighlightedMenuElement || !this.lastHighlightedMenuElement)) {
+            e.preventDefault();
             this.selectedMenuItem = null;
             this.menu_.setHighlighted(null);
             Blockly.WidgetDiv.getDiv().querySelector("input")?.focus();
@@ -72,7 +74,7 @@ export class BaseFieldTextDropdown extends Blockly.FieldTextInput {
         Blockly.Touch.clearTouchIdentifier();
 
         this.inputKeydownHandler = this.inputKeydownListener.bind(this)
-        Blockly.WidgetDiv.getDiv().addEventListener("keydown", this.inputKeydownHandler);
+        Blockly.WidgetDiv.getDiv().addEventListener('keydown', this.inputKeydownHandler);
     }
 
     override doValueUpdate_(newValue: string) {
@@ -112,8 +114,8 @@ export class BaseFieldTextDropdown extends Blockly.FieldTextInput {
     }
 
     protected dropdownDispose_() {
-        Blockly.WidgetDiv.getDiv().removeEventListener("keydown", this.inputKeydownHandler);
-        this.menu_.getElement().removeEventListener("keydown", this.dropdownKeydownHandler);
+        Blockly.WidgetDiv.getDiv().removeEventListener('keydown', this.inputKeydownHandler);
+        this.menu_.getElement().removeEventListener('keydown', this.dropdownKeydownHandler);
         this.dropDownOpen_ = false;
         if (this.menu_) {
             this.menu_.dispose();
@@ -190,7 +192,7 @@ export class BaseFieldTextDropdown extends Blockly.FieldTextInput {
         Blockly.DropDownDiv.showPositionedByField(this, this.dropdownDispose_.bind(this));
 
         this.dropdownKeydownHandler = this.dropdownKeydownListener.bind(this);
-        this.menu_.getElement().addEventListener("keydown", this.dropdownKeydownHandler);
+        this.menu_.getElement().addEventListener('keydown', this.dropdownKeydownHandler);
 
         // Focusing needs to be handled after the menu is rendered and positioned.
         // Otherwise it will cause a page scroll to get the misplaced menu in
