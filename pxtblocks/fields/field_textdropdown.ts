@@ -140,11 +140,11 @@ export class BaseFieldTextDropdown extends Blockly.FieldTextInput {
         for (let i = 0; i < options.length; i++) {
             const [label, value] = options[i];
             const content = (() => {
-                if (typeof label === 'object') {
+                if (isImageProperties(label)) {
                     // Convert ImageProperties to an HTMLImageElement.
-                    const image = new Image(label['width'], label['height']);
-                    image.src = label['src'];
-                    image.alt = label['alt'] || '';
+                    const image = new Image(label.width, label.height);
+                    image.src = label.src;
+                    image.alt = label.alt;
                     return image;
                 }
                 return label;
@@ -308,7 +308,7 @@ function validateOptions(options: Blockly.MenuOption[]) {
         } else if (
             tuple[0] &&
             typeof tuple[0] !== 'string' &&
-            typeof tuple[0].src !== 'string'
+            !isImageProperties(tuple[0])
         ) {
             foundError = true;
             pxt.error(
@@ -384,4 +384,25 @@ function isStringArray(arr: any[]): arr is string[] {
         }
     }
     return true;
+}
+
+/**
+ * Returns whether or not an object conforms to the ImageProperties interface.
+ *
+ * @param obj The object to test.
+ * @returns True if the object conforms to ImageProperties, otherwise false.
+ */
+function isImageProperties(obj: any): obj is Blockly.ImageProperties {
+  return (
+    obj &&
+    typeof obj === 'object' &&
+    'src' in obj &&
+    typeof obj.src === 'string' &&
+    'alt' in obj &&
+    typeof obj.alt === 'string' &&
+    'width' in obj &&
+    typeof obj.width === 'number' &&
+    'height' in obj &&
+    typeof obj.height === 'number'
+  );
 }

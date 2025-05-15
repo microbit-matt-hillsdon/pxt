@@ -563,17 +563,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         if (enabled && !this.keyboardNavigation) {
             this.keyboardNavigation = new KeyboardNavigation(this.editor);
 
-            const injectionDiv = document.getElementById("blocksEditor");
-            injectionDiv.classList.add("accessibleBlocks");
-            const focusRingDiv = injectionDiv.appendChild(document.createElement("div"))
-            focusRingDiv.className = "blocklyWorkspaceFocusRingLayer";
-            this.editor.getSvgGroup().addEventListener("focus", () => {
-                focusRingDiv.dataset.focused = "true";
-            })
-            this.editor.getSvgGroup().addEventListener("blur", () => {
-                delete focusRingDiv.dataset.focused;
-            })
-
             const cleanUpWorkspace = Blockly.ShortcutRegistry.registry.getRegistry()["clean_up_workspace"];
             Blockly.ShortcutRegistry.registry.unregister(cleanUpWorkspace.name);
             Blockly.ShortcutRegistry.registry.register({
@@ -691,7 +680,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 Blockly.Events.VIEWPORT_CHANGE,
                 Blockly.Events.BUBBLE_OPEN,
                 Blockly.Events.THEME_CHANGE,
-                Blockly.Events.MARKER_MOVE,
                 pxtblockly.FIELD_EDITOR_OPEN_EVENT_TYPE
             ];
 
@@ -1028,17 +1016,15 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     // Modified from blockly-keyboard-experimentation plugin
     // https://github.com/google/blockly-keyboard-experimentation/blob/main/src/navigation.ts
     // This modification is required to workaround the fact that cached blocks are not disposed in MakeCode.
-    private isFlyoutItemDisposed(node: Blockly.ASTNode) {
-        const sourceBlock = node.getSourceBlock();
-        if (
-            sourceBlock?.disposed ||
-            sourceBlock?.hasDisabledReason(HIDDEN_CLASS_NAME)
-        ) {
-            return true;
+    private isFlyoutItemDisposed(
+        node: Blockly.IFocusableNode,
+        sourceBlock: Blockly.BlockSvg | null,
+    ) {
+        if (sourceBlock?.disposed || sourceBlock?.hasDisabledReason(HIDDEN_CLASS_NAME)) {
+        return true;
         }
-        const location = node.getLocation();
-        if (location instanceof FlyoutButton) {
-            return location.isDisposed();
+        if (node instanceof Blockly.FlyoutButton) {
+        return node.getSvgRoot().parentNode === null;
         }
         return false;
     }
@@ -1051,22 +1037,15 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             return;
         }
         const curNode = flyoutCursor.getCurNode();
-        if (curNode && !this.isFlyoutItemDisposed(curNode)) {
-            return;
-        }
+        const sourceBlock = flyoutCursor.getSourceBlock();
+        if (curNode && !this.isFlyoutItemDisposed(curNode, sourceBlock))
+        return;
+
         const flyoutContents = flyout.getContents();
         const defaultFlyoutItem = flyoutContents[0];
-        if (!defaultFlyoutItem) {
-            return;
-        }
+        if (!defaultFlyoutItem) return;
         const defaultFlyoutItemElement = defaultFlyoutItem.getElement();
-        if (defaultFlyoutItemElement instanceof Blockly.FlyoutButton) {
-            const astNode = Blockly.ASTNode.createButtonNode(defaultFlyoutItemElement as Blockly.FlyoutButton);
-            flyoutCursor.setCurNode(astNode);
-        } else if (defaultFlyoutItemElement instanceof Blockly.BlockSvg) {
-            const astNode = Blockly.ASTNode.createStackNode(defaultFlyoutItemElement as Blockly.BlockSvg);
-            flyoutCursor.setCurNode(astNode);
-        }
+        flyoutCursor.setCurNode(defaultFlyoutItemElement);
     }
 
     renderToolbox(immediate?: boolean) {
