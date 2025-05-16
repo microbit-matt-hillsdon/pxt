@@ -19,7 +19,7 @@ namespace pxtmelody {
         private numSamples: number = pxtmelody.SampleMelodies.length;
 
         private selectedElement: HTMLElement | undefined;
-        private selectedIndex: [x: number, y: number] | undefined;
+        private selectedColRow: [x: number, y: number] | undefined;
         private keyDownHandler: (e: KeyboardEvent) => {} | undefined;
         private focusHandler: (e: FocusEvent) => {} | undefined;
         private blurHandler: (e: FocusEvent) => {} | undefined;
@@ -29,12 +29,13 @@ namespace pxtmelody {
             this.containerDiv.setAttribute("id", "melody-editor-gallery-outer");
             this.contentDiv = document.createElement("div");
             this.contentDiv.setAttribute("id", "melody-editor-gallery");
+            this.contentDiv.setAttribute("role", "menu");
             this.contentDiv.setAttribute("tabindex", "0");
 
             this.keyDownHandler = this.keyDownListener.bind(this);
             this.contentDiv.addEventListener('keydown', this.keyDownHandler);
             this.focusHandler = this.focusListener.bind(this);
-            this.contentDiv.addEventListener('blur', this.focusHandler);
+            this.contentDiv.addEventListener('focus', this.focusHandler);
             this.blurHandler = this.blurListener.bind(this);
             this.contentDiv.addEventListener('blur', this.blurHandler);
 
@@ -57,26 +58,26 @@ namespace pxtmelody {
         }
 
         keyDownListener(e: KeyboardEvent) {
-            if (!this.selectedIndex) {
+            if (!this.selectedColRow) {
                 return;
             }
-            const [x, y] = this.selectedIndex;
+            const [x, y] = this.selectedColRow;
             switch(e.code) {
                 case "ArrowUp": {
-                    this.selectedIndex = [x, y === 0 ? 0 : y - 1];
+                    this.selectedColRow = [x, y === 0 ? 0 : y - 1];
                     break;
                 }
                 case "ArrowDown": {
-                    this.selectedIndex = [x, y === this.selectionButtons.length -1 ? y : y + 1];
+                    this.selectedColRow = [x, y === this.selectionButtons.length -1 ? y : y + 1];
                     break;
                 }
                 case "ArrowLeft": {
-                    this.selectedIndex = [x === 0 ? 0 : x - 1, y];
+                    this.selectedColRow = [x === 0 ? 0 : x - 1, y];
                     break;
                 }
                 case "ArrowRight": {
                     // Only two columns.
-                    this.selectedIndex = [x === 1 ? 1 : x + 1, y];
+                    this.selectedColRow = [x === 1 ? 1 : x + 1, y];
                     break;
                 }
                 case "Enter":
@@ -91,13 +92,14 @@ namespace pxtmelody {
                 }
             }
             this.selectedElement.classList.remove("selected");
-            const [newX , newY] = this.selectedIndex;
+            const [newX , newY] = this.selectedColRow;
             if (newX === 0) {
                 this.selectedElement = this.selectionButtons[newY]
             } else {
                 this.selectedElement = this.previewButtons[newY]
             }
             this.selectedElement.classList.add("selected");
+            this.contentDiv.setAttribute("aria-activedescendant", `:${newY}-${newX === 0 ? "selection" : "preview"}`);
 
             const containerRect = this.contentDiv.getBoundingClientRect();
             const selectedElementRect = this.selectedElement.getBoundingClientRect()
@@ -113,13 +115,16 @@ namespace pxtmelody {
 
         focusListener(_e: FocusEvent) {
             if (!this.selectedElement) {
-                this.selectedIndex = [0, 0];
+                this.selectedColRow = [0, 0];
                 this.selectedElement = this.selectionButtons[0]
             }
             this.selectedElement.classList.add("selected");
+            const [x, y] = this.selectedColRow;
+            this.contentDiv.setAttribute("aria-activedescendant", `:${x}-${y === 0 ? "selection" : "preview"}`);
         }
 
         blurListener(_e: FocusEvent) {
+            this.contentDiv.removeAttribute("aria-activedescendant");
             // If blur event is from selecting a melody, selectedElement will be undefined.
             this.selectedElement?.classList.remove("selected");
         }
@@ -147,9 +152,10 @@ namespace pxtmelody {
             pxt.BrowserUtils.addClass(this.contentDiv, "hidden-above");
             this.value = null;
             this.stopMelody();
+            this.contentDiv.removeAttribute("aria-activedescendant");
             this.selectedElement?.classList.remove("selected");
             this.selectedElement = undefined;
-            this.selectedIndex = undefined;
+            this.selectedColRow = undefined;
         }
 
         clearDomReferences() {
@@ -242,10 +248,11 @@ namespace pxtmelody {
             const preview = this.createColorBlock(sample);
 
             const leftButton = mkElement("div", {
-                role: "button",
                 className: "melody-editor-button left-button",
+                role: "menuitem",
                 title: sample.name,
                 tabIndex: -1,
+                id: `:${i}-selection`
             }, () => this.handleSelection(sample))
 
             leftButton.appendChild(icon);
@@ -258,9 +265,10 @@ namespace pxtmelody {
 
             const rightButton = mkElement("div", {
                 className: "melody-editor-button right-button",
-                role: "button",
+                role: "menuitem",
                 title: lf("Preview {0}", sample.name),
                 tabIndex: -1,
+                id: `:${i}-preview`
             }, () => this.togglePlay(sample, i));
 
             const playIcon = mkElement("i", {
