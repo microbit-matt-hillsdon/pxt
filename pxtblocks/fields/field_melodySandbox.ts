@@ -182,7 +182,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         this.firstFocusableElement = this.toggle.getRootElement();
 
         this.toggle.layout();
-        this.toggle.translate((TOTAL_WIDTH - this.toggle.width()) / 2, TOGGLE_PAD_TOP);
+        this.toggle.translate((TOTAL_WIDTH - this.toggle.width()) / 2, TOGGLE_PADDING_TOP);
 
         div.appendChild(this.topDiv);
         div.appendChild(this.gallery.getElement());
@@ -725,7 +725,7 @@ const TOGGLE_WIDTH = 200;
 const TOGGLE_HEIGHT = 40;
 const TOGGLE_BORDER_WIDTH = 2;
 const TOGGLE_CORNER_RADIUS = 4;
-const TOGGLE_PAD_TOP = 3;
+const TOGGLE_PADDING_TOP = 6;
 
 interface ToggleProps {
     baseColor: string;
@@ -743,7 +743,6 @@ interface ToggleProps {
 }
 
 class Toggle {
-
     protected leftElement: svg.Group;
     protected leftText: svg.Text;
     protected rightElement: svg.Group;
@@ -795,21 +794,20 @@ class Toggle {
         }
         `);
 
+
         // The outer border has an inner-stroke so we need to clip out the outer part
         // because SVG's don't support "inner borders"
         const clip = this.root.def().create("clipPath", "sprite-editor-toggle-border")
             .clipPathUnits(true);
 
         clip.draw("rect")
-            .at(0, TOGGLE_PAD_TOP)
+            .at(0, 0)
             .corners(TOGGLE_CORNER_RADIUS / TOGGLE_WIDTH, TOGGLE_CORNER_RADIUS / TOGGLE_HEIGHT)
             .size(1, 1);
 
-
         // Draw the outer border
         this.root.draw("rect")
-            .at(0, TOGGLE_PAD_TOP)
-            .size(TOGGLE_WIDTH, TOGGLE_HEIGHT - TOGGLE_PAD_TOP * 2)
+            .size(TOGGLE_WIDTH, TOGGLE_HEIGHT)
             .fill(this.props.baseColor)
             .stroke(this.props.borderColor, TOGGLE_BORDER_WIDTH * 2)
             .corners(TOGGLE_CORNER_RADIUS, TOGGLE_CORNER_RADIUS)
@@ -818,15 +816,15 @@ class Toggle {
 
         // Draw the background
         this.root.draw("rect")
-            .at(TOGGLE_BORDER_WIDTH, TOGGLE_BORDER_WIDTH+TOGGLE_PAD_TOP)
-            .size(TOGGLE_WIDTH - TOGGLE_BORDER_WIDTH * 2, TOGGLE_HEIGHT - TOGGLE_BORDER_WIDTH * 2 - TOGGLE_PAD_TOP)
+            .at(TOGGLE_BORDER_WIDTH, TOGGLE_BORDER_WIDTH)
+            .size(TOGGLE_WIDTH - TOGGLE_BORDER_WIDTH * 2, TOGGLE_HEIGHT - TOGGLE_BORDER_WIDTH * 2)
             .fill(this.props.backgroundColor)
             .corners(TOGGLE_CORNER_RADIUS, TOGGLE_CORNER_RADIUS);
 
         // Draw the switch
         this.switch = this.root.draw("rect")
-            .at(TOGGLE_BORDER_WIDTH, TOGGLE_BORDER_WIDTH + TOGGLE_PAD_TOP)
-            .size((TOGGLE_WIDTH - TOGGLE_BORDER_WIDTH * 2) / 2, TOGGLE_HEIGHT - (TOGGLE_BORDER_WIDTH + TOGGLE_PAD_TOP) * 2)
+            .at(TOGGLE_BORDER_WIDTH, TOGGLE_BORDER_WIDTH)
+            .size((TOGGLE_WIDTH - TOGGLE_BORDER_WIDTH * 2) / 2, TOGGLE_HEIGHT - TOGGLE_BORDER_WIDTH * 2)
             .fill(this.props.switchColor)
             .corners(TOGGLE_CORNER_RADIUS, TOGGLE_CORNER_RADIUS);
 
@@ -890,7 +888,7 @@ class Toggle {
     }
 
     height() {
-        return TOGGLE_HEIGHT + 2 * TOGGLE_PAD_TOP;
+        return TOGGLE_HEIGHT;
     }
 
     width() {
