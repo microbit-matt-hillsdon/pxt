@@ -1006,10 +1006,9 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
     public moveFocusToFlyout() {
         if (this.keyboardNavigation) {
-            const flyout = this.editor.getFlyout() as pxtblockly.CachingFlyout;;
-            const element = flyout.getFlyoutElement();
-            element?.focus();
-            this.defaultFlyoutCursorIfNeeded(flyout);
+            // It's the nested workspace focus tree that takes focus for navigation.
+            Blockly.FocusManager.getFocusManager().focusTree(this.editor.getFlyout().getWorkspace())
+            this.defaultFlyoutCursorIfNeeded(this.editor.getFlyout());
         }
     }
 
