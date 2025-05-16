@@ -114,11 +114,6 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         return this.stringRep;
     }
 
-    getFieldDescription(): string {
-        const melodyString = this.melody.getStringRepresentation()?.replace(/-/g, "")?.trim();
-        return melodyString || lf("empty");
-    }
-
     doValueUpdate_(newValue: string) {
         if (newValue == null || newValue == "" || newValue == "\"\"" || (this.stringRep && this.stringRep === newValue)) { // ignore empty strings
             return;
@@ -131,6 +126,11 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
     getText_() {
         if (this.invalidString) return pxt.Util.lf("Invalid Input");
         else return this.getValue();
+    }
+
+    getFieldDescription(): string {
+        const melodyString = this.melody.getStringRepresentation()?.replace(/-/g, "")?.trim();
+        return melodyString || lf("empty");
     }
 
     // This will be run when the field is created (i.e. when it appears on the workspace)
