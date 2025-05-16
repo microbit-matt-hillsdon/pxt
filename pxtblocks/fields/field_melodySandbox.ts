@@ -3,19 +3,20 @@
 import * as Blockly from "blockly";
 
 import svg = pxt.svgUtil;
-import { createMatrixDisplay, clearDropDownDiv, FieldCustom, FieldCustomOptions, setMelodyEditorOpen } from "./field_utils";
+import { clearDropDownDiv, FieldCustom, FieldCustomOptions, setMelodyEditorOpen } from "./field_utils";
+import { FieldMatrix } from "./field_matrix";
 export const HEADER_HEIGHT = 50;
 export const TOTAL_WIDTH = 300;
 
-export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Field implements FieldCustom {
+export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix implements FieldCustom {
     public isFieldCustom_ = true;
     public SERIALIZABLE = true;
 
     protected params: U;
     private melody: pxtmelody.MelodyArray;
     private soundingKeys: number = 0;
-    private numRow: number = 8;
-    private numCol: number = 8;
+    protected numMatrixRows: number = 8;
+    protected numMatrixCols: number = 8;
     private tempo: number = 120;
     private stringRep: string;
     private isPlaying: boolean = false;
@@ -32,16 +33,14 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
     private playButton: HTMLButtonElement;
     private playIcon: HTMLElement;
     private tempoInput: HTMLInputElement;
-    private focusTrapFirst: SVGElement;
-    private focusTrapLast: HTMLElement;
+    private firstFocusableElement: HTMLElement | SVGElement;
+    private lastFocusableElement: HTMLElement | SVGElement;
 
     // grid elements
     private static CELL_WIDTH = 25;
     private static CELL_HORIZONTAL_MARGIN = 5;
     private static CELL_VERTICAL_MARGIN = 7;
     private static CELL_CORNER_RADIUS = 5;
-    private elt: SVGSVGElement;
-    private cells: SVGRectElement[][];
     private static VIEWBOX_WIDTH: number;
     private static VIEWBOX_HEIGHT: number;
 
@@ -53,38 +52,18 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
     private static COLOR_BLOCK_SPACING = 2;
     private static MUSIC_ICON_WIDTH = 20;
 
-    private firstFocusTabHandler: (e: KeyboardEvent) => void;
-    private lastFocusTabHandler: (e: KeyboardEvent) => void;
-
     // Use toggle from sprite editor
     private toggle: Toggle;
     private root: svg.SVG;
     private gallery: pxtmelody.MelodyGallery;
-
-    private selected: [column: number, row: number] | undefined = undefined;
+    protected clearSelectionOnBlur = false;
+    private matrixFocusBind: Blockly.browserEvents.Data | null = null;
+    private tabKeyBind: Blockly.browserEvents.Data | null = null;
 
     constructor(value: string, params: U, validator?: Blockly.FieldValidator) {
         super(value, validator);
         this.params = params;
         this.createMelodyIfDoesntExist();
-
-        // Defining these handlers this way means "this" is correctly bound without
-        // adding anonymous indirection that would break removeEventListener.
-        this.firstFocusTabHandler = (e: KeyboardEvent) => {
-            if (e.code === "Tab" && e.shiftKey) {
-                this.focusTrapLast.focus();
-                e.stopPropagation();
-                e.preventDefault();
-            }
-        }
-
-        this.lastFocusTabHandler = (e: KeyboardEvent) => {
-            if (e.code === "Tab" && !e.shiftKey) {
-                this.focusTrapFirst.focus();
-                e.stopPropagation();
-                e.preventDefault();
-            }
-        }
     }
 
     init() {
@@ -92,7 +71,8 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         this.onInit();
     }
 
-    showEditor_(event?: MouseEvent) {
+    showEditor_(e?: Event) {
+        const keyboardTriggered = !e;
         // If there is an existing drop-down someone else owns, hide it immediately and clear it.
         Blockly.DropDownDiv.hideWithoutAnimation();
         clearDropDownDiv();
@@ -104,6 +84,10 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
 
         this.gallery = new pxtmelody.MelodyGallery();
         this.renderEditor(contentDiv);
+
+        this.attachEventHandlersToMatrix();
+        this.matrixFocusBind = Blockly.browserEvents.bind(this.elt, 'focus', this, this.handleMatrixFocus.bind(this))
+        this.tabKeyBind = Blockly.browserEvents.bind(contentDiv, 'keydown', this, this.handleTabKey.bind(this))
 
         this.prevString = this.getValue();
 
@@ -120,17 +104,19 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             setMelodyEditorOpen(this.sourceBlock_, false);
         });
 
-        if (!event) {
-            this.elt.focus();
-            const startNote = this.getMelodyNote(0) ?? 0;
-            this.selected = [0, startNote];
-            this.updateSelectionFocus();
+        if (keyboardTriggered) {
+            this.toggle.getTabStop().focus();
         }
     }
 
     getValue() {
         this.stringRep = this.getTypeScriptValue();
         return this.stringRep;
+    }
+
+    getFieldDescription(): string {
+        const melodyString = this.melody.getStringRepresentation()?.replace(/-/g, "")?.trim();
+        return melodyString || lf("empty");
     }
 
     doValueUpdate_(newValue: string) {
@@ -169,7 +155,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
     render_() {
         super.render_();
         if (!this.invalidString) {
-            this.size_.width = FieldCustomMelody.MUSIC_ICON_WIDTH + (FieldCustomMelody.COLOR_BLOCK_WIDTH + FieldCustomMelody.COLOR_BLOCK_SPACING) * this.numCol;
+            this.size_.width = FieldCustomMelody.MUSIC_ICON_WIDTH + (FieldCustomMelody.COLOR_BLOCK_WIDTH + FieldCustomMelody.COLOR_BLOCK_SPACING) * this.numMatrixCols;
         }
         this.sourceBlock_.setColour("#ffffff");
     }
@@ -193,8 +179,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
                 this.showGallery();
             }
         });
-        this.focusTrapFirst = this.toggle.getTabStop();
-        this.focusTrapFirst.addEventListener("keydown", this.firstFocusTabHandler);
+        this.firstFocusableElement = this.toggle.getTabStop();
 
         this.toggle.layout();
         this.toggle.translate((TOTAL_WIDTH - this.toggle.width()) / 2, TOGGLE_PAD_TOP);
@@ -216,9 +201,8 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         pxt.BrowserUtils.addClass(this.doneButton, "melody-confirm-button");
         this.doneButton.innerText = lf("Done");
         this.doneButton.addEventListener("click", () => this.onDone());
-        this.doneButton.addEventListener("keydown", this.lastFocusTabHandler);
         this.doneButton.style.setProperty("background-color", color);
-        this.setFocusTrapLast(this.doneButton);
+        this.lastFocusableElement = this.doneButton;
 
         this.playButton = document.createElement("button");
         this.playButton.id = "melody-play-button";
@@ -251,6 +235,14 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         if (this.gallery) {
             this.gallery.stopMelody();
         }
+        if (this.matrixFocusBind) {
+            Blockly.browserEvents.unbind(this.matrixFocusBind)
+        }
+        if (this.tabKeyBind) {
+            Blockly.browserEvents.unbind(this.tabKeyBind)
+        }
+        this.clearCellSelection();
+        this.removeKeyboardFocusHandlers();
         this.clearDomReferences();
 
         if (this.sourceBlock_ && Blockly.Events.isEnabled() && this.getValue() !== this.prevString) {
@@ -277,9 +269,11 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         this.playIcon = null;
         this.tempoInput = null;
         this.elt = null;
-        this.cells = null;
+        this.cells = [];
         this.toggle = null;
         this.root = null;
+        this.firstFocusableElement = null;
+        this.lastFocusableElement = null;
         this.gallery.clearDomReferences();
     }
 
@@ -455,24 +449,34 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
         return false;
     }
 
-    private onNoteSelect(row: number, col: number): void {
+    protected toggleCell(x: number, y: number): void {
+        const [row, column] = [y, x];
         // update melody array
         this.invalidString = null;
-        this.melody.updateMelody(row, col);
+        this.melody.updateMelody(row, column);
 
-        if (this.melody.getValue(row, col) && !this.isPlaying) {
-            this.playNote(row, col);
+        if (this.melody.getValue(row, column) && !this.isPlaying) {
+            this.playNote(row, column);
         }
 
         this.updateGrid();
         this.updateFieldLabel();
     }
 
+    protected getCellToggled(x: number, y: number): boolean {
+        const [row, column] = [y, x];
+        return this.melody.getValue(row, column);
+    }
+
+    protected useTwoToneFocusIndicator(_x: number, _y: number): boolean {
+        return true;
+    }
+
     private updateGrid() {
-        for (let row = 0; row < this.numRow; row++) {
+        for (let row = 0; row < this.numMatrixRows; row++) {
             const rowClass = pxtmelody.getColorClass(row);
 
-            for (let col = 0; col < this.numCol; col++) {
+            for (let col = 0; col < this.numMatrixCols; col++) {
                 const cell = this.cells[col][row];
 
                 if (this.melody.getValue(row, col)) {
@@ -513,7 +517,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             ++this.soundingKeys;
             pxt.AudioContextManager.stop();
 
-            for (let i = 0; i < this.numRow; i++) {
+            for (let i = 0; i < this.numMatrixRows; i++) {
                 if (this.melody.getValue(i, column)) {
                     this.playToneCore(i);
                 }
@@ -559,171 +563,90 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
     }
 
     private createGridDisplay(): SVGSVGElement {
-        FieldCustomMelody.VIEWBOX_WIDTH = (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_HORIZONTAL_MARGIN) * this.numCol + FieldCustomMelody.CELL_HORIZONTAL_MARGIN;
+        FieldCustomMelody.VIEWBOX_WIDTH = (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_HORIZONTAL_MARGIN) * this.numMatrixCols + FieldCustomMelody.CELL_HORIZONTAL_MARGIN;
         if (pxt.BrowserUtils.isEdge()) FieldCustomMelody.VIEWBOX_WIDTH += 37;
-        FieldCustomMelody.VIEWBOX_HEIGHT = (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_VERTICAL_MARGIN) * this.numRow + FieldCustomMelody.CELL_VERTICAL_MARGIN;
+        FieldCustomMelody.VIEWBOX_HEIGHT = (FieldCustomMelody.CELL_WIDTH + FieldCustomMelody.CELL_VERTICAL_MARGIN) * this.numMatrixRows + FieldCustomMelody.CELL_VERTICAL_MARGIN;
         this.elt = pxsim.svg.parseString(`<svg xmlns="http://www.w3.org/2000/svg" class="melody-grid-div blocklyMatrix" viewBox="0 0 ${FieldCustomMelody.VIEWBOX_WIDTH} ${FieldCustomMelody.VIEWBOX_HEIGHT}" tabindex="0" />`);
 
-        this.cells = createMatrixDisplay({
-            blocklyId: this.sourceBlock_.id,
+        this.createMatrixDisplay({
             cellWidth: FieldCustomMelody.CELL_WIDTH,
             cellHeight: FieldCustomMelody.CELL_WIDTH,
             cellLabel: lf("Note"),
-            borderColor: "white",
+            cellStroke: "white",
             cellHorizontalMargin: FieldCustomMelody.CELL_HORIZONTAL_MARGIN,
             cellVerticalMargin: FieldCustomMelody.CELL_VERTICAL_MARGIN,
             cornerRadius: FieldCustomMelody.CELL_CORNER_RADIUS,
-            matrixHeight: this.numRow,
-            matrixWidth: this.numCol,
-            parentElement: this.elt
         });
 
-        this.selected = undefined;
         this.updateGrid();
-        this.attachEventHandlersToMatrix();
         return this.elt;
     }
 
-    private attachEventHandlersToMatrix() {
-        if ((this.sourceBlock_.workspace as any).isFlyout) return;
+    private handleMatrixFocus(_e: FocusEvent) {
+        if (!this.selected) {
+            const startNote = this.getMelodyNote(0) ?? 0;
+            this.selected = [0, startNote];
+        }
+        const [x, y] = this.selected;
+        this.focusCell(x, y);
+    }
 
-        this.elt.addEventListener("keydown", this.keyHandler.bind(this));
-        this.elt.addEventListener("focus", (event) => {
-            if (!this.selected) {
-                return;
-            }
-            this.setFocusIndicator(
-                this.cells[this.selected[0]][this.selected[1]]
-            );
-        });
-        this.elt.addEventListener("blur", () => {
-            if (this.cells) {
-                this.setFocusIndicator();
-            }
-        });
-
-        for (let x = 0; x < this.numCol; ++x) {
-            for (let y = 0; y < this.numRow; ++y) {
-                this.attachPointerEventHandlersToCell(x,y,this.cells[x][y]);
+    // Used for focus trap
+    private handleTabKey(e: KeyboardEvent) {
+        if (e.code === "Tab") {
+            if (document.activeElement === this.lastFocusableElement && !e.shiftKey) {
+                this.firstFocusableElement.focus();
+                e.preventDefault();
+            } else if (document.activeElement === this.firstFocusableElement && e.shiftKey) {
+                this.lastFocusableElement.focus();
+                e.preventDefault();
             }
         }
     }
 
-    private attachPointerEventHandlersToCell(x: number, y: number, cellRect: SVGElement) {
+    protected attachPointerEventHandlersToCell(x: number, y: number, cellRect: SVGElement) {
         pxsim.pointerEvents.down.forEach(evid => cellRect.addEventListener(evid, (ev: MouseEvent) => {
-            this.onNoteSelect(y, x); // row,col is y,x ordering
-            this.setFocusIndicator();
+            this.toggleCell(x, y);
+            this.clearFocusIndicator();
             ev.stopPropagation();
             ev.preventDefault();
         }, false));
     }
 
-    private keyHandler(e: KeyboardEvent) {
-        // First handle high level navigation
-        switch(e.code) {
-            case "Enter":
-            case "Space": {
-                const [x, y] = this.selected;
-                this.onNoteSelect(y, x);
-                this.setFocusIndicator(this.cells[x][y]);
-                this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${x}${y}`);
-                return;
-            }
-            case "Escape": {
-                (this.sourceBlock_.workspace as Blockly.WorkspaceSvg).markFocused();
-                return;
-            }
+    protected override handleArrowUp(x: number, y: number) {
+        const hasNote = this.getMelodyNote(x) !== undefined;
+        this.selected = [x, y - 1]
+        if (hasNote) {
+            this.toggleCell(this.selected[0], this.selected[1]);
         }
-        // If there's nothing currently selected, the first keypress just creates the cursor
-        if (!this.selected) {
-            this.selected = [0,this.getMelodyNote(0) ?? 0];
-        } else {
-            const [x, y] = this.selected;
-            const ctrlCmd = pxt.BrowserUtils.isMac() ? e.metaKey : e.ctrlKey;
-            switch(e.code) {
-                case "ArrowUp": {
-                    if (y !== 0) {
-                        const hasNote = this.getMelodyNote(x) !== undefined;
-                        this.selected = [x, y - 1]
-                        if (hasNote) {
-                            this.onNoteSelect(this.selected[1], this.selected[0]);
-                        }
-                    }
-                    break;
-                }
-                case "ArrowDown": {
-                    if (y !== this.cells[0].length - 1) {
-                        const hasNote = this.getMelodyNote(x) !== undefined;
-                        this.selected = [x, y + 1]
-                        if (hasNote) {
-                            this.onNoteSelect(this.selected[1], this.selected[0]);
-                        }
-                    }
-                    break;
-                }
-                case "ArrowLeft": {
-                    const newX = (x + this.numCol - 1) % this.numCol;
-                    const existingY = this.getMelodyNote(newX) ?? y;
-                    this.selected = [newX, existingY]
-
-                    break;
-                }
-                case "ArrowRight": {
-
-                    const newX = (x + this.numCol + 1) % this.numCol;
-                    const existingY = this.getMelodyNote(newX) ?? y;
-                    this.selected = [newX, existingY]
-
-                    break;
-                }
-                case "Home": {
-                    if (ctrlCmd) {
-                        this.selected = [0, 0]
-                    } else {
-                        this.selected = [0, y]
-                    }
-                    break;
-                }
-                case "End": {
-                    if (ctrlCmd) {
-                        this.selected = [this.numCol - 1, this.numRow - 1]
-                    } else {
-                        this.selected = [this.numCol - 1, y]
-                    }
-                    break;
-                }
-                default: {
-                    return;
-                }
-            }
+    }
+    protected override handleArrowDown(x: number, y: number) {
+        const hasNote = this.getMelodyNote(x) !== undefined;
+        this.selected = [x, y + 1]
+        if (hasNote) {
+            this.toggleCell(this.selected[0], this.selected[1]);
         }
-        this.updateSelectionFocus();
-        e.preventDefault();
-        e.stopPropagation();
-
     }
 
-    private updateSelectionFocus() {
-        const [newX, newY] = this.selected;
-        this.setFocusIndicator(this.cells[newX][newY]);
-        this.elt.setAttribute('aria-activedescendant', `${this.sourceBlock_.id}:${newX}${newY}`);
+    protected override handleArrowLeft(x: number, y: number) {
+        const newX = (x + this.numMatrixCols - 1) % this.numMatrixCols;
+        const existingY = this.getMelodyNote(newX) ?? y;
+        this.selected = [newX, existingY]
+    }
+
+    protected override handleArrowRight(x: number, y: number) {
+        const newX = (x + this.numMatrixCols + 1) % this.numMatrixCols;
+        const existingY = this.getMelodyNote(newX) ?? y;
+        this.selected = [newX, existingY]
     }
 
     private getMelodyNote(col: number) {
-        for (let i=0; i<this.numRow; ++i) {
+        for (let i = 0; i < this.numMatrixRows; ++i) {
             if (this.melody.getValue(i, col)) {
                 return i;
             }
         }
         return undefined;
-    }
-
-    private setFocusIndicator(cell?: SVGRectElement) {
-        this.cells.forEach(cell => cell.forEach(cell => cell.nextElementSibling.firstElementChild.classList.remove("selectedLedOn", "selectedLedOff")));
-        if (cell) {
-            const className = "selectedLedOff"; // larger matrix better suited to the thicker highlight
-            cell.nextElementSibling.firstElementChild.classList.add(className);
-        }
     }
 
     private togglePlay() {
@@ -750,11 +673,11 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
 
     private playMelody() {
         if (this.isPlaying) {
-            for (let i = 0; i < this.numCol; i++) {
+            for (let i = 0; i < this.numMatrixCols; i++) {
                 this.queueToneForColumn(i, i * this.getDuration(), this.getDuration());
             }
             this.timeouts.push(setTimeout( // call the melody again after it finishes
-                () => this.playMelody(), (this.numCol) * this.getDuration()));
+                () => this.playMelody(), (this.numMatrixCols) * this.getDuration()));
         } else {
             this.stopMelody();
         }
@@ -783,22 +706,13 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends Blockly.Fie
             }
         });
 
-        this.setFocusTrapLast(this.gallery.getLastTabStop());
+        this.lastFocusableElement = this.gallery.getLastTabStop();
     }
 
-    private setFocusTrapLast(el: HTMLElement) {
-        if (this.focusTrapLast) {
-            this.focusTrapLast.removeEventListener("keydown", this.lastFocusTabHandler);
-        }
-
-        this.focusTrapLast = el;
-        this.focusTrapLast.addEventListener("keydown", this.lastFocusTabHandler);
-    }
 
     private hideGallery() {
         this.gallery.hide();
-
-        this.setFocusTrapLast(this.doneButton);
+        this.lastFocusableElement = this.doneButton;
     }
 }
 
@@ -934,21 +848,12 @@ class Toggle {
         this.root.onClick(() => this.toggle());
         this.root.el.tabIndex = 0;
         this.root.el.classList.add("melody-editor-toggle-buttons");
-        this.root.el.addEventListener(
-            "keydown",
-            (e) => {
-                if ([
-                    "Space",
-                    "ArrowLeft",
-                    "ArrowRight",
-                    "Enter"
-                ].includes(e.code)) {
-                     this.toggle();
-                     e.stopPropagation();
-                     e.preventDefault();
-                     return;
-                }
-            });
+        this.root.el.addEventListener("keydown", (e) => {
+            if (["Space", "ArrowLeft", "ArrowRight", "Enter"].includes(e.code)) {
+                this.toggle();
+                e.preventDefault();
+            }
+        });
     }
 
     toggle(quiet = false) {

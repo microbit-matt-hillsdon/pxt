@@ -138,7 +138,7 @@ namespace pxtmelody {
         protected mkButton(sample: pxtmelody.MelodyInfo, i: number, width: string, height: string) {
             const outer = mkElement("div", {
                 className: "melody-gallery-button melody-editor-card",
-                id: `:${i}`,
+                id: `:${i}`
             });
 
             const icon = mkElement("i", {
