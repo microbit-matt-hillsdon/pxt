@@ -51,7 +51,6 @@ export abstract class FieldMatrix extends Blockly.Field {
                 const cellG = pxsim.svg.child(row, "g", { transform: `translate(${tx} ${ty})`, 'role': 'gridcell' });
                 const rectOptions = {
                     'id': `${this.sourceBlock_.id}:${x}${y}`,  // For aria-activedescendant
-                    'class': `blocklyLedOff`,
                     'aria-label': cellLabel,
                     'role': 'switch',
                     'aria-checked': "false",
@@ -66,8 +65,8 @@ export abstract class FieldMatrix extends Blockly.Field {
                 this.cells[x][y] = cellRect;
 
                 // Borders and box-shadow do not work in this context and outlines do not follow border-radius.
-                // Stroke is harder to manage given the difference in stroke for an LED when it is on vs off.
-                // This foreignObject/div is used to create a focus indicator for the LED when selected via keyboard navigation.
+                // Stroke is harder to manage given the difference in stroke for a cell when it is toggled.
+                // This foreignObject/div is used to create a focus indicator for the cell when selected via keyboard navigation.
                 const foreignObject = pxsim.svg.child(cellG, "foreignObject", {
                     transform: 'translate(-4, -4)',
                     width: scale * cellWidth + 8,
@@ -75,7 +74,7 @@ export abstract class FieldMatrix extends Blockly.Field {
                 });
                 foreignObject.style.pointerEvents = "none";
                 const div = document.createElement("div");
-                div.classList.add("blocklyLedFocusIndicator");
+                div.classList.add("blocklyCellFocusIndicator");
                 div.style.borderRadius = `${Math.max(2, scale * cornerRadius)}px`;
                 foreignObject.append(div);
             }
@@ -200,12 +199,12 @@ export abstract class FieldMatrix extends Blockly.Field {
 
     private setFocusIndicator(cell: SVGRectElement, useTwoToneFocusIndicator: boolean) {
         this.clearFocusIndicator();
-        const className = useTwoToneFocusIndicator ? "selectedLedOn" : "selectedLedOff"
+        const className = useTwoToneFocusIndicator ? "focusedTwoTone" : "focused"
         cell.nextElementSibling.firstElementChild.classList.add(className);
     }
 
     protected clearFocusIndicator() {
-        this.cells.forEach(cell => cell.forEach(cell => cell.nextElementSibling.firstElementChild.classList.remove("selectedLedOn", "selectedLedOff")));
+        this.cells.forEach(cell => cell.forEach(cell => cell.nextElementSibling.firstElementChild.classList.remove("focusedTwoTone", "focused")));
     }
 
     protected attachEventHandlersToMatrix() {
@@ -244,18 +243,18 @@ Blockly.Css.register(`
         outline: none;
     }
 
-    .blocklyMatrix .blocklyLedFocusIndicator {
+    .blocklyMatrix .blocklyCellFocusIndicator {
         border: 4px solid transparent;
         height: 100%;
     }
 
-    .blocklyMatrix .blocklyLedFocusIndicator.selectedLedOn,
-    .blocklyMatrix .blocklyLedFocusIndicator.selectedLedOff {
+    .blocklyMatrix:focus-visible .blocklyCellFocusIndicator.focusedTwoTone,
+    .blocklyMatrix:focus-visible .blocklyCellFocusIndicator.focused {
         border-color: white;
         transform: translateZ(0);
     }
 
-    .blocklyMatrix .blocklyLedFocusIndicator.selectedLedOn:after {
+    .blocklyMatrix:focus-visible .blocklyCellFocusIndicator.focusedTwoTone:after {
         content: "";
         position: absolute;
         top: -2px;

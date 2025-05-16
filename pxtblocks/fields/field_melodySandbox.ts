@@ -86,8 +86,8 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         this.renderEditor(contentDiv);
 
         this.attachEventHandlersToMatrix();
-        this.matrixFocusBind = Blockly.browserEvents.bind(this.elt, 'focus', this, this.handleMatrixFocus.bind(this))
-        this.tabKeyBind = Blockly.browserEvents.bind(contentDiv, 'keydown', this, this.handleTabKey.bind(this))
+        this.matrixFocusBind = Blockly.browserEvents.bind(this.elt, 'focus', this, this.handleMatrixFocus.bind(this));
+        this.tabKeyBind = Blockly.browserEvents.bind(contentDiv, 'keydown', this, this.handleTabKey.bind(this));
 
         this.prevString = this.getValue();
 
@@ -105,7 +105,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         });
 
         if (keyboardTriggered) {
-            this.toggle.getTabStop().focus();
+            this.toggle.getRootElement().focus();
         }
     }
 
@@ -179,7 +179,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
                 this.showGallery();
             }
         });
-        this.firstFocusableElement = this.toggle.getTabStop();
+        this.firstFocusableElement = this.toggle.getRootElement();
 
         this.toggle.layout();
         this.toggle.translate((TOTAL_WIDTH - this.toggle.width()) / 2, TOGGLE_PAD_TOP);
@@ -256,7 +256,6 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
     // when click done
     private onDone() {
         Blockly.DropDownDiv.hideIfOwner(this);
-        this.onEditorClose();
     }
 
     private clearDomReferences() {
@@ -699,14 +698,14 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         this.gallery.show((result: string) => {
             if (result) {
                 this.melody.parseNotes(result);
-                this.gallery.hide();
                 this.toggle.toggle();
+                this.toggle.getRootElement().focus();
                 this.updateFieldLabel();
                 this.updateGrid();
             }
         });
 
-        this.lastFocusableElement = this.gallery.getLastTabStop();
+        this.lastFocusableElement = this.gallery.getLastFocusableElement();
     }
 
 
@@ -898,7 +897,7 @@ class Toggle {
         return TOGGLE_WIDTH;
     }
 
-    getTabStop() {
+    getRootElement() {
         return this.root.el;
     }
 }

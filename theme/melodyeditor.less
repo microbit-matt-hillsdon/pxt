@@ -24,6 +24,7 @@
     margin: 10px 20px 0px;
     text-align: center;
     background-color: inherit;
+    outline: none;
 }
 
 .cell {
@@ -67,6 +68,7 @@
     padding: 0.75rem;
     background: #4f0643;
     max-height: 350px;
+    outline: none;
 }
 
 .melody-gallery-button {
@@ -81,11 +83,6 @@
     margin-bottom: 0.75rem;
     height: 2.75rem;
     line-height: 2.5rem;
-}
-
-.melody-editor-card:focus-visible {
-    outline: 2px solid white;
-    outline-offset: 3px;
 }
 
 .melody-gallery-button .melody-color-block {
@@ -112,9 +109,12 @@
     border-top: 1px #ffffff solid;
 }
 
-.melody-editor-toggle-buttons:focus {
+.melody-editor-toggle-buttons {
+    outline: none;
+}
+
+.melody-editor-toggle-buttons:focus-visible {
     outline: 3px solid white;
-    outline-offset: 1px 1px 0 0;
     border-radius: 2px;
 }
 
@@ -125,10 +125,12 @@
     transition: color .1s, background-color .1s;
 }
 
-.melody-editor-button:hover,
-.melody-editor-button:focus-visible {
+.melody-editor-button:hover {
     background-color: #cacbcd;
     color: rgb(0, 0, 0, 0.8);
+}
+
+.melody-editor-button.selected {
     outline: 3px solid var(--pxt-focus-border);
     outline-offset: -5px;
 }

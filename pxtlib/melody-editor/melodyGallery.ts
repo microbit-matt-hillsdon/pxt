@@ -18,11 +18,25 @@ namespace pxtmelody {
         private timeouts: number[] = []; // keep track of timeout
         private numSamples: number = pxtmelody.SampleMelodies.length;
 
+        private selectedElement: HTMLElement | undefined;
+        private selectedIndex: [x: number, y: number] | undefined;
+        private keyDownHandler: (e: KeyboardEvent) => {} | undefined;
+        private focusHandler: (e: FocusEvent) => {} | undefined;
+        private blurHandler: (e: FocusEvent) => {} | undefined;
+
         constructor() {
             this.containerDiv = document.createElement("div");
             this.containerDiv.setAttribute("id", "melody-editor-gallery-outer");
             this.contentDiv = document.createElement("div");
             this.contentDiv.setAttribute("id", "melody-editor-gallery");
+            this.contentDiv.setAttribute("tabindex", "0");
+
+            this.keyDownHandler = this.keyDownListener.bind(this);
+            this.contentDiv.addEventListener('keydown', this.keyDownHandler);
+            this.focusHandler = this.focusListener.bind(this);
+            this.contentDiv.addEventListener('blur', this.focusHandler);
+            this.blurHandler = this.blurListener.bind(this);
+            this.contentDiv.addEventListener('blur', this.blurHandler);
 
             this.itemBackgroundColor = "#DCDCDC";
             this.itemBorderColor = "white";
@@ -40,6 +54,74 @@ namespace pxtmelody {
             this.contentDiv.addEventListener('wheel', e => {
                 e.stopPropagation();
             }, true)
+        }
+
+        keyDownListener(e: KeyboardEvent) {
+            if (!this.selectedIndex) {
+                return;
+            }
+            const [x, y] = this.selectedIndex;
+            switch(e.code) {
+                case "ArrowUp": {
+                    this.selectedIndex = [x, y === 0 ? 0 : y - 1];
+                    break;
+                }
+                case "ArrowDown": {
+                    this.selectedIndex = [x, y === this.selectionButtons.length -1 ? y : y + 1];
+                    break;
+                }
+                case "ArrowLeft": {
+                    this.selectedIndex = [x === 0 ? 0 : x - 1, y];
+                    break;
+                }
+                case "ArrowRight": {
+                    // Only two columns.
+                    this.selectedIndex = [x === 1 ? 1 : x + 1, y];
+                    break;
+                }
+                case "Enter":
+                case "Space": {
+                    this.selectedElement.click();
+                    e.stopPropagation();
+                    e.preventDefault();
+                    return;
+                }
+                default: {
+                    return;
+                }
+            }
+            this.selectedElement.classList.remove("selected");
+            const [newX , newY] = this.selectedIndex;
+            if (newX === 0) {
+                this.selectedElement = this.selectionButtons[newY]
+            } else {
+                this.selectedElement = this.previewButtons[newY]
+            }
+            this.selectedElement.classList.add("selected");
+
+            const containerRect = this.contentDiv.getBoundingClientRect();
+            const selectedElementRect = this.selectedElement.getBoundingClientRect()
+            if (selectedElementRect.bottom > containerRect.bottom) {
+                this.selectedElement.scrollIntoView({block: "end"});
+            } else if (selectedElementRect.top < containerRect.top) {
+                this.selectedElement.scrollIntoView({block: "start"});
+            }
+
+            e.stopPropagation();
+            e.preventDefault();
+        }
+
+        focusListener(_e: FocusEvent) {
+            if (!this.selectedElement) {
+                this.selectedIndex = [0, 0];
+                this.selectedElement = this.selectionButtons[0]
+            }
+            this.selectedElement.classList.add("selected");
+        }
+
+        blurListener(_e: FocusEvent) {
+            // If blur event is from selecting a melody, selectedElement will be undefined.
+            this.selectedElement?.classList.remove("selected");
         }
 
         getElement() {
@@ -65,9 +147,15 @@ namespace pxtmelody {
             pxt.BrowserUtils.addClass(this.contentDiv, "hidden-above");
             this.value = null;
             this.stopMelody();
+            this.selectedElement?.classList.remove("selected");
+            this.selectedElement = undefined;
+            this.selectedIndex = undefined;
         }
 
         clearDomReferences() {
+            this.contentDiv.removeEventListener('keydown', this.keyDownHandler);
+            this.contentDiv.removeEventListener('focus', this.focusHandler);
+            this.contentDiv.removeEventListener('blur', this.blurHandler);
             this.contentDiv = null;
             this.containerDiv = null;
         }
@@ -78,8 +166,8 @@ namespace pxtmelody {
             this.containerDiv.style.height = height + "px";
         }
 
-        getLastTabStop() {
-            return this.previewButtons[this.previewButtons.length-1];
+        getLastFocusableElement() {
+            return this.contentDiv;
         }
 
         protected buildDom() {
@@ -154,10 +242,10 @@ namespace pxtmelody {
             const preview = this.createColorBlock(sample);
 
             const leftButton = mkElement("div", {
+                role: "button",
                 className: "melody-editor-button left-button",
                 title: sample.name,
-                role: "menuitem",
-                tabIndex: 0,
+                tabIndex: -1,
             }, () => this.handleSelection(sample))
 
             leftButton.appendChild(icon);
@@ -172,7 +260,7 @@ namespace pxtmelody {
                 className: "melody-editor-button right-button",
                 role: "button",
                 title: lf("Preview {0}", sample.name),
-                tabIndex: 0,
+                tabIndex: -1,
             }, () => this.togglePlay(sample, i));
 
             const playIcon = mkElement("i", {
@@ -185,46 +273,6 @@ namespace pxtmelody {
             outer.appendChild(rightButton);
 
             this.previewButtons[i] = rightButton;
-
-            leftButton.addEventListener("keydown", (e) => {
-                if (["Space", "Enter"].includes(e.code)) {
-                    this.handleSelection(sample);
-                    e.stopPropagation();
-                    e.preventDefault();
-                } else if (e.code === "ArrowRight") {
-                    rightButton.focus();
-                    e.stopPropagation();
-                    e.preventDefault();
-                } else if (e.code === "ArrowDown") {
-                    this.selectionButtons[(i + 1) % this.selectionButtons.length].focus();
-                    e.stopPropagation();
-                    e.preventDefault();
-                } else if (e.code === "ArrowUp") {
-                    this.selectionButtons[(i - 1 + this.selectionButtons.length) % this.selectionButtons.length].focus();
-                    e.stopPropagation();
-                    e.preventDefault();
-                }
-            });
-
-            rightButton.addEventListener("keydown", (e) => {
-                if (["Space", "Enter"].includes(e.code)) {
-                    this.previewMelody(sample);
-                    e.stopPropagation();
-                    e.preventDefault();
-                } else if (e.code === "ArrowLeft") {
-                    leftButton.focus();
-                    e.stopPropagation();
-                    e.preventDefault();
-                } else if (e.code === "ArrowDown") {
-                    this.previewButtons[(i + 1) % this.previewButtons.length].focus();
-                    e.stopPropagation();
-                    e.preventDefault();
-                } else if (e.code === "ArrowUp") {
-                    this.previewButtons[(i - 1 + this.previewButtons.length) % this.previewButtons.length].focus();
-                    e.stopPropagation();
-                    e.preventDefault();
-                }
-            });
 
             this.contentDiv.appendChild(outer);
         }
