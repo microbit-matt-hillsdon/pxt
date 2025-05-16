@@ -515,6 +515,12 @@ export class Editor extends toolboxeditor.ToolboxEditor {
          * it to select the first category and clear the selection.
          */
         const that = this;
+        Blockly.Toolbox.prototype.getFocusableElement = function() {
+            return that.getToolboxDiv().querySelector(".blocklyTreeRoot [role=tree]") as HTMLElement;
+        };
+        Blockly.Toolbox.prototype.getRestoredFocusableNode = function() {
+            return null;
+        };
         (Blockly as any).Toolbox.prototype.setSelectedItem = function (newItem: Blockly.ISelectableToolboxItem | null) {
             if (newItem === null) {
                 that.hideFlyout();

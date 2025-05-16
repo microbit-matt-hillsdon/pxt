@@ -436,8 +436,8 @@ div.blocklyTreeRoot > div > div[role="tree"]:focus-visible {
 
 /* Toolbox and flyout. */
 .blocklyKeyboardNavigation .blocklyFlyout:has(.blocklyActiveFocus),
-.blocklyKeyboardNavigation .blocklyToolbox:has(.blocklyActiveFocus),
-.blocklyKeyboardNavigation .blocklyActiveFocus:is(.blocklyFlyout, .blocklyToolbox) {
+.blocklyKeyboardNavigation .blocklyToolbox [role=tree]:has(.blocklyActiveFocus),
+.blocklyKeyboardNavigation .blocklyActiveFocus:is(.blocklyFlyout, .blocklyToolbox [role=tree]) {
     outline-offset: calc(var(--blockly-selection-width) * -1);
     outline: var(--blockly-selection-width) solid
         var(--blockly-active-tree-color);
