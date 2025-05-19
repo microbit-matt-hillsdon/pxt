@@ -404,11 +404,11 @@ html {
 }
 
 // Avoid focus outlines when not using the keyboard navigation plugin.
-div.blocklyTreeRoot > div > div[role="tree"]:focus-visible {
+div.blocklyTreeRoot > div[role="tree"]:focus-visible {
     outline: none;
 }
 
-.blocklyKeyboardNavigation div.blocklyTreeRoot > div > div[role="tree"]:focus-visible {
+.blocklyKeyboardNavigation div.blocklyTreeRoot > div[role="tree"]:focus-visible {
     outline: var(--blockly-selection-width) solid var(--blockly-active-tree-color);
     outline-offset: calc(var(--blockly-selection-width) * -1);
 }
@@ -436,8 +436,8 @@ div.blocklyTreeRoot > div > div[role="tree"]:focus-visible {
 
 /* Toolbox and flyout. */
 .blocklyKeyboardNavigation .blocklyFlyout:has(.blocklyActiveFocus),
-.blocklyKeyboardNavigation .blocklyToolbox [role=tree]:has(.blocklyActiveFocus),
-.blocklyKeyboardNavigation .blocklyActiveFocus:is(.blocklyFlyout, .blocklyToolbox [role=tree]) {
+.blocklyKeyboardNavigation .blocklyToolbox div[role="tree"]:has(.blocklyActiveFocus),
+.blocklyKeyboardNavigation .blocklyActiveFocus:is(.blocklyFlyout, .blocklyToolbox div[role="tree"]) {
     outline-offset: calc(var(--blockly-selection-width) * -1);
     outline: var(--blockly-selection-width) solid
         var(--blockly-active-tree-color);
