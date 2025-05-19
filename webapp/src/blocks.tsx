@@ -497,6 +497,10 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     }
 
     private initBlocklyToolbox() {
+        // Remove unwanted additional tab stop from the editor.
+        // We add tabindex to the tree wrapping the toolbox categories (excluding search) instead.
+        this.getToolboxDiv().removeAttribute("tabindex");
+
         let editor = this;
         /**
          * Move the toolbox to the edge.
