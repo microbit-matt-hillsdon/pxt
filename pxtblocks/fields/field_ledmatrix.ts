@@ -237,6 +237,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
                 }
             }
 
+            this.fieldGroup_.classList.add("blocklyFieldLedMatrixGroup");
             this.fieldGroup_.replaceChild(this.elt, this.fieldGroup_.firstChild);
             if (!this.sourceBlock_.isInFlyout) {
                 this.elt.addEventListener("keydown", this.keyHandler.bind(this));
@@ -509,6 +510,11 @@ function removeQuotes(str: string) {
 }
 
 Blockly.Css.register(`
+.blocklyFieldLedMatrixGroup.blocklyActiveFocus {
+    outline: var(--blockly-selection-width) solid var(--blockly-active-node-color);
+    border-radius: 3px;
+}
+
 .blocklyMatrix:focus-visible {
     outline: none;
 }
