@@ -130,6 +130,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
     private selectedIndex: number;
     private items: ToolboxCategory[];
     private selectedTreeRow: ToolboxCategory;
+    private shouldHandleCategoryTreeFocus = true;
 
     constructor(props: ToolboxProps) {
         super(props);
@@ -449,6 +450,11 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
     }
 
     handleCategoryTreeFocus = (e: React.FocusEvent<HTMLDivElement>) => {
+        // Don't handle focus events triggered by pointer events.
+        if (!this.shouldHandleCategoryTreeFocus) {
+            this.shouldHandleCategoryTreeFocus = true;
+            return;
+        }
         if (!this.rootElement) return;
         if (this.selectedIndex !== undefined && this.selectedTreeRow) {
             if (this.selectedTreeRow === this.selectedItem.props.treeRow) {
@@ -463,9 +469,11 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
         }
     }
 
-    handlePointerDownCapture(e: React.PointerEvent) {
+    handlePointerDownCapture = (e: React.PointerEvent) => {
         e.preventDefault();
         e.stopPropagation();
+        this.shouldHandleCategoryTreeFocus = false;
+        (this.refs.categoryTree as HTMLElement).focus();
     }
 
     isRtl() {
@@ -619,7 +627,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                         ref="categoryTree"
                         onFocus={this.handleCategoryTreeFocus}
                         onKeyDown={this.handleKeyDown}
-                        // Prevents focus events from firing on pointer down.
+                        // Prevents focus handling from running on pointer down events.
                         onPointerDownCapture={this.handlePointerDownCapture}
                         aria-activedescendant={selectedItem}
                     >
