@@ -46,6 +46,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
 
     private currentDragState_: boolean;
     private selected: number[] | undefined = undefined;
+    private returnEphemeralFocus: Blockly.ReturnEphemeralFocus | undefined = undefined;
 
     constructor(text: string, params: any, validator?: Blockly.FieldValidator) {
         super(text, validator);
@@ -143,6 +144,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
             }
             case "Escape": {
                 (this.sourceBlock_.workspace as Blockly.WorkspaceSvg).markFocused();
+                this.returnEphemeralFocus?.()
                 return;
             }
             default: {
@@ -190,7 +192,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
         this.selected = [0, 0];
         this.setFocusIndicator(this.cells[0][0], this.cellState[0][0])
         this.elt.setAttribute('aria-activedescendant', this.sourceBlock_.id + ":00");
-        this.elt.focus();
+        this.returnEphemeralFocus = Blockly.getFocusManager().takeEphemeralFocus(this.elt);
     }
 
     private initMatrix() {
@@ -237,6 +239,7 @@ export class FieldMatrix extends Blockly.Field implements FieldCustom {
                 }
             }
 
+            this.fieldGroup_.classList.add("blocklyFieldLedMatrixGroup");
             this.fieldGroup_.replaceChild(this.elt, this.fieldGroup_.firstChild);
             if (!this.sourceBlock_.isInFlyout) {
                 this.elt.addEventListener("keydown", this.keyHandler.bind(this));
@@ -509,6 +512,11 @@ function removeQuotes(str: string) {
 }
 
 Blockly.Css.register(`
+.blocklyFieldLedMatrixGroup.blocklyActiveFocus {
+    outline: var(--blockly-selection-width) solid var(--blockly-active-node-color);
+    border-radius: 3px;
+}
+
 .blocklyMatrix:focus-visible {
     outline: none;
 }
