@@ -429,13 +429,21 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     private initPrompts() {
         // Overriding blockly prompts to use semantic modals
 
+        const tryToRestoreFocus = () => {
+            const prevFocused = Blockly.getFocusManager().getFocusedNode();
+            if (prevFocused && prevFocused.canBeFocused()) {
+                Blockly.getFocusManager().focusNode(prevFocused);
+            } else {
+                this.focusWorkspace();
+            }
+        }
         /**
          * Wrapper to window.alert() that app developers may override to
          * provide alternatives to the modal browser window.
          * @param {string} message The message to display to the user.
          * @param {function()=} opt_callback The callback when the alert is dismissed.
          */
-        Blockly.dialog.setAlert(function (message, opt_callback) {
+        Blockly.dialog.setAlert((message, opt_callback) => {
             return core.confirmAsync({
                 hideCancel: true,
                 header: lf("Alert"),
@@ -448,6 +456,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 if (opt_callback) {
                     opt_callback();
                 }
+                tryToRestoreFocus();
             })
         })
 
@@ -457,7 +466,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
          * @param {string} message The message to display to the user.
          * @param {!function(boolean)} callback The callback for handling user response.
          */
-        Blockly.dialog.setConfirm(function (message, callback) {
+        Blockly.dialog.setConfirm((message, callback) => {
             return core.confirmAsync({
                 header: lf("Confirm"),
                 body: message,
@@ -470,10 +479,11 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 size: "tiny"
             }).then(b => {
                 callback(b == 1);
+                tryToRestoreFocus();
             })
         });
 
-        pxtblockly.external.setPrompt(function (message, defaultValue, callback, options?: Partial<core.PromptOptions>) {
+        pxtblockly.external.setPrompt((message, defaultValue, callback, options?: Partial<core.PromptOptions>) => {
             return core.promptAsync({
                 header: message,
                 initialValue: defaultValue,
@@ -483,6 +493,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 ...options
             }).then(value => {
                 callback(value);
+                tryToRestoreFocus();
             })
         }, true);
 
@@ -701,8 +712,18 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
             if (ev.type === "var_create") {
                 if (this.currentFlyoutKey === "variables" && this.editor.getFlyout()?.isVisible()) {
+                    const prevFocused = Blockly.getFocusManager().getFocusedNode();
+                    const focusableEl = prevFocused.getFocusableElement();
+                    const returnEphemeralFocus = Blockly.getFocusManager().takeEphemeralFocus(focusableEl);
+
                     // refresh the flyout when a new variable is created
                     this.showVariablesFlyout();
+
+                    if (prevFocused && prevFocused.canBeFocused()) {
+                        returnEphemeralFocus();
+                    } else {
+                        this.focusWorkspace();
+                    }
                 }
             }
 
