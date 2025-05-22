@@ -105,7 +105,8 @@ const Row = ({ name, shortcuts = [], joiner, children}: RowProps) => {
     const shortcutElements = shortcuts.map((s, idx) => {
         if (typeof s === "string") {
             // Pull keys from shortcut registry.
-            return <Shortcut key={idx} keys={getActionShortcut(s)} />
+            const shortcut = getActionShortcut(s);
+            return shortcut === null ? null : <Shortcut key={idx} keys={getActionShortcut(s)} />
         } else {
             // Display keys as specified.
             return <Shortcut key={idx} keys={s} />

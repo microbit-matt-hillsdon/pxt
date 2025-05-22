@@ -20,11 +20,7 @@ export enum ShortcutNames {
   COPY = 'keyboard_nav_copy',
   CUT = 'keyboard_nav_cut',
   PASTE = 'keyboard_nav_paste',
-  DELETE = 'keyboard_nav_delete',
-  MOVE_WS_CURSOR_UP = 'workspace_up',
-  MOVE_WS_CURSOR_DOWN = 'workspace_down',
-  MOVE_WS_CURSOR_LEFT = 'workspace_left',
-  MOVE_WS_CURSOR_RIGHT = 'workspace_right',
+  DELETE = 'delete',
   CREATE_WS_CURSOR = 'to_workspace',
   LIST_SHORTCUTS = 'list_shortcuts',
   CLEAN_UP = 'clean_up_workspace',
@@ -34,9 +30,9 @@ export enum ShortcutNames {
   MOVE = 'Start move',
 }
 
-export function getActionShortcut(action: string): string[] {
+export function getActionShortcut(action: string): string[] | null {
   return getActionShortcutsAsKeys(action, shortModifierNames)[0]
-          .map(s => displayArrowKeys[s] ?? s);
+          ?.map(s => displayArrowKeys[s] ?? s) ?? null;
 }
 
 const displayArrowKeys: Record<string, string> = {
@@ -71,6 +67,9 @@ function getActionShortcutsAsKeys(
   modifierNames: Record<string, string>,
 ): string[][] {
   const shortcuts = ShortcutRegistry.registry.getKeyCodesByShortcutName(action);
+  if (shortcuts.length === 0) {
+    return [];
+  }
   // See ShortcutRegistry.createSerializedKey for the starting format.
   const named = shortcuts.map((shortcut) => {
     return shortcut
