@@ -1,4 +1,5 @@
 import * as Blockly from "blockly";
+import { isImageProperties } from "../../fields";
 
 // This is the same as showEditor_ and dropdownCreate in field_dropdown
 // except that it supports separators between dropdown menu items
@@ -85,26 +86,6 @@ export function showEditorMixin(this: Blockly.FieldDropdown, e?: MouseEvent) {
     this.applyColour();
 }
 
-/**
- * Returns whether or not an object conforms to the ImageProperties interface.
- *
- * @param obj The object to test.
- * @returns True if the object conforms to ImageProperties, otherwise false.
- */
-function isImageProperties(obj: any): obj is Blockly.ImageProperties {
-  return (
-    obj &&
-    typeof obj === 'object' &&
-    'src' in obj &&
-    typeof obj.src === 'string' &&
-    'alt' in obj &&
-    typeof obj.alt === 'string' &&
-    'width' in obj &&
-    typeof obj.width === 'number' &&
-    'height' in obj &&
-    typeof obj.height === 'number'
-  );
-}
 
 class HorizontalRuleMenuItem extends Blockly.MenuItem {
     element_: Element;
