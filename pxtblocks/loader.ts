@@ -24,7 +24,7 @@ import { initContextMenu } from "./contextMenu";
 import { renderCodeCard } from "./codecardRenderer";
 import { FieldDropdown } from "./fields/field_dropdown";
 import { setDraggableShadowBlocks, setDuplicateOnDrag, setDuplicateOnDragStrategy } from "./plugins/duplicateOnDrag";
-import { initCopyPaste } from "./copyPaste";
+import { initAccessibleContextMenu, initCopyPaste } from "./copyPaste";
 import { FieldVariable } from "./plugins/newVariableField/fieldVariable";
 import { ArgumentReporterBlock, FieldArgumentReporter, setArgumentReporterLocalizeFunction } from "./plugins/functions";
 import { getArgumentReporterParent } from "./plugins/functions/utils";
@@ -586,7 +586,7 @@ export function cleanBlocks() {
  * Used by pxtrunner to initialize blocks in the docs
  */
 export function initializeAndInject(blockInfo: pxtc.BlocksInfo) {
-    init(blockInfo);
+    init(blockInfo, false);
     injectBlocks(blockInfo);
 }
 
@@ -594,13 +594,13 @@ export function initializeAndInject(blockInfo: pxtc.BlocksInfo) {
  * Used by main app to initialize blockly blocks.
  * Blocks are injected separately by called injectBlocks
  */
-export function initialize(blockInfo: pxtc.BlocksInfo) {
-    init(blockInfo);
+export function initialize(blockInfo: pxtc.BlocksInfo, accessibleBlocksEnabled: boolean) {
+    init(blockInfo, accessibleBlocksEnabled);
     initJresIcons(blockInfo);
 }
 
 let blocklyInitialized = false;
-function init(blockInfo: pxtc.BlocksInfo) {
+function init(blockInfo: pxtc.BlocksInfo, accessibleBlocksEnabled: boolean) {
     if (blocklyInitialized) return;
     blocklyInitialized = true;
 
@@ -616,7 +616,14 @@ function init(blockInfo: pxtc.BlocksInfo) {
     initText();
     initComments();
     initTooltip();
-    initCopyPaste();
+    initCopyPaste(accessibleBlocksEnabled);
+}
+
+let accessibleContextMenuInitialized = false;
+export function initAccessibleBlocksContextMenuItems() {
+    if (accessibleContextMenuInitialized) return;
+    accessibleContextMenuInitialized = true;
+    initAccessibleContextMenu()
 }
 
 
