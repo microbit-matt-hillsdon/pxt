@@ -157,6 +157,15 @@
   "overrides": {
     "combine-source-map": {
       "source-map": "0.4.4"
+    },
+    "@blockly/field-colour": {
+      "blockly": "^12.0.1-beta.1"
+    },
+    "@blockly/plugin-workspace-search": {
+      "blockly": "^12.0.1-beta.1"
+    },
+    "@blockly/keyboard-experiment": {
+      "blockly": "^12.0.1-beta.1"
     }
   },
   "scripts": {
