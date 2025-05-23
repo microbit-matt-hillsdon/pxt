@@ -189,7 +189,7 @@ export class BaseFieldTextDropdown extends Blockly.FieldTextInput {
 
         this.dropDownOpen_ = true;
 
-        Blockly.DropDownDiv.showPositionedByField(this, this.dropdownDispose_.bind(this));
+        Blockly.DropDownDiv.showPositionedByField(this, this.dropdownDispose_.bind(this), undefined, false);
 
         this.dropdownKeydownHandler = this.dropdownKeydownListener.bind(this);
         this.menu_.getElement().addEventListener('keydown', this.dropdownKeydownHandler);
