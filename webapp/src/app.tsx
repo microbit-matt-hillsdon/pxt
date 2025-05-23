@@ -317,14 +317,14 @@ export class ProjectView
     private initGlobalActionHandlers() {
         document.addEventListener("keydown", (e: KeyboardEvent) => {
             const action = pxsim.accessibility.getGlobalAction(e)
-            this.runGlobalAction(action)
+            this.runGlobalAction(action, e)
         });
     }
 
     /**
      * Run a global action based on shortcuts triggered in sim or main window.
      */
-    private runGlobalAction(action: pxsim.GlobalAction) {
+    private runGlobalAction(action: pxsim.GlobalAction, event?: KeyboardEvent) {
         if (!data.getData<boolean>(auth.ACCESSIBLE_BLOCKS)) {
             return;
         }
@@ -338,7 +338,14 @@ export class ProjectView
                 return
             }
             case "togglekeyboardcontrolshelp": {
+                const wasEditorFocused = Blockly.getFocusManager().getFocusedTree();
                 this.toggleBuiltInSideDoc("keyboardControls", false);
+
+                // restore focus on editor if editor was prev focused
+                const prevFocusedEl = event?.target as HTMLElement
+                if (wasEditorFocused && prevFocusedEl) {
+                    prevFocusedEl.focus()
+                }
                 return
             }
         }

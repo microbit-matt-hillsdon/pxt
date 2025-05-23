@@ -636,7 +636,6 @@ export class SideDocs extends data.Component<SideDocsProps, SideDocsState> {
         const url = `${builtInPrefix}${help}`;
         if (this.state.docsUrl === url && !this.state.sideDocsCollapsed && !focusIfVisible) {
             this.toggleVisibility();
-            this.props.parent.editor.focusWorkspace();
         } else {
             this.openingSideDoc = true;
             this.setUrl(url);
@@ -699,6 +698,7 @@ export class SideDocs extends data.Component<SideDocsProps, SideDocsState> {
 
     private handleKeyDown = (ev: React.KeyboardEvent<HTMLElement>) => {
         if (ev.key == "Escape") {
+            ev.stopPropagation();
             this.collapse();
         }
     }
