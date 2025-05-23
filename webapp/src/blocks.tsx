@@ -721,8 +721,10 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
                     if (createVarButtonElement && createVarButtonNode.canBeFocused()) {
                         const flyoutWorkspace = this.editor.getFlyout().getWorkspace();
-                        const focusableNode = flyoutWorkspace.lookUpFocusableNode(createVarButtonElement.id)
-                        focusManager.focusNode(focusableNode);
+                        const newCreateVarButtonNode = flyoutWorkspace.lookUpFocusableNode(createVarButtonElement.id);
+                        const flyout = this.editor.getFlyout();
+                        const flyoutCursor = flyout.getWorkspace().getCursor();
+                        flyoutCursor.setCurNode(newCreateVarButtonNode);
                     } else {
                         this.focusWorkspace();
                     }
