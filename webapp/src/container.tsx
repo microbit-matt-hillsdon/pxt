@@ -6,6 +6,7 @@ import * as sui from "./sui";
 import * as core from "./core";
 import * as auth from "./auth";
 import * as pkg from "./package";
+import * as Blockly from "blockly";
 import { fireClickOnEnter } from "./util";
 
 import IProjectView = pxt.editor.IProjectView;
@@ -632,11 +633,19 @@ export class SideDocs extends data.Component<SideDocsProps, SideDocsState> {
         this.props.parent.setState({ sideDocsLoadUrl: url });
     }
 
+    private focusSideDocsToggle() {
+        document.getElementById("sidedocstoggle")?.focus();
+    }
+
     toggleBuiltInHelp(help: pxt.editor.BuiltInHelp, focusIfVisible: boolean) {
         const url = `${builtInPrefix}${help}`;
         if (this.state.docsUrl === url && !this.state.sideDocsCollapsed && !focusIfVisible) {
-            this.toggleVisibility();
-            this.props.parent.editor.focusWorkspace();
+            const wasEditorFocused = Blockly.getFocusManager().getFocusedTree();
+            this.props.parent.setState({ sideDocsCollapsed: true });
+
+            if (!wasEditorFocused) {
+                this.focusSideDocsToggle()
+            }
         } else {
             this.openingSideDoc = true;
             this.setUrl(url);
@@ -653,6 +662,7 @@ export class SideDocs extends data.Component<SideDocsProps, SideDocsState> {
 
     collapse() {
         this.props.parent.setState({ sideDocsCollapsed: true });
+        this.focusSideDocsToggle()
     }
 
     isCollapsed() {
@@ -668,7 +678,7 @@ export class SideDocs extends data.Component<SideDocsProps, SideDocsState> {
     toggleVisibility() {
         const state = this.props.parent.state;
         this.props.parent.setState({ sideDocsCollapsed: !state.sideDocsCollapsed });
-        document.getElementById("sidedocstoggle").focus();
+        this.focusSideDocsToggle()
     }
 
     componentDidUpdate() {
@@ -699,6 +709,7 @@ export class SideDocs extends data.Component<SideDocsProps, SideDocsState> {
 
     private handleKeyDown = (ev: React.KeyboardEvent<HTMLElement>) => {
         if (ev.key == "Escape") {
+            ev.stopPropagation();
             this.collapse();
         }
     }
