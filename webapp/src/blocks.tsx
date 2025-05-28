@@ -38,7 +38,7 @@ import SimState = pxt.editor.SimState;
 import { DuplicateOnDragConnectionChecker } from "../../pxtblocks/plugins/duplicateOnDrag";
 import { PathObject } from "../../pxtblocks/plugins/renderer/pathObject";
 import { Measurements } from "./constants";
-import { flow } from "../../pxtblocks";
+import { CachingFlyout, flow } from "../../pxtblocks";
 import { HIDDEN_CLASS_NAME } from "../../pxtblocks/plugins/flyout/blockInflater";
 import { AIFooter } from "../../react-common/components/controls/AIFooter";
 
@@ -544,6 +544,23 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         };
         (Blockly as any).Toolbox.prototype.clearSelection = function () {
             that.hideFlyout();
+        };
+        (Blockly as any).Toolbox.prototype.onTreeBlur = function (nextTree: Blockly.IFocusableTree | null) {
+            // If the search box is focused and there are search results, the flyout is set to forceOpen.
+            // Otherwise, the flyout closes and then re-opens causing an unpleasant visual effect.
+            if ((that.editor.getFlyout() as CachingFlyout).forceOpen) {
+                that.toolbox.selectFirstItem();
+                that.setFlyoutForceOpen(false);
+                return;
+            }
+            // If navigating to anything other than the toolbox's flyout then clear the
+            // selection so that the toolbox's flyout can automatically close.
+            if (!nextTree || nextTree !== this.flyout?.getWorkspace()) {
+                this.clearSelection();
+                if (this.flyout && this.flyout.autoHide !== undefined) {
+                    this.flyout.autoHide(false);
+                }
+            }
         };
         (Blockly.WorkspaceSvg as any).prototype.refreshToolboxSelection = function () {
             let ws = this.isFlyout ? this.targetWorkspace : this;
@@ -1105,6 +1122,10 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
     getToolboxDiv(): HTMLDivElement {
         return this.getBlocklyToolboxDiv();
+    }
+
+    getEditorAreaDiv(): HTMLElement {
+        return this.getBlocksAreaDiv();
     }
 
     handleToolboxRef = (c: toolbox.Toolbox) => {
@@ -1709,6 +1730,10 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             this.editor.getFlyout().hide();
         }
         if (this.toolbox) this.toolbox.clear();
+    }
+
+    public setFlyoutForceOpen(forceOpen: boolean) {
+        (this.editor.getFlyout() as CachingFlyout).setForceOpen(forceOpen);
     }
 
     ///////////////////////////////////////////////////////////

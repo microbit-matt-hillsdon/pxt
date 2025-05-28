@@ -469,6 +469,12 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
         }
     }
 
+    handleCategoryTreeBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+        if (e.relatedTarget === (this.refs.searchbox as ToolboxSearch).refs.searchInput) {
+            this.props.parent.setFlyoutForceOpen(this.state.hasSearch)
+        }
+    }
+
     handlePointerDownCapture = (e: React.PointerEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -498,6 +504,10 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                 if (this.selectedTreeRow.nameid !== "addpackage") {
                     // Focus inside flyout
                     this.moveFocusToFlyout();
+                } else {
+                    // Prevent Blockly focus changes for the addpackage category item.
+                    e.preventDefault();
+                    e.stopPropagation();
                 }
         } else if (charCode == 27) { // ESCAPE
             // Close the flyout
@@ -507,6 +517,15 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
             const {onCategoryClick, treeRow, index} = this.selectedItem.props;
             if (onCategoryClick) {
                 onCategoryClick(treeRow, index);
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        } else if (charCode == core.TAB_KEY && !e.shiftKey) {
+            if (this.selectedTreeRow.nameid !== "addpackage") {
+                // Manually focus inside flyout and set the flyout cursor.
+                // If we let Blockly handle this, focus can be restored to a cached block that
+                // is hidden and disabled. This results in broken keyboard navigation in the flyout.
+                this.moveFocusToFlyout();
                 e.preventDefault();
                 e.stopPropagation();
             }
@@ -626,6 +645,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                         tabIndex={0}
                         ref="categoryTree"
                         onFocus={this.handleCategoryTreeFocus}
+                        onBlur={this.handleCategoryTreeBlur}
                         onKeyDown={this.handleKeyDown}
                         // Prevents focus handling from running on pointer down events.
                         onPointerDownCapture={this.handlePointerDownCapture}
@@ -1087,6 +1107,7 @@ export class ToolboxSearch extends data.Component<ToolboxSearchProps, ToolboxSea
 
         this.searchImmediate = this.searchImmediate.bind(this);
         this.handleKeyDown = this.handleKeyDown.bind(this);
+        this.handleBlur = this.handleBlur.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
 
@@ -1118,6 +1139,12 @@ export class ToolboxSearch extends data.Component<ToolboxSearchProps, ToolboxSea
             e.preventDefault();
         } else if (charCode === 13 /* Enter */) {
             this.searchImmediate().then(() => this.props.parent.moveFocusToFlyout());
+        }
+    }
+
+    handleBlur(e: React.FocusEvent) {
+        if (!this.props.parent.getEditorAreaDiv()?.contains(e.relatedTarget)) {
+            this.props.parent.hideFlyout();
         }
     }
 
@@ -1167,6 +1194,7 @@ export class ToolboxSearch extends data.Component<ToolboxSearchProps, ToolboxSea
                         type="text"
                         placeholder={lf("Search...")}
                         onFocus={this.searchImmediate}
+                        onBlur={this.handleBlur}
                         onKeyDown={this.handleKeyDown}
                         onChange={this.handleChange}
                         className="blocklySearchInputField"
