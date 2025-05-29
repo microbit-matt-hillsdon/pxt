@@ -393,7 +393,7 @@ export class DuplicateOnDragStrategy implements Blockly.IDragStrategy {
         dom.stopTextWidthCache();
 
         Blockly.blockAnimations.disconnectUiStop();
-        this.connectionPreviewer!.hidePreview();
+        this.connectionPreviewer?.hidePreview();
 
         if (!this.block.isDeadOrDying() && this.dragging) {
             // These are expensive and don't need to be done if we're deleting, or
@@ -421,7 +421,7 @@ export class DuplicateOnDragStrategy implements Blockly.IDragStrategy {
 
         // Must dispose after connections are applied to not break the dynamic
         // connections plugin. See #7859
-        this.connectionPreviewer!.dispose();
+        this.connectionPreviewer?.dispose();
         this.workspace.setResizesEnabled(true);
         eventUtils.setGroup(newGroup);
     }
