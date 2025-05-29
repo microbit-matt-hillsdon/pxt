@@ -38,7 +38,7 @@ import SimState = pxt.editor.SimState;
 import { DuplicateOnDragConnectionChecker } from "../../pxtblocks/plugins/duplicateOnDrag";
 import { PathObject } from "../../pxtblocks/plugins/renderer/pathObject";
 import { Measurements } from "./constants";
-import { flow } from "../../pxtblocks";
+import { flow, initCopyPaste } from "../../pxtblocks";
 import { HIDDEN_CLASS_NAME } from "../../pxtblocks/plugins/flyout/blockInflater";
 import { AIFooter } from "../../react-common/components/controls/AIFooter";
 
@@ -237,25 +237,11 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 .then(bi => {
                     this.blockInfo = bi;
 
-                    const accessibleBlocksEnabled = data.getData<boolean>(auth.ACCESSIBLE_BLOCKS)
-
                     // Initialize blocks in Blockly and update our toolbox
-                    pxtblockly.initialize(this.blockInfo, accessibleBlocksEnabled);
+                    pxtblockly.initialize(this.blockInfo);
+
                     this.nsMap = this.partitionBlocks();
                     this.refreshToolbox();
-
-                    // This must come after pxtblockly.initialize which overrides the default cut, copy,
-                    // paste shortcuts. The keyboard navigation plugin utilizes these cut, copy and paste
-                    // shortcuts and wraps them with additional behaviours (e.g., toast notifications).
-                    this.initAccessibleBlocks(accessibleBlocksEnabled);
-
-                    if (accessibleBlocksEnabled) {
-                        // This must come after this.initAccessibleBlocks to override context menu
-                        // precondition functions set by the keyboard navigation plugin.
-                        // We want to customize this behavior and have access to clipboard data to
-                        // determined whether paste should be enabled.
-                        pxtblockly.initAccessibleBlocksContextMenuItems();
-                    }
 
                     pxt.debug(`loading block workspace`)
                     let xml = this.delayLoadXml;
@@ -592,8 +578,8 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         };
     }
 
-    private initAccessibleBlocks(enabled: boolean) {
-        if (enabled && !this.keyboardNavigation) {
+    private initAccessibleBlocks() {
+        if (!this.keyboardNavigation) {
             this.keyboardNavigation = new KeyboardNavigation(this.editor);
 
             const listShortcuts = Blockly.ShortcutRegistry.registry.getRegistry()["list_shortcuts"];
@@ -621,6 +607,12 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                     return true
                 }
             });
+
+            // This must come after plugin initialization to override context menu
+            // precondition functions set by the keyboard navigation plugin.
+            // We want to customize this behavior and have access to clipboard data to
+            // determined whether paste should be enabled.
+            pxtblockly.initAccessibleBlocksContextMenuItems();
         }
     }
 
@@ -801,6 +793,14 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         this.initPrompts();
         this.initBlocklyToolbox();
         this.initWorkspaceSounds();
+        const accessibleBlocksEnabled = data.getData<boolean>(auth.ACCESSIBLE_BLOCKS)
+        initCopyPaste(accessibleBlocksEnabled);
+        // This must come after initCopyPaste which overrides the default cut, copy,
+        // paste shortcuts. The keyboard navigation plugin utilizes these cut, copy and paste
+        // shortcuts and wraps them with additional behaviours (e.g., toast notifications).
+        if (accessibleBlocksEnabled) {
+            this.initAccessibleBlocks();
+        }
         this.initWorkspaceSearch();
         this.setupIntersectionObserver();
         this.resize();
@@ -2495,7 +2495,7 @@ function copy(workspace: Blockly.WorkspaceSvg, e: Event, _shortcut: Blockly.Shor
 
 // adapted from Blockly/core/shortcut_items.ts
 function cut(workspace: Blockly.WorkspaceSvg, _e: Event, _shortcut: Blockly.ShortcutRegistry.KeyboardShortcut, scope: Blockly.ContextMenuRegistry.Scope) {
-      const focused = scope.focusedNode;
+    const focused = scope.focusedNode;
 
     if (focused instanceof Blockly.BlockSvg) {
         const copyData = focused.toCopyData();
