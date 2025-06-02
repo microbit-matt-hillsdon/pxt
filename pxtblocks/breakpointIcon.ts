@@ -23,9 +23,7 @@ export class BreakpointIcon extends Blockly.icons.Icon {
         this.breakpointSvg = Blockly.utils.dom.createSvgElement(
             'circle',
             {
-                'class': 'blocklyBreakpointSymbol',
-                'stroke': 'white',
-                'stroke-width': 2,
+                'class': 'blocklyIconShape blocklyBreakpointSymbol',
                 'cx': 7,
                 'cy': 11.5,
                 'r': 8,
@@ -59,6 +57,21 @@ export class BreakpointIcon extends Blockly.icons.Icon {
     protected updateColor() {
         if (!this.breakpointSvg) return;
 
-        this.breakpointSvg.setAttribute("fill", this.isSet_ ? "#FF0000" : "#CCCCCC")
+        if (this.isSet_) {
+            this.breakpointSvg.classList.add('active');
+        } else {
+            this.breakpointSvg.classList.remove('active');
+        }
     }
 }
+
+Blockly.Css.register(`
+    .blocklyIconShape.blocklyBreakpointSymbol {
+        stroke-width: 2px;
+        stroke: white;
+        fill: #CCCCCC;
+    }
+    .blocklyIconShape.blocklyBreakpointSymbol.active {
+        fill: #FF0000;
+    }
+`);

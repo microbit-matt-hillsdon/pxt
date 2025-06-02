@@ -627,7 +627,8 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             this.keyboardNavigation = new KeyboardNavigation(this.editor);
             Blockly.keyboardNavigationController.setIsActive(true);
 
-            const listShortcuts = Blockly.ShortcutRegistry.registry.getRegistry()["list_shortcuts"];
+            const shortcuts = Blockly.ShortcutRegistry.registry.getRegistry();
+            const listShortcuts = shortcuts["list_shortcuts"];
             Blockly.ShortcutRegistry.registry.unregister(listShortcuts.name);
             Blockly.ShortcutRegistry.registry.register({
                 ...listShortcuts,
@@ -641,7 +642,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 ]
             });
 
-            const cleanUpWorkspace = Blockly.ShortcutRegistry.registry.getRegistry()["clean_up_workspace"];
+            const cleanUpWorkspace = shortcuts["clean_up_workspace"];
             Blockly.ShortcutRegistry.registry.unregister(cleanUpWorkspace.name);
             Blockly.ShortcutRegistry.registry.register({
                 ...cleanUpWorkspace,
@@ -651,6 +652,22 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                     flow(workspace, { useViewWidth: true });
                     return true
                 }
+            });
+
+            const editOrConfirm = shortcuts['edit_or_confirm'];
+            Blockly.ShortcutRegistry.registry.unregister(editOrConfirm.name);
+            Blockly.ShortcutRegistry.registry.register({
+                ...editOrConfirm,
+                preconditionFn(workspace, scope) {
+                    // If the cursor is on an icon, allow interaction, even in readonly mode.
+                    const cursor = workspace.getCursor();
+                    const curNode = cursor?.getCurNode();
+                    if (curNode && curNode instanceof Blockly.icons.Icon) {
+                        return true;
+                    }
+                    return editOrConfirm.preconditionFn(workspace, scope);
+                },
+                allowCollision: true,
             });
 
             // This must come after plugin initialization to override context menu
