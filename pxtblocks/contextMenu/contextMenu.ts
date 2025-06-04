@@ -4,7 +4,7 @@ import { registerWorkspaceItems } from "./workspaceItems";
 import { onWorkspaceContextMenu } from "../external";
 import { registerBlockitems } from "./blockItems";
 
-export function initContextMenu() {
+export function initContextMenu(keyboardControlsActive: boolean) {
     const msg = Blockly.Msg;
 
     // FIXME (riknoll): Not all of these are still used
@@ -24,7 +24,7 @@ export function initContextMenu() {
     msg.HELP = lf("Help");
 
     registerWorkspaceItems();
-    registerBlockitems();
+    registerBlockitems(keyboardControlsActive);
 }
 
 export function setupWorkspaceContextMenu(workspace: Blockly.WorkspaceSvg) {
