@@ -42,6 +42,7 @@ import { flow, initCopyPaste } from "../../pxtblocks";
 import { HIDDEN_CLASS_NAME } from "../../pxtblocks/plugins/flyout/blockInflater";
 import { AIFooter } from "../../react-common/components/controls/AIFooter";
 import { CREATE_VAR_BTN_ID } from "../../pxtblocks/builtins/variables";
+import { ShortcutNames } from "./shortcut_formatting";
 
 interface CopyDataEntry {
     version: 1;
@@ -656,7 +657,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             const copyShortcut = Blockly.ShortcutRegistry.registry.getRegistry()["keyboard_nav_copy"];
             const pasteShortcut = Blockly.ShortcutRegistry.registry.getRegistry()["keyboard_nav_paste"];
             Blockly.ShortcutRegistry.registry.register({
-                name: "duplicate",
+                name: ShortcutNames.DUPLICATE_BLOCK,
                 preconditionFn: (_workspace, scope) => {
                     const block = scope.focusedNode as Blockly.BlockSvg;
                     if (!block?.isInFlyout && block?.isDeletable() && block?.isMovable() && block?.isDuplicatable()) {

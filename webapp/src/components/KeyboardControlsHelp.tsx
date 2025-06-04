@@ -28,6 +28,7 @@ const KeyboardControlsHelp = () => {
                         <br /><span className="hint">{lf("Move with arrow keys")}</span>
                         <br /><span className="hint">{lf("Hold {0} for free movement", optionOrCtrl)}</span>
                     </Row>
+                    <Row name={lf("Duplicate")} shortcuts={[ShortcutNames.DUPLICATE_BLOCK]} />
                     <Row name={lf("Copy / paste")} shortcuts={[ShortcutNames.COPY, ShortcutNames.PASTE]} joiner="/" />
                     {cleanUpRow}
                     {contextMenuRow}
@@ -53,6 +54,7 @@ const KeyboardControlsHelp = () => {
                     <Row name={lf("Move in and out of a block")} shortcuts={[ShortcutNames.LEFT, ShortcutNames.RIGHT]} />
                     {editOrConfirmRow}
                     <Row name={lf("Cancel or exit")} shortcuts={[ShortcutNames.EXIT]} />
+                    <Row name={lf("Duplicate")} shortcuts={[ShortcutNames.DUPLICATE_BLOCK]} />
                     <Row name={lf("Copy")} shortcuts={[ShortcutNames.COPY]} />
                     <Row name={lf("Paste")} shortcuts={[ShortcutNames.PASTE]} />
                     <Row name={lf("Cut")} shortcuts={[ShortcutNames.CUT]} />
