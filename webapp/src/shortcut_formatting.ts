@@ -21,6 +21,7 @@ export enum ShortcutNames {
   COPY = 'keyboard_nav_copy',
   CUT = 'keyboard_nav_cut',
   PASTE = 'keyboard_nav_paste',
+  DUPLICATE_BLOCK = 'duplicate_block',
   DELETE = 'delete',
   CREATE_WS_CURSOR = 'to_workspace',
   LIST_SHORTCUTS = 'list_shortcuts',
