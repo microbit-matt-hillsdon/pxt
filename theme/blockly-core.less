@@ -422,10 +422,7 @@ div.blocklyTreeRoot > div[role="tree"]:focus-visible {
 > .blocklyFieldRect,
 .blocklyKeyboardNavigation
 .blocklyActiveFocus.blocklyField
-> .blocklyFieldRect.blocklySpriteField,
-.blocklyKeyboardNavigation
-.blocklyActiveFocus.blocklyIconGroup
-> .blocklyIconShape:first-child {
+> .blocklyFieldRect.blocklySpriteField {
     stroke: var(--blockly-active-node-color);
     stroke-width: var(--blockly-selection-width);
 }
@@ -441,10 +438,7 @@ div.blocklyTreeRoot > div[role="tree"]:focus-visible {
 > .blocklyFieldRect,
 .blocklyKeyboardNavigation
 .blocklyPassiveFocus.blocklyField
-> .blocklyFieldRect.blocklySpriteField,
-.blocklyKeyboardNavigation
-.blocklyPassiveFocus.blocklyIconGroup
-> .blocklyIconShape:first-child {
+> .blocklyFieldRect.blocklySpriteField {
     stroke: var(--blockly-active-node-color);
     stroke-dasharray: 5px 3px;
     stroke-width: var(--blockly-selection-width);
@@ -468,6 +462,26 @@ div.blocklyTreeRoot > div[role="tree"]:focus-visible {
     outline-offset: calc(var(--blockly-selection-width) * -1);
     outline: var(--blockly-selection-width) solid
         var(--blockly-active-tree-color);
+}
+
+/* Icons */
+.blocklyKeyboardNavigation
+.blocklyActiveFocus.blocklyIconGroup {
+    opacity: 1;
+    > .blocklyIconShape:first-child {
+        border-radius: 2px;
+        outline: var(--blockly-selection-width) solid
+        var(--blockly-active-node-color);
+        outline-offset: 2px;
+    }
+}
+.blocklyKeyboardNavigation
+.blocklyPassiveFocus.blocklyIconGroup
+> .blocklyIconShape:first-child {
+    outline-offset:  2px;
+    outline: var(--blockly-selection-width) dashed
+    var(--blockly-active-node-color);
+    border-radius: 2px;
 }
 
 /* Flyout buttons and labels */
