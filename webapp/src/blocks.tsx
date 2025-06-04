@@ -662,7 +662,15 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                     // If the cursor is on an icon, allow interaction, even in readonly mode.
                     const cursor = workspace.getCursor();
                     const curNode = cursor?.getCurNode();
-                    if (curNode && curNode instanceof Blockly.icons.Icon) {
+                    const accessibilityMode = workspace.isFlyout
+                        ? workspace.targetWorkspace?.keyboardAccessibilityMode
+                        : workspace.keyboardAccessibilityMode;
+                    if (
+                        curNode &&
+                        curNode instanceof Blockly.icons.Icon &&
+                        !!accessibilityMode &&
+                        !Blockly.getFocusManager().ephemeralFocusTaken()
+                    ) {
                         return true;
                     }
                     return editOrConfirm.preconditionFn(workspace, scope);
