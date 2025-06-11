@@ -18,6 +18,7 @@ export interface SoundGalleryProps {
 
 interface SoundGalleryItemProps extends SoundGalleryItem {
     useMixerSynthesizer: boolean;
+    isFocusedItem: "select" | "preview" | false;
     selectReference: (el: HTMLDivElement) => void;
     playReference: (el: HTMLButtonElement) => void;
     previewKeyDown: (evt: React.KeyboardEvent<HTMLElement>) => void;
@@ -25,16 +26,21 @@ interface SoundGalleryItemProps extends SoundGalleryItem {
 }
 
 type GalleryItem = Record<string, HTMLElement>;
+interface GalleryCursor {
+    row: number;
+    col: "select" | "preview";
+};
 
 export const SoundGallery = (props: SoundGalleryProps) => {
     const { sounds, onSoundSelected, visible, useMixerSynthesizer } = props;
 
-    const selectItemRefs = React.useRef<[GalleryItem]>([{}]);
-    const playItemRefs = React.useRef<[GalleryItem]>([{}]);
-    const selectedCoord = React.useRef<{row: number, col: "select" | "preview"}>({row: 0, col: "select"});
+    const selectItemRefs = React.useRef<HTMLElement[]>([]);
+    const playItemRefs = React.useRef<HTMLElement[]>([]);
+    const selectedCoord = React.useRef<GalleryCursor>({row: 0, col: "select"});
+    const [tabIndexCoord, setTabIndexCoord] = React.useState<GalleryCursor>(selectedCoord.current);
 
     const focusSelectOrPlayElement = React.useCallback((e: React.KeyboardEvent<HTMLElement> | React.FocusEvent) => {
-        (selectedCoord.current.col === "select" ? selectItemRefs : playItemRefs).current[0][selectedCoord.current.row].focus();
+        (selectedCoord.current.col === "select" ? selectItemRefs : playItemRefs).current[selectedCoord.current.row].focus();
         e.preventDefault();
     }, []);
 
@@ -81,22 +87,30 @@ export const SoundGallery = (props: SoundGalleryProps) => {
 
     return <div className={classList("sound-gallery", visible && "visible")} aria-hidden={!visible}>
         <div className="sound-gallery-scroller"
-            tabIndex={0}
-            onFocus={focusSelectOrPlayElement}>
+            role="grid"
+            onBlur={() => {
+                setTabIndexCoord({...selectedCoord.current});
+            }}
+            tabIndex={-1}>
             {sounds.map((item, index) => {
                     const prev = Math.max(index - 1, 0);
                     const next = Math.min(index + 1, sounds.length - 1);
                     return(<div
                         key={index}
-                        onClick={() => onSoundSelected(item.sound)}
+                        onClick={(e) => {
+                            onSoundSelected(item.sound);
+                            e.stopPropagation();
+                            e.preventDefault();
+                        }}
                         className="common-button">
 
                         <SoundGalleryEntry
                             {...item}
                             useMixerSynthesizer={useMixerSynthesizer}
+                            isFocusedItem={tabIndexCoord.row === index ? tabIndexCoord.col : false}
 
-                            selectReference={ref => selectItemRefs.current[0][index] = ref}
-                            playReference={ref => playItemRefs.current[0][index] = ref}
+                            selectReference={ref => selectItemRefs.current[index] = ref}
+                            playReference={ref => playItemRefs.current[index] = ref}
 
                             previewKeyDown={evt => handleKeyDown(prev, next, index, evt)}
                             selectKeyDown={evt => handleKeyDown(prev, next, index, evt)}
@@ -113,6 +127,7 @@ const SoundGalleryEntry = (props: SoundGalleryItemProps) => {
         sound,
         name,
         useMixerSynthesizer,
+        isFocusedItem,
         playReference,
         selectReference,
         previewKeyDown,
@@ -146,11 +161,11 @@ const SoundGalleryEntry = (props: SoundGalleryItemProps) => {
 
     return <div className="sound-gallery-item-label">
         <div className="sound-gallery-item-label-inner"
-            tabIndex={-1}
+            tabIndex={isFocusedItem === "select" ? 0 : -1}
             ref={selectReference}
             onKeyDown={selectKeyDown}
             title={name}
-            role="button">
+            role="gridcell">
             <div className="sound-effect-name">
                 {name}
             </div>
@@ -167,7 +182,8 @@ const SoundGalleryEntry = (props: SoundGalleryItemProps) => {
         <Button
             className="sound-effect-play-button"
             buttonRef={playReference}
-            tabIndex={-1}
+            tabIndex={isFocusedItem === "preview" ? 0 : -1}
+            role="gridcell"
             title={cancelToken ? lf("Stop Sound Preview") : lf("Preview Sound")}
             onClick={handlePlayButtonClick}
             onKeydown={previewKeyDown}
