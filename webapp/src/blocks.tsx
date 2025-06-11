@@ -42,6 +42,7 @@ import { flow, initCopyPaste } from "../../pxtblocks";
 import { HIDDEN_CLASS_NAME } from "../../pxtblocks/plugins/flyout/blockInflater";
 import { AIFooter } from "../../react-common/components/controls/AIFooter";
 import { CREATE_VAR_BTN_ID } from "../../pxtblocks/builtins/variables";
+import { ShortcutNames } from "./shortcut_formatting";
 
 interface CopyDataEntry {
     version: 1;
@@ -239,7 +240,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                     this.blockInfo = bi;
 
                     // Initialize blocks in Blockly and update our toolbox
-                    pxtblockly.initialize(this.blockInfo);
+                    pxtblockly.initialize(this.blockInfo, !!this.keyboardNavigation);
 
                     this.nsMap = this.partitionBlocks();
                     this.refreshToolbox();
@@ -651,6 +652,26 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                     flow(workspace, { useViewWidth: true });
                     return true
                 }
+            });
+
+            const copyShortcut = Blockly.ShortcutRegistry.registry.getRegistry()["keyboard_nav_copy"];
+            const pasteShortcut = Blockly.ShortcutRegistry.registry.getRegistry()["keyboard_nav_paste"];
+            Blockly.ShortcutRegistry.registry.register({
+                name: ShortcutNames.DUPLICATE_BLOCK,
+                preconditionFn: (_workspace, scope) => {
+                    const block = scope.focusedNode as Blockly.BlockSvg;
+                    if (!block?.isInFlyout && block?.isDeletable() && block?.isMovable() && block?.isDuplicatable()) {
+                        return true;
+                    }
+                    return false;
+                },
+                callback: (workspace, e, shortcut, scope) => {
+                    if (copyShortcut.callback(workspace, e, shortcut, scope)) {
+                        return pasteShortcut.callback(workspace, e, shortcut, scope)
+                    }
+                    return false;
+                },
+                keyCodes: [Blockly.ShortcutRegistry.registry.createSerializedKey(Blockly.utils.KeyCodes.D, null)]
             });
 
             // This must come after plugin initialization to override context menu
