@@ -1197,6 +1197,9 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         if (node instanceof Blockly.FlyoutButton) {
             return node.getSvgRoot().parentNode === null;
         }
+        if (!sourceBlock) {
+            return true;
+        }
         return false;
     }
 
