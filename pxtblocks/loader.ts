@@ -634,6 +634,16 @@ function init(blockInfo: pxtc.BlocksInfo) {
             })
         });
     }
+
+    const widgetDiv = Blockly.WidgetDiv.getDiv();
+
+    widgetDiv.addEventListener("focusout", (e: FocusEvent) => {
+        if (widgetDiv.contains(e.relatedTarget as HTMLElement)) return;
+        // Push hideChaff to end of event handlers so any other close handlers complete first
+        setTimeout(() => {
+            Blockly.hideChaff();
+        }, 0);
+    });
 }
 
 export function initAccessibleBlocksContextMenuItems() {

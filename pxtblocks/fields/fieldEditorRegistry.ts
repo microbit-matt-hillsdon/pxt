@@ -98,5 +98,15 @@ export function createFieldEditor(selector: string, text: string, params: any): 
 
     let customField = registeredFieldEditors[selector];
     let instance = new customField.field(text, params, customField.validator);
+    const superShowEditor = instance.showEditor;
+    instance.showEditor = (e?: Event) => {
+        superShowEditor.call(instance, e);
+        const dropDownDiv = Blockly.DropDownDiv.getContentDiv().parentNode;
+        dropDownDiv.addEventListener("focusout", (ev: FocusEvent) => {
+            if (dropDownDiv.contains(ev.relatedTarget as HTMLElement)) return;
+            // Push hideChaff to end of event handlers so any other close handlers complete first
+            setTimeout(() => Blockly.hideChaff(), 0);
+        });
+    }
     return instance;
 }
