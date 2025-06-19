@@ -331,8 +331,8 @@ namespace pxt.Cloud {
             }
             region = response.text.trim();
         } catch (e) {
-            // Unclear what should happen here.
-            region = cloud.DEV_REGION
+            handleNetworkError(options, e);
+            region = "error"; // Set to a default value to differentiate from uninitialized
         }
     }
 
