@@ -321,7 +321,7 @@ namespace pxt.Cloud {
             return;
         }
 
-        const url = new URL("geo", pxt.webConfig.cdnUrl).toString();
+        const url = `${pxt.webConfig.cdnUrl}/geo`;
         const options: Util.HttpRequestOptions = { url };
 
         try {
