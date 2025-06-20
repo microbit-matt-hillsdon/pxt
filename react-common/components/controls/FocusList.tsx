@@ -7,6 +7,7 @@ export interface FocusListProps extends ContainerProps {
     focusSelectsItem?: boolean;
     useUpAndDownArrowKeys?: boolean;
     onItemReceivedFocus?: (item: HTMLElement) => void;
+    onKeyDown?: (ev: React.KeyboardEvent<Element>) => void;
 }
 
 /**
@@ -28,7 +29,7 @@ export const FocusList = (props: FocusListProps) => {
         children,
         focusSelectsItem,
         onItemReceivedFocus,
-        useUpAndDownArrowKeys
+        useUpAndDownArrowKeys,
     } = props;
 
     let focusableElements: HTMLElement[];
@@ -139,6 +140,9 @@ export const FocusList = (props: FocusListProps) => {
             focus(findNextFocusableElement(focusableElements, index, focusableElements.length - 1, true, isFocusable));
             e.preventDefault();
             e.stopPropagation();
+        }
+        else if (props.onKeyDown) {
+            props.onKeyDown(e);
         }
     }
 

@@ -14,6 +14,7 @@ export interface SoundGalleryProps {
     sounds: SoundGalleryItem[];
     visible: boolean;
     useMixerSynthesizer: boolean;
+    galleryFocusCallback: React.MutableRefObject<() => void>;
 }
 
 interface SoundGalleryItemProps extends SoundGalleryItem {
@@ -26,7 +27,13 @@ interface SoundGalleryItemProps extends SoundGalleryItem {
 
 
 export const SoundGallery = (props: SoundGalleryProps) => {
-    const { sounds, onSoundSelected, visible, useMixerSynthesizer } = props;
+    const {
+        sounds,
+        onSoundSelected,
+        visible,
+        useMixerSynthesizer,
+        galleryFocusCallback
+    } = props;
 
     const selectItemRefs = React.useRef<HTMLDivElement[]>([]);
     const playItemRefs = React.useRef<HTMLButtonElement[]>([]);
@@ -52,6 +59,13 @@ export const SoundGallery = (props: SoundGalleryProps) => {
         elements[selectedCoord.current.row].focus();
         e.preventDefault();
     }, []);
+
+    const focusCurrent = () => {
+        const elements = (selectedCoord.current.col === "select" ? selectItemRefs : playItemRefs).current;
+        elements[selectedCoord.current.row].focus();
+    }
+
+    galleryFocusCallback.current = focusCurrent;
 
     const handleKeyDown = (
         prev: number,

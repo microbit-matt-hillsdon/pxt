@@ -36,6 +36,8 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
 
     const playButtonRef = React.useRef<HTMLElement>();
 
+    const galleryFocusCallbackRef = React.useRef<() => void>();
+
     React.useEffect(() => {
         if (keyboardTriggered) {
             document.getElementById("sound-effect-editor-toggle-option-0").focus();
@@ -162,6 +164,7 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
                     selectedView={selectedView}
                     onViewSelected={onViewSelected}
                     onClose={handleClose}
+                    onEnterGallery={galleryFocusCallbackRef.current}
                 />
                 <div className="sound-effect-editor-content">
                     <FocusTrapRegion enabled={selectedView === "editor"}>
@@ -204,6 +207,7 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
                             onSoundSelected={handleGallerySelection}
                             visible={selectedView === "gallery"}
                             useMixerSynthesizer={useMixerSynthesizer}
+                            galleryFocusCallback={galleryFocusCallbackRef}
                             />
                     </FocusTrapRegion>
                 </div>
