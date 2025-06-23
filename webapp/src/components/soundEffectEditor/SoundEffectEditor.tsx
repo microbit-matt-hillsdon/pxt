@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as Blockly from "blockly";
 import { Button } from "../../../../react-common/components/controls/Button";
 import { SoundControls } from "./SoundControls";
 import { SoundEffectHeader } from "./SoundEffectHeader";
@@ -162,6 +163,12 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
                     selectedView={selectedView}
                     onViewSelected={onViewSelected}
                     onClose={handleClose}
+                    onDownKeyPressed={() => {
+                        Blockly.Toast.show(
+                            Blockly.getMainWorkspace() as Blockly.WorkspaceSvg,
+                            { message: "Use the tab key to navigate between fields" }
+                        );
+                    }}
                 />
                 <div className="sound-effect-editor-content">
                     <FocusTrapRegion enabled={selectedView === "editor"}>

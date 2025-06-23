@@ -6,10 +6,11 @@ export interface SoundEffectHeaderProps {
     selectedView: "editor" | "gallery";
     onClose: () => void;
     onViewSelected: (view: "editor" | "gallery") => void;
+    onDownKeyPressed: () => void;
 }
 
 export const SoundEffectHeader = (props: SoundEffectHeaderProps) => {
-    const { selectedView, onClose, onViewSelected } = props;
+    const { selectedView, onClose, onDownKeyPressed, onViewSelected } = props;
     const toggleItems: BasicEditorToggleItem[] = [
         {
             label: pxt.U.lf("Editor"),
@@ -29,6 +30,13 @@ export const SoundEffectHeader = (props: SoundEffectHeaderProps) => {
                 id="sound-effect-editor-toggle"
                 items={toggleItems}
                 selected={selectedView === "editor" ? 0 : 1}
+                onKeyDown={(ev: React.KeyboardEvent) => {
+                    if (ev.code === "ArrowDown") {
+                        onDownKeyPressed();
+                        ev.stopPropagation();
+                        ev.preventDefault();
+                    }
+                }}
             />
 
         <Button

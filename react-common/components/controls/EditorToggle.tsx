@@ -9,6 +9,7 @@ export interface EditorToggleProps extends ControlProps {
     items: EditorToggleItem[];
     selected: number;
     id: string;
+    onKeyDown?: (ev: React.KeyboardEvent<Element>) => void;
 }
 
 export type EditorToggleItem = BasicEditorToggleItem | DropdownEditorToggleItem;
@@ -162,6 +163,7 @@ const EditorToggleAccessibleMenu = (props: EditorToggleAccessibleProps) => {
             className="common-toggle-accessibility" 
             childTabStopId={`${childIdPrefix}${selectedIndex}`}
             focusSelectsItem={true}
+            onKeyDown={props.onKeyDown}
         >
         {tabs.map((item, index) =>
             <Button

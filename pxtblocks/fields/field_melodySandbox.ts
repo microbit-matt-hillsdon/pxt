@@ -173,12 +173,17 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         // Same toggle set up as sprite editor
         this.root = new svg.SVG(this.topDiv).id("melody-editor-header-controls");
         this.toggle = new Toggle(this.root, { leftText: lf("Editor"), rightText: lf("Gallery"), baseColor: color });
-        this.toggle.onStateChange(isLeft => {
+        this.toggle.onStateChange((isLeft, isDown) => {
             if (isLeft) {
                 this.hideGallery();
             }
             else {
                 this.showGallery();
+            }
+            if (isDown) {
+                Blockly.Toast.show(
+                    this.sourceBlock_.workspace as Blockly.WorkspaceSvg,
+                    { message: "Use the tab key to navigate between fields" });
             }
         });
         this.firstFocusableElement = this.toggle.getRootElement();
@@ -761,7 +766,7 @@ class Toggle {
     protected props: ToggleProps;
 
     protected isLeft: boolean;
-    protected changeHandler: (left: boolean) => void;
+    protected changeHandler: (left: boolean, down: boolean) => void;
 
     constructor(parent: svg.SVG, props: Partial<ToggleProps>) {
         this.props = defaultColors(props);
@@ -858,6 +863,10 @@ class Toggle {
                 this.toggle();
                 e.preventDefault();
             }
+            if (e.code === "ArrowDown") {
+                this.changeHandler(this.isLeft, true);
+                e.preventDefault();
+            }
         });
     }
 
@@ -877,11 +886,11 @@ class Toggle {
         this.isLeft = !this.isLeft;
 
         if (!quiet && this.changeHandler) {
-            this.changeHandler(this.isLeft);
+            this.changeHandler(this.isLeft, false);
         }
     }
 
-    onStateChange(handler: (left: boolean) => void) {
+    onStateChange(handler: (left: boolean, down: boolean) => void) {
         this.changeHandler = handler;
     }
 
