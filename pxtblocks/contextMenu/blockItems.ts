@@ -12,14 +12,14 @@ export enum BlockContextWeight {
     Help = 50,
 }
 
-export function registerBlockitems() {
+export function registerBlockitems(keyboardControlsActive: boolean) {
     // Unregister the builtin options that we don't use
     Blockly.ContextMenuRegistry.registry.unregister("blockDuplicate");
     Blockly.ContextMenuRegistry.registry.unregister("blockCollapseExpand");
     Blockly.ContextMenuRegistry.registry.unregister("blockHelp");
     Blockly.ContextMenuRegistry.registry.unregister("blockInline");
 
-    registerDuplicate();
+    registerDuplicate(keyboardControlsActive);
     registerCollapseExpandBlock();
     registerHelp();
 
@@ -110,10 +110,10 @@ function registerHelp() {
     Blockly.ContextMenuRegistry.registry.register(helpOption);
 }
 
-function registerDuplicate() {
+function registerDuplicate(keyboardControlsActive: boolean) {
     const duplicateOption: Blockly.ContextMenuRegistry.RegistryItem = {
         displayText() {
-            return lf("Duplicate")
+            return keyboardControlsActive ? lf("Duplicate (D)") : lf("Duplicate")
         },
         preconditionFn(scope: Blockly.ContextMenuRegistry.Scope) {
             const block = scope.block;
