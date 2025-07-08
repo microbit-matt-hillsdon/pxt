@@ -40,11 +40,24 @@ const FocusTrapInner = (props: FocusTrapProps) => {
 
     const { regions } = useFocusTrapState();
 
+    const handleWindowFocus = React.useCallback(() => {
+        if (containerRef.current.contains(document.activeElement)) return;
+        
+        const focusable = getElements();
+        
+        if (focusable.length > 0) {
+            console.log("Focusing from outside");
+            focusable[0].focus();
+        }
+    }, []);
+
     React.useEffect(() => {
+        window.addEventListener("focus", handleWindowFocus);
         return () => {
             if (!dontRestoreFocus && previouslyFocused.current) {
                 focusLastActive(previouslyFocused.current as HTMLElement)
             }
+            window.removeEventListener("focus", handleWindowFocus);
         }
     }, [])
 
