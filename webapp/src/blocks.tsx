@@ -914,6 +914,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         }
         this.hideFlyout();
         this.initPrompts();
+        this.initFocusListeners();
         this.initBlocklyToolbox();
         this.initWorkspaceSounds();
         initCopyPaste(accessibleBlocksEnabled);
@@ -928,6 +929,35 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         this.resize();
 
         pxt.perf.measureEnd(Measurements.PrepareBlockly)
+    }
+
+    private initFocusListeners() {
+        const listener = (e: FocusEvent) => {
+            const contextMenuDiv = document.querySelector('.blocklyTooltipDiv');
+            const dropdownDiv = document.querySelector('.blocklyDropDownDiv');
+            const widgetDiv = document.querySelector('.blocklyWidgetDiv');
+            const injectionDiv = this.editor.getInjectionDiv();
+            const blurredNode = e.target as Node;
+            const focusOutFromBlocklyDiv = dropdownDiv.contains(blurredNode) || widgetDiv.contains(blurredNode);
+
+            const focusedNode = e.relatedTarget as Node;
+            if (
+                (!injectionDiv.contains(focusedNode) && !dropdownDiv.contains(focusedNode) && !widgetDiv.contains(focusedNode) && !contextMenuDiv.contains(focusedNode) && focusOutFromBlocklyDiv) ||
+                (!e.relatedTarget && focusOutFromBlocklyDiv)
+            ) {
+                Blockly.hideChaff();
+                setTimeout(() => {
+                    // Refocus what is supposed to have focus after Blockly has returned ephemeral focus to the Blockly workspace.
+                    if (focusedNode) {
+                        (focusedNode as HTMLElement).focus();
+                    } else {
+                        document.body.focus();
+                    }
+                }, 0);
+            }
+        };
+
+        document.addEventListener('focusout', listener);
     }
 
     protected setupIntersectionObserver() {
