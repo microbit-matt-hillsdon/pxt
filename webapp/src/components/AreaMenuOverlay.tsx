@@ -194,6 +194,7 @@ const areas: Area[] = [
 export const AreaMenuOverlay = ({ parent }: AreaMenuOverlapProps) => {
     const previouslyFocused = useRef<Element>(document.activeElement);
     const movedFocusToAreaRef = useRef(false);
+    const bailOut = useRef(false);
 
     const getRects = (): Map<AreaId, DOMRect | undefined> => (
         new Map(areas.map(area => [area.id, area.getBounds(parent)]))
@@ -207,6 +208,12 @@ export const AreaMenuOverlay = ({ parent }: AreaMenuOverlapProps) => {
         parent.toggleAreaMenu();
     }, [parent]);
     useEffect(() => {
+        if (!areaRects.get("editor") && !parent.state.fullscreen) {
+            // Something is awry, bail out.
+            parent.toggleAreaMenu();
+            bailOut.current = true;
+        }
+
         if (parent.state.fullscreen) {
             parent.setSimulatorFullScreen(false);
         }
@@ -240,9 +247,7 @@ export const AreaMenuOverlay = ({ parent }: AreaMenuOverlapProps) => {
         parent.toggleAreaMenu();
     }
 
-    if (!areaRects.get("editor")) {
-        // Something is awry, bail out.
-        parent.toggleAreaMenu();
+    if (bailOut.current) {
         return null;
     }
 
