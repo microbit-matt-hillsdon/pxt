@@ -612,8 +612,9 @@ namespace pxt.auth {
         static async staticApiAsync<T = any>(url: string, data?: any, method?: string, authToken?: string): Promise<ApiResult<T>> {
             const headers: pxt.Map<string> = await getAuthHeadersAsync(authToken);
 
-            url = pxt.BrowserUtils.isLocalHostDev() ? `${pxt.cloud.DEV_BACKEND}${url}` : url;
-
+            // Hacky way of hard coding to call makecode.microbit.org prod API
+            // url = pxt.BrowserUtils.isLocalHostDev() ? `${pxt.cloud.DEV_BACKEND}${url}` : url;
+            url = `https://makecode.microbit.org${url}`
             return pxt.Util.requestAsync({
                 url,
                 headers,
