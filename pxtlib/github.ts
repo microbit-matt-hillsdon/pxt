@@ -168,7 +168,9 @@ namespace pxt.github {
     function ghProxyWithCdnJsonAsync(path: string) {
         return Cloud.apiRequestWithCdnAsync({
             url: "gh/" + path,
-            forceLiveEndpoint: true
+            // Commenting this out as a hacky way of forcing to use of app endpoint oppose to MakeCode live endpoint.
+            // `cloud.privateRequestAsync` is forced to use webConfig prefix instead of API root.
+            // forceLiveEndpoint: true
         }).then(r => r.json);
     }
 

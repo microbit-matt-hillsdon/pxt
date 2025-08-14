@@ -741,7 +741,10 @@ class Host
                 .then(files => epkg.setFiles(files))
         } else if (proto == "github") {
             return workspace.getPublishedScriptAsync(pkg.version())
-                .then(files => epkg.setFiles(files))
+                .then(files => {
+                    console.log("Github files", files)
+                    return epkg.setFiles(files)
+                })
         } else if (proto == "workspace") {
             return fromWorkspaceAsync(pkg.verArgument())
         } else if (proto == "file") {
