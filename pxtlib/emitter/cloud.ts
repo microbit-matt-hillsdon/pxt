@@ -73,11 +73,7 @@ namespace pxt.Cloud {
     }
 
     export function privateRequestAsync(options: Util.HttpRequestOptions) {
-        // Hardcode formulation of locally-served source files.
-        options.url = pxt.webConfig?.isStatic && !options.forceLiveEndpoint
-            ? window.location.origin + pxt.webConfig.relprefix + options.url + (/.json/i.test(options.url) ? "" : ".json")
-            : apiRoot + options.url;
-        console.log("options.url", options.url)
+        options.url = pxt.webConfig?.isStatic && !options.forceLiveEndpoint ? pxt.webConfig.relprefix + options.url : apiRoot + options.url;
         options.allowGzipPost = true
         if (!Cloud.isOnline() && !pxt.BrowserUtils.isPxtElectron()) {
             return offlineError(options.url);
