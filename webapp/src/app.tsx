@@ -238,6 +238,7 @@ export class ProjectView
         this.onThemeChanged = this.onThemeChanged.bind(this);
         this.setColorThemeById = this.setColorThemeById.bind(this);
         this.showLoginDialog = this.showLoginDialog.bind(this);
+        this.useTutorialSimSidebarLayout = this.useTutorialSimSidebarLayout.bind(this);
 
         // add user hint IDs and callback to hint manager
         if (pxt.BrowserUtils.useOldTutorialLayout()) this.hintManager.addHint(ProjectView.tutorialCardId, this.tutorialCardHintCallback.bind(this));
@@ -1843,6 +1844,9 @@ export class ProjectView
                 pxt.storage.setLocal("onboardAccessibleBlocks", "0")
             }
 
+            // Force editor tools to collapse in headless tutorials and blocks mode (essentially hiding file explorer)
+            const forceEditorToolsCollapse = pxt.appTarget.simulator.headless && (!!h.tutorial || h.editor === pxt.BLOCKS_PROJECT_NAME);
+
             this.setState({
                 home: false,
                 showFiles: h.githubId ? true : false,
@@ -1853,7 +1857,8 @@ export class ProjectView
                 currFile: file,
                 sideDocsLoadUrl: sideDocsLoadUrl,
                 debugging: false,
-                isMultiplayerGame: false
+                isMultiplayerGame: false,
+                collapseEditorTools: forceEditorToolsCollapse || this.state.collapseEditorTools,
             });
 
             pkg.getEditorPkg(pkg.mainPkg).onupdate = () => {
@@ -1966,8 +1971,11 @@ export class ProjectView
                 editorState.filters = {
                     blocks: tutorialBlocks.usedBlocks,
                     defaultState: pxt.editor.FilterState.Hidden
-                }
-                editorState.hasCategories = !(header.tutorial.metadata && header.tutorial.metadata.flyoutOnly);
+                };
+                editorState.hasCategories = !(
+                    header.tutorial.metadata &&
+                    (header.tutorial.metadata.flyoutOnly || header.tutorial.metadata.unifiedToolbox)
+                );
             }
             this.setState({ editorState: editorState });
             this.editor.filterToolbox(true);
@@ -3755,7 +3763,7 @@ export class ProjectView
     }
 
     setSimulatorFullScreen(enabled: boolean) {
-        if (this.state.collapseEditorTools) {
+        if (this.state.collapseEditorTools && !pxt.appTarget.simulator?.headless) {
             this.expandSimulator();
         }
         if (enabled) {
@@ -5110,6 +5118,11 @@ export class ProjectView
         return this.state.tutorialOptions != undefined;
     }
 
+    useTutorialSimSidebarLayout() {
+        const lang = this.isBlocksActive() ? "blocks" : this.isPythonActive() ? "python" : "javascript";
+        return !!pxt.appTarget.appTheme.tutorialSimSidebarLangs?.includes(lang);
+    }
+
     onEditorContentLoaded() {
         if (this.isTutorial()) {
             pxt.tickEvent("tutorial.editorLoaded")
@@ -5155,7 +5168,7 @@ export class ProjectView
             if (!pxt.BrowserUtils.useOldTutorialLayout()) {
                 const tutorialElements = document?.getElementsByClassName("tutorialWrapper");
                 const tutorialEl = tutorialElements?.length === 1 ? (tutorialElements[0] as HTMLElement) : undefined;
-                if (tutorialEl && (pxt.BrowserUtils.isTabletSize() || pxt.appTarget.appTheme.tutorialSimSidebarLayout)) {
+                if (tutorialEl && (pxt.BrowserUtils.isTabletSize() || this.useTutorialSimSidebarLayout())) {
                     this.setState({ editorOffset: tutorialEl.offsetHeight + "px" });
                 } else {
                     this.setState({ editorOffset: undefined });
@@ -5166,6 +5179,7 @@ export class ProjectView
                     const flyoutOnly =
                         this.state.editorState?.hasCategories === false
                         || this.state.tutorialOptions?.metadata?.flyoutOnly
+                        || this.state.tutorialOptions?.metadata?.unifiedToolbox
                         || this.state.tutorialOptions?.metadata?.hideToolbox;
 
                     let headerHeight = 0;
@@ -5473,7 +5487,7 @@ export class ProjectView
         const isSidebarTutorial = pxt.appTarget.appTheme.sidebarTutorial;
         const isTabTutorial = inTutorial && !pxt.BrowserUtils.useOldTutorialLayout();
         const inTutorialExpanded = inTutorial && tutorialOptions.tutorialStepExpanded;
-        const tutorialSimSidebar = pxt.appTarget.appTheme.tutorialSimSidebarLayout && !pxt.BrowserUtils.isTabletSize();
+        const tutorialSimSidebar = !pxt.BrowserUtils.isTabletSize() && this.useTutorialSimSidebarLayout();
         const inDebugMode = this.state.debugging;
         const inHome = this.state.home && !sandbox;
         const inEditor = !!this.state.header && !inHome;
@@ -6498,7 +6512,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             // Check to see if we should show the mini simulator (<= tablet size)
-            if (!theEditor.isTutorial() || pxt.appTarget.appTheme.tutorialSimSidebarLayout || pxt.BrowserUtils.useOldTutorialLayout()) {
+            if (!theEditor.isTutorial() || theEditor.useTutorialSimSidebarLayout() || pxt.BrowserUtils.useOldTutorialLayout()) {
                 if (pxt.BrowserUtils.isTabletSize()) {
                     theEditor.showMiniSim(true);
                 } else {
