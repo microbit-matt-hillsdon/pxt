@@ -466,19 +466,19 @@ div.blocklyTreeRoot > div[role="tree"]:focus-visible {
 
 /* Flyout buttons and labels */
 .blocklyKeyboardNavigation .blocklyFlyout .blocklyFlyoutLabel.blocklyActiveFocus,
-.blocklyKeyboardNavigation .blocklyFlyout .blocklyFlyoutButton.blocklyActiveFocus {
+.blocklyKeyboardNavigation .blocklyFlyout .blocklyFlyoutButton > g.blocklyActiveFocus {
     outline: none;
 }
 
 /* Use the backgrounds because the group can't have an outline on Safari */
-.blocklyKeyboardNavigation .blocklyFlyout .blocklyFlyoutLabel.blocklyActiveFocus > .blocklyFlyoutLabelBackground,
-.blocklyKeyboardNavigation .blocklyFlyout .blocklyFlyoutButton.blocklyActiveFocus > .blocklyFlyoutButtonBackground {
+.blocklyKeyboardNavigation .blocklyFlyout .blocklyFlyoutLabel.blocklyActiveFocus > g > .blocklyFlyoutLabelBackground,
+.blocklyKeyboardNavigation .blocklyFlyout .blocklyFlyoutButton > g.blocklyActiveFocus >  .blocklyFlyoutButtonBackground {
     outline-offset: 2px;
     outline: var(--blockly-selection-width) solid
         var(--blockly-active-node-color);
     border-radius: 2px;
 }
-.blocklyKeyboardNavigation .blocklyFlyout .blocklyFlyoutLabel.blocklyActiveFocus > .blocklyFlyoutLabelBackground {
+.blocklyKeyboardNavigation .blocklyFlyout .blocklyFlyoutLabel.blocklyActiveFocus > g > .blocklyFlyoutLabelBackground {
     // Swap opacity for transparent fill so we can see the focus indicator.
     opacity: 1;
     fill: transparent;
