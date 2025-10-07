@@ -93,14 +93,13 @@ export class FlyoutButton extends Blockly.FlyoutButton {
             const rect = svgGroup.getElementsByClassName("blocklyFlyoutLabelBackground").item(0) as SVGRectElement;
             rect.setAttribute('width', String(this.width));
 
-            for (let i = 0; i < svgGroup.children.length; i++) {
-                const el = svgGroup.children.item(i);
-
-                if (el !== svgIcon && el !== rect) {
+            const textElements = svgGroup.querySelectorAll('text');
+            textElements.forEach(el => {
+                if (el !== svgIcon) {
                     const x = Number(el.getAttribute("x"));
                     el.setAttribute("x", (x + iconWidth) + "")
                 }
-            }
+            })
         }
 
         const line = def["web-line"];
