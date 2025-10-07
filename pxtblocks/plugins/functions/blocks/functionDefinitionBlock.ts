@@ -90,6 +90,7 @@ const FUNCTION_DEFINITION_MIXIN: FunctionDefinitionMixin = {
         const nameField = new FieldAutocapitalizeTextInput(text || "", rename, {
             spellcheck: false,
             disableAutocapitalize: true,
+            type: "field_input"
         });
         this.appendDummyInput("function_name").appendField(nameField, "function_name");
     },

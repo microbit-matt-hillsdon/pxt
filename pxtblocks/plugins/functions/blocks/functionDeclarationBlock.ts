@@ -42,6 +42,7 @@ const FUNCTION_DECLARATION_MIXIN: FunctionDeclarationMixin = {
         const nameField = new FieldAutocapitalizeTextInput(text || "", undefined, {
             spellcheck: false,
             disableAutocapitalize: true,
+            type: 'field_input'
         });
         this.appendDummyInput("function_name").appendField(nameField, "function_name");
     },
