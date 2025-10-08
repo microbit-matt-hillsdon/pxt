@@ -650,12 +650,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 CLOSE: lf("Close")
             });
 
-            // Ideally this would be managed by blockly or the keyboard nav plugin becase it crashes without it.
-            const ariaAnnouncementSpan = document.createElement('span');
-            ariaAnnouncementSpan.id = 'blocklyAriaAnnounce';
-            ariaAnnouncementSpan.ariaLive = "polite";
-            this.editor.getInjectionDiv().appendChild(ariaAnnouncementSpan);
-
             // Unregister shortcuts that will be re-created when the keyboard nav plugin registers
             this.unregisterBlocklyShortcutIfExists("keyboard_nav_copy");
             this.unregisterBlocklyShortcutIfExists("keyboard_nav_cut");
