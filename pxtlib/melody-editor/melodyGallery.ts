@@ -254,7 +254,7 @@ namespace pxtmelody {
                 role: "menuitem",
                 title: sample.name,
                 tabIndex: -1,
-                id: getCellId(i, 0)
+                id: getCellId(0, i)
             }, () => this.handleSelection(sample))
 
             leftButton.appendChild(icon);
@@ -270,7 +270,7 @@ namespace pxtmelody {
                 role: "menuitem",
                 title: lf("Preview {0}", sample.name),
                 tabIndex: -1,
-                id: getCellId(i,1)
+                id: getCellId(1, i)
             }, () => this.togglePlay(sample, i));
 
             const playIcon = mkElement("i", {
@@ -415,4 +415,4 @@ namespace pxtmelody {
     }
 }
 
-const getCellId = (x: number, y: number) => `:${x}-${y === 0 ? "selection" : "preview"}`;
+const getCellId = (x: number, y: number) => `:${y}-${x === 0 ? "selection" : "preview"}`;
