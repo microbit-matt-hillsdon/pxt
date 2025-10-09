@@ -240,6 +240,7 @@ namespace pxtmelody {
             const icon = mkElement("i", {
                 className: "music icon melody-icon"
             });
+            addAriaHidden(icon);
 
             const label = mkElement("div", {
                 className: "melody-editor-text"
@@ -276,6 +277,7 @@ namespace pxtmelody {
             const playIcon = mkElement("i", {
                 className: "play icon"
             });
+            addAriaHidden(playIcon);
 
             this.playIcons[i] = playIcon;
 
@@ -416,3 +418,5 @@ namespace pxtmelody {
 }
 
 const getCellId = (x: number, y: number) => `:${y}-${x === 0 ? "selection" : "preview"}`;
+
+const addAriaHidden = (el: HTMLElement) => el.ariaHidden = "true";
