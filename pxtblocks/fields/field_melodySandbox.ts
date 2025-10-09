@@ -208,6 +208,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
 
         this.playButton = document.createElement("button");
         this.playButton.id = "melody-play-button";
+        this.playButton.ariaLabel = lf("Play melody");
         this.playButton.addEventListener("click", () => this.togglePlay());
 
         this.playIcon = document.createElement("i");
