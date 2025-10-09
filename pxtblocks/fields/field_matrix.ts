@@ -3,7 +3,7 @@ import * as Blockly from "blockly";
 interface MatrixDisplayProps {
     cellWidth: number;
     cellHeight: number;
-    cellLabel: string;
+    cellLabel: string | ((value: number) => string);
     cellHorizontalMargin: number;
     cellVerticalMargin: number;
     cornerRadius: number;
@@ -53,7 +53,7 @@ export abstract class FieldMatrix extends Blockly.Field {
                 const cellG = pxsim.svg.child(row, "g", { transform: `translate(${tx} ${ty})`, 'role': 'gridcell' });
                 const rectOptions = {
                     'id': this.getCellId(x,y),  // For aria-activedescendant
-                    'aria-label': cellLabel,
+                    'aria-label': typeof cellLabel === 'string' ? cellLabel : cellLabel(y),
                     'role': 'switch',
                     'aria-checked': "false",
                     'width': scale * cellWidth,

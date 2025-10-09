@@ -485,10 +485,12 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
                 if (this.melody.getValue(row, col)) {
                     pxt.BrowserUtils.removeClass(cell, "melody-default");
                     pxt.BrowserUtils.addClass(cell, rowClass);
+                    cell.setAttribute("aria-checked", "true");
                 }
                 else {
                     pxt.BrowserUtils.addClass(cell, "melody-default");
                     pxt.BrowserUtils.removeClass(cell, rowClass);
+                    cell.setAttribute("aria-checked", "false");
                 }
             }
         }
@@ -575,7 +577,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         this.createMatrixDisplay({
             cellWidth: FieldCustomMelody.CELL_WIDTH,
             cellHeight: FieldCustomMelody.CELL_WIDTH,
-            cellLabel: lf("Note"),
+            cellLabel: (rowNum: number) => lf("Note {0}", pxtmelody.rowToNote(rowNum)),
             cellStroke: "white",
             cellHorizontalMargin: FieldCustomMelody.CELL_HORIZONTAL_MARGIN,
             cellVerticalMargin: FieldCustomMelody.CELL_VERTICAL_MARGIN,
