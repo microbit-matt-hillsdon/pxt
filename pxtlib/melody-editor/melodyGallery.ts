@@ -24,9 +24,12 @@ namespace pxtmelody {
         private focusHandler: (e: FocusEvent) => {} | undefined;
         private blurHandler: (e: FocusEvent) => {} | undefined;
 
+
         constructor() {
             this.containerDiv = document.createElement("div");
             this.containerDiv.setAttribute("id", "melody-editor-gallery-outer");
+            this.containerDiv.setAttribute("role", "tabpanel");
+            this.containerDiv.setAttribute("aria-labelledby", "melody-editor-gallery-control");
             this.contentDiv = document.createElement("div");
             this.contentDiv.setAttribute("id", "melody-editor-gallery");
             this.contentDiv.setAttribute("role", "menu");
@@ -240,6 +243,7 @@ namespace pxtmelody {
             const icon = mkElement("i", {
                 className: "music icon melody-icon"
             });
+            addAriaHidden(icon);
 
             const label = mkElement("div", {
                 className: "melody-editor-text"
@@ -254,7 +258,7 @@ namespace pxtmelody {
                 role: "menuitem",
                 title: sample.name,
                 tabIndex: -1,
-                id: getCellId(i, 0)
+                id: getCellId(0, i)
             }, () => this.handleSelection(sample))
 
             leftButton.appendChild(icon);
@@ -270,12 +274,13 @@ namespace pxtmelody {
                 role: "menuitem",
                 title: lf("Preview {0}", sample.name),
                 tabIndex: -1,
-                id: getCellId(i,1)
+                id: getCellId(1, i)
             }, () => this.togglePlay(sample, i));
 
             const playIcon = mkElement("i", {
                 className: "play icon"
             });
+            addAriaHidden(playIcon);
 
             this.playIcons[i] = playIcon;
 
@@ -415,4 +420,6 @@ namespace pxtmelody {
     }
 }
 
-const getCellId = (x: number, y: number) => `:${x}-${y === 0 ? "selection" : "preview"}`;
+const getCellId = (x: number, y: number) => `:${y}-${x === 0 ? "selection" : "preview"}`;
+
+const addAriaHidden = (el: HTMLElement) => el.ariaHidden = "true";
