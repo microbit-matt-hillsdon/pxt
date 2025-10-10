@@ -106,7 +106,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         });
 
         if (keyboardTriggered) {
-            this.toggle.getRootElement().focus();
+            this.toggle.getFirstFocusableElement().focus();
         }
     }
 
@@ -181,7 +181,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
                 this.showGallery();
             }
         });
-        this.firstFocusableElement = this.toggle.getRootElement();
+        this.firstFocusableElement = this.toggle.getFirstFocusableElement();
 
         this.toggle.layout();
         this.toggle.translate((TOTAL_WIDTH - this.toggle.width()) / 2, TOGGLE_PADDING_TOP);
@@ -191,6 +191,9 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
 
         this.editorDiv = document.createElement("div");
         pxt.BrowserUtils.addClass(this.editorDiv, "melody-editor-div");
+        this.editorDiv.setAttribute("role", "tabpanel");
+        this.editorDiv.setAttribute("aria-labelledby", "melody-editor-div-control");
+        this.editorDiv.id = "melody-editor-div";
         this.editorDiv.style.setProperty("background-color", secondaryColor);
 
         this.gridDiv = this.createGridDisplay();
@@ -706,18 +709,19 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
             if (result) {
                 this.melody.parseNotes(result);
                 this.toggle.toggle();
-                this.toggle.getRootElement().focus();
                 this.updateFieldLabel();
                 this.updateGrid();
             }
         });
 
+        this.firstFocusableElement = this.toggle.getFirstFocusableElement();
         this.lastFocusableElement = this.gallery.getLastFocusableElement();
     }
 
 
     private hideGallery() {
         this.gallery.hide();
+        this.firstFocusableElement = this.toggle.getFirstFocusableElement();
         this.lastFocusableElement = this.doneButton;
     }
 
@@ -841,20 +845,33 @@ class Toggle {
 
         // Draw the left option
         this.leftElement = this.root.group();
+        this.leftElement.setAttribute("aria-label", this.props.leftText);
+        this.leftElement.el.tabIndex = 0;
+        this.leftElement.el.ariaSelected = "true";
+        this.leftElement.setAttribute("role", "tab");
+        this.leftElement.el.id = "melody-editor-div-control";
+        this.leftElement.el.setAttribute("aria-controls", "melody-editor-div");
         this.leftText = mkText(this.props.leftText)
             .appendClass("sprite-editor-text")
             .fill(this.props.selectedTextColor);
+        this.leftText.setAttribute("aria-hidden", "true");
         this.leftElement.appendChild(this.leftText);
 
         // Draw the right option
         this.rightElement = this.root.group();
+        this.rightElement.el.ariaLabel = this.props.rightText
+        this.rightElement.el.tabIndex = -1;
+        this.rightElement.el.ariaSelected = "false";
+        this.rightElement.setAttribute("role", "tab");
+        this.rightElement.el.id = "melody-editor-gallery-control";
+        this.rightElement.el.setAttribute("aria-controls", "melody-editor-gallery-outer");
         this.rightText = mkText(this.props.rightText)
             .appendClass("sprite-editor-text")
             .fill(this.props.unselectedTextColor);
+        this.rightText.setAttribute("aria-hidden", "true");
         this.rightElement.appendChild(this.rightText);
 
         this.root.onClick(() => this.toggle());
-        this.root.el.tabIndex = 0;
         this.root.el.classList.add("melody-editor-toggle-buttons");
         this.root.el.addEventListener("keydown", (e) => {
             if (["Space", "ArrowLeft", "ArrowRight", "Enter"].includes(e.code)) {
@@ -870,12 +887,22 @@ class Toggle {
             this.switch.appendClass("toggle-right");
             this.leftText.fill(this.props.unselectedTextColor);
             this.rightText.fill(this.props.selectedTextColor);
+            this.leftElement.el.tabIndex = -1
+            this.leftElement.el.ariaSelected = "false";
+            this.rightElement.el.tabIndex = 0
+            this.rightElement.el.ariaSelected = "true";
+            this.rightElement.el.focus();
         }
         else {
             this.switch.removeClass("toggle-right");
             this.switch.appendClass("toggle-left");
             this.leftText.fill(this.props.selectedTextColor);
             this.rightText.fill(this.props.unselectedTextColor);
+            this.rightElement.el.tabIndex = -1
+            this.rightElement.el.ariaSelected = "false";
+            this.leftElement.el.tabIndex = 0
+            this.leftElement.el.ariaSelected = "true";
+            this.leftElement.el.focus();
         }
         this.isLeft = !this.isLeft;
 
@@ -906,8 +933,11 @@ class Toggle {
         return TOGGLE_WIDTH;
     }
 
-    getRootElement() {
-        return this.root.el;
+    getFirstFocusableElement() {
+        if (this.leftElement.el.tabIndex === 0) {
+            return this.leftElement.el
+        }
+        return this.rightElement.el
     }
 }
 

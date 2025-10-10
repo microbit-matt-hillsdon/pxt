@@ -24,9 +24,12 @@ namespace pxtmelody {
         private focusHandler: (e: FocusEvent) => {} | undefined;
         private blurHandler: (e: FocusEvent) => {} | undefined;
 
+
         constructor() {
             this.containerDiv = document.createElement("div");
             this.containerDiv.setAttribute("id", "melody-editor-gallery-outer");
+            this.containerDiv.setAttribute("role", "tabpanel");
+            this.containerDiv.setAttribute("aria-labelledby", "melody-editor-gallery-control");
             this.contentDiv = document.createElement("div");
             this.contentDiv.setAttribute("id", "melody-editor-gallery");
             this.contentDiv.setAttribute("role", "menu");
