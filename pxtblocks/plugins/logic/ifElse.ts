@@ -1,3 +1,5 @@
+/// <reference path="../../../built/pxtlib.d.ts" />
+
 import * as Blockly from "blockly";
 import { InlineSvgsExtensionBlock } from "../functions";
 import { FieldImageNoText } from "../../fields/field_imagenotext";
