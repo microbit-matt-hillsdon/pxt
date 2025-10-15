@@ -5,6 +5,7 @@ import * as Blockly from "blockly";
 import svg = pxt.svgUtil;
 import { clearDropDownDiv, FieldCustom, FieldCustomOptions, setMelodyEditorOpen } from "./field_utils";
 import { FieldMatrix } from "./field_matrix";
+import { BlockSvg } from "blockly";
 export const HEADER_HEIGHT = 50;
 export const TOTAL_WIDTH = 300;
 
@@ -79,6 +80,9 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         Blockly.DropDownDiv.setColour(this.getDropdownBackgroundColour(), this.getDropdownBorderColour());
 
         let contentDiv = Blockly.DropDownDiv.getContentDiv() as HTMLDivElement;
+        contentDiv.id = "melody-content-div";
+        contentDiv.setAttribute("role", "dialog");
+        contentDiv.ariaLabel = lf("Melody editor");
         pxt.BrowserUtils.addClass(contentDiv, "melody-content-div");
         pxt.BrowserUtils.addClass(contentDiv.parentElement, "melody-editor-dropdown");
 
@@ -108,6 +112,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         if (keyboardTriggered) {
             this.toggle.getFirstFocusableElement().focus();
         }
+        (this.sourceBlock_ as BlockSvg).getFocusableElement().ariaExpanded = 'true';
     }
 
     getValue() {
@@ -151,6 +156,11 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
             (this.sourceBlock_ as Blockly.BlockSvg).getSvgRoot().appendChild(this.fieldGroup_);
             this.updateFieldLabel();
         }
+
+        (this.sourceBlock_ as BlockSvg).getFocusableElement().ariaHasPopup = 'dialog';
+        (this.sourceBlock_ as BlockSvg).getFocusableElement().ariaExpanded = 'false';
+        (this.sourceBlock_ as BlockSvg).getFocusableElement().setAttribute('aria-controls', 'melody-content-div');
+
     }
 
     render_() {
@@ -260,6 +270,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         }
 
         this.prevString = undefined;
+        (this.sourceBlock_ as BlockSvg).getFocusableElement().ariaExpanded = 'false';
     }
 
     // when click done
