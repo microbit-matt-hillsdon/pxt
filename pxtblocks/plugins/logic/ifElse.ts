@@ -1,5 +1,3 @@
-/// <reference path="../../../built/pxtlib.d.ts" />
-
 import * as Blockly from "blockly";
 import { InlineSvgsExtensionBlock } from "../functions";
 import { FieldImageNoText } from "../../fields/field_imagenotext";
@@ -158,7 +156,7 @@ const IF_ELSE_MIXIN = {
                 };
             }(i);
             const ifDoInput = this.getInput('DO0');
-            ifDoInput.getFieldRowLabel = () => lf('if');
+            ifDoInput.getFieldRowLabel = () => 'if';
             this.appendValueInput('IF' + i)
                 .setCheck('Boolean')
                 .appendField(Blockly.Msg.CONTROLS_IF_MSG_ELSEIF)
@@ -171,7 +169,7 @@ const IF_ELSE_MIXIN = {
                 .setAlign(Blockly.inputs.Align.RIGHT);
             this.appendStatementInput('DO' + i);
             const elseIfDoInput = this.getInput('DO' + i);
-            elseIfDoInput.getFieldRowLabel = () => lf('else if');
+            elseIfDoInput.getFieldRowLabel = () => 'else if';
         }
         if (this.elseCount_) {
             this.appendDummyInput('ELSETITLE')
@@ -182,7 +180,7 @@ const IF_ELSE_MIXIN = {
                     new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, "*", this.removeElse_.bind(this), false));
             this.appendStatementInput('ELSE');
             const elseInput = this.getInput('ELSE');
-            elseInput.getFieldRowLabel = () =>  lf('else');
+            elseInput.getFieldRowLabel = () =>  'else';
         }
         if (this.getInput('ADDBUTTON')) this.removeInput('ADDBUTTON');
         const that = this;
