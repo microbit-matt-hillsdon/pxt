@@ -8,6 +8,9 @@ import { FieldMatrix } from "./field_matrix";
 import { BlockSvg } from "blockly";
 export const HEADER_HEIGHT = 50;
 export const TOTAL_WIDTH = 300;
+const melodyContentDivId = "melody-content-div";
+const melodyEditorDivId = "melody-editor-div";
+const melodyGalleryDivId = "melody-editor-gallery";
 
 export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix implements FieldCustom {
     public isFieldCustom_ = true;
@@ -80,13 +83,13 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         Blockly.DropDownDiv.setColour(this.getDropdownBackgroundColour(), this.getDropdownBorderColour());
 
         let contentDiv = Blockly.DropDownDiv.getContentDiv() as HTMLDivElement;
-        contentDiv.id = "melody-content-div";
+        contentDiv.id = melodyContentDivId;
         contentDiv.setAttribute("role", "dialog");
         contentDiv.ariaLabel = lf("Melody editor");
         pxt.BrowserUtils.addClass(contentDiv, "melody-content-div");
         pxt.BrowserUtils.addClass(contentDiv.parentElement, "melody-editor-dropdown");
 
-        this.gallery = new pxtmelody.MelodyGallery();
+        this.gallery = new pxtmelody.MelodyGallery(melodyGalleryDivId);
         this.renderEditor(contentDiv);
 
         this.addKeyboardFocusHandlers();
@@ -157,10 +160,16 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
             this.updateFieldLabel();
         }
 
-        (this.sourceBlock_ as BlockSvg).getFocusableElement().ariaHasPopup = 'dialog';
-        (this.sourceBlock_ as BlockSvg).getFocusableElement().ariaExpanded = 'false';
-        (this.sourceBlock_ as BlockSvg).getFocusableElement().setAttribute('aria-controls', 'melody-content-div');
+        this.addAriaAtributes();
+    }
 
+    private addAriaAtributes() {
+        // ariaLabel is set in this.updateFieldLabel() as it is content dependent.
+        const el = (this.sourceBlock_ as BlockSvg).getFocusableElement();
+        el.ariaHasPopup = 'dialog';
+        el.ariaExpanded = 'false';
+        el.setAttribute('role', 'button');
+        el.setAttribute('aria-controls', melodyContentDivId);
     }
 
     render_() {
@@ -202,8 +211,8 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         this.editorDiv = document.createElement("div");
         pxt.BrowserUtils.addClass(this.editorDiv, "melody-editor-div");
         this.editorDiv.setAttribute("role", "tabpanel");
-        this.editorDiv.setAttribute("aria-labelledby", "melody-editor-div-control");
-        this.editorDiv.id = "melody-editor-div";
+        this.editorDiv.setAttribute("aria-labelledby", `${melodyEditorDivId}-control`);
+        this.editorDiv.id = melodyEditorDivId;
         this.editorDiv.style.setProperty("background-color", secondaryColor);
 
         this.gridDiv = this.createGridDisplay();
@@ -402,6 +411,8 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
             pxt.BrowserUtils.addClass(cb.el, className);
             this.fieldGroup_.appendChild(cb.el);
         }
+
+        (this.sourceBlock_ as BlockSvg).getFocusableElement().ariaLabel = `${notes.every(n => n === "-") ? "empty" : "custom"}, melody`;
     }
 
     private setTempo(tempo: number): void {
@@ -860,8 +871,8 @@ class Toggle {
         this.leftElement.el.tabIndex = 0;
         this.leftElement.el.ariaSelected = "true";
         this.leftElement.setAttribute("role", "tab");
-        this.leftElement.el.id = "melody-editor-div-control";
-        this.leftElement.el.setAttribute("aria-controls", "melody-editor-div");
+        this.leftElement.el.id = `${melodyEditorDivId}-control`;
+        this.leftElement.el.setAttribute("aria-controls", melodyEditorDivId);
         this.leftText = mkText(this.props.leftText)
             .appendClass("sprite-editor-text")
             .fill(this.props.selectedTextColor);
@@ -874,8 +885,8 @@ class Toggle {
         this.rightElement.el.tabIndex = -1;
         this.rightElement.el.ariaSelected = "false";
         this.rightElement.setAttribute("role", "tab");
-        this.rightElement.el.id = "melody-editor-gallery-control";
-        this.rightElement.el.setAttribute("aria-controls", "melody-editor-gallery-outer");
+        this.rightElement.el.id = `${melodyGalleryDivId}-control`;
+        this.rightElement.el.setAttribute("aria-controls", `${melodyGalleryDivId}-outer`);
         this.rightText = mkText(this.props.rightText)
             .appendClass("sprite-editor-text")
             .fill(this.props.unselectedTextColor);
