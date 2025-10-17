@@ -69,6 +69,9 @@ namespace pxt.blocks {
 
         // The max and min for numerical inputs (if specified)
         range?: { min: number, max: number };
+
+        // Parameter label used for aria
+        label?: string;
     }
 
     export interface BlockCompileInfo {
@@ -196,6 +199,8 @@ namespace pxt.blocks {
                     const defName = def ? def.name : (bInfo ? bInfo.params[defIndex++] : p.name);
                     const isVarOrArray = def && (def.shadowBlockId === "variables_get" || def.shadowBlockId == "lists_create_with");
 
+                    const label = p.options["label"]?.value ?? undefined;
+
                     (res.parameters as BlockParameter[]).push({
                         actualName: p.name,
                         type: p.type,
@@ -207,7 +212,8 @@ namespace pxt.blocks {
                         fieldEditor: fieldEditor(defName, p.name),
                         fieldOptions: fieldOptions(defName, p.name),
                         shadowOptions: shadowOptions(defName, p.name),
-                        range
+                        range,
+                        label
                     });
                 }
 

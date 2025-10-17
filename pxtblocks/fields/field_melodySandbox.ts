@@ -5,6 +5,7 @@ import * as Blockly from "blockly";
 import svg = pxt.svgUtil;
 import { clearDropDownDiv, FieldCustom, FieldCustomOptions, setMelodyEditorOpen } from "./field_utils";
 import { FieldMatrix } from "./field_matrix";
+
 export const HEADER_HEIGHT = 50;
 export const TOTAL_WIDTH = 300;
 
@@ -387,6 +388,18 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
             pxt.BrowserUtils.addClass(cb.el, className);
             this.fieldGroup_.appendChild(cb.el);
         }
+
+        (this.sourceBlock_ as Blockly.BlockSvg).getFocusableElement().ariaLabel = this.getAriaLabel();
+    }
+
+    override getLabelForBlockOutput(): string {
+        const notes = this.melody.getStringRepresentation().trim().split(" ");
+        return notes.every(n => n === "-") ? lf("empty") : lf("custom");
+    }
+
+    private getAriaLabel(): string {
+        const notes = this.melody.getStringRepresentation().trim().split(" ");
+        return notes.every(n => n === "-") ? lf("empty melody") : lf("custom melody");
     }
 
     private setTempo(tempo: number): void {
