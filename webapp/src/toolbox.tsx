@@ -709,6 +709,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                                 treeRow={subTreeRow}
                                                 onCategoryClick={this.onCategoryClick}
                                                 ariaLevel={2}
+                                                ariaLabel={Util.capitalize(`${treeRow.nameid}, ${subTreeRow.name}`)}
                                             />
                                         )}
                                     </div>
@@ -760,6 +761,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                                                     treeRow={subTreeRow}
                                                                     onCategoryClick={this.onCategoryClick}
                                                                     ariaLevel={3}
+                                                                    ariaLabel={Util.capitalize(`${treeRow.nameid}, ${subTreeRow.name}`)}
                                                                 />
                                                             )}
                                                         </div>
@@ -786,6 +788,7 @@ export interface CategoryItemProps extends TreeRowProps {
     topRowIndex?: number;
     hasDeleteButton?: boolean;
     onDeleteClick?: (ns: string) => void;
+    ariaLabel?: string;
     ariaLevel: number;
     isExpanded?: boolean;
 }
@@ -864,13 +867,13 @@ export class CategoryItem extends data.Component<CategoryItemProps, CategoryItem
     }
 
     renderCore() {
-        const { toolbox, hasDeleteButton, treeRow, ariaLevel, isExpanded } = this.props;
+        const { toolbox, hasDeleteButton, treeRow, ariaLabel, ariaLevel, isExpanded } = this.props;
         const { selected } = this.state;
 
         const ariaExpanded = treeRow.subcategories ? isExpanded : undefined;
 
         return (
-            <TreeItem id={treeRow.nameid + (treeRow.subns ?? "")} selected={selected} ariaLevel={ariaLevel} ariaExpanded={ariaExpanded}>
+            <TreeItem id={treeRow.nameid + (treeRow.subns ?? "")} selected={selected} ariaLabel={ariaLabel} ariaLevel={ariaLevel} ariaExpanded={ariaExpanded}>
                 <TreeRow
                     ref={this.handleTreeRowRef}
                     isRtl={toolbox.isRtl()}
@@ -1066,22 +1069,24 @@ export interface TreeItemProps {
     selected: boolean;
     children?: any;
     id: string;
+    ariaLabel?: string
     ariaLevel: number;
     ariaExpanded: boolean | undefined;
 }
 
 export class TreeItem extends data.Component<TreeItemProps, {}> {
     renderCore() {
-        const { selected, id, ariaLevel, ariaExpanded } = this.props;
+        const { selected, id, ariaLabel, ariaLevel, ariaExpanded } = this.props;
         return (
             <div
                 id={id}
                 role="treeitem"
                 aria-selected={selected}
                 tabIndex={-1}
+                aria-label={ariaLabel}
                 aria-level={ariaLevel}
                 aria-expanded={ariaExpanded}
-                aria-labelledby={`${id}.label`}
+                aria-labelledby={!ariaLabel ? `${id}.label` : undefined}
             >
                 {this.props.children}
             </div>
