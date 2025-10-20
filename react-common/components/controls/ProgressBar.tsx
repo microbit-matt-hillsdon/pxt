@@ -3,7 +3,7 @@ import { classList, ControlProps } from "../util";
 
 export interface ProgressBarProps extends ControlProps {
     value: number;
-    max?: number; // default: 1
+    max?: number; // default: 100
     title?: string;
     label?: string;
 
@@ -32,9 +32,9 @@ export const ProgressBar = (props: ProgressBarProps) => {
             </label>}
             <progress
                 className="common-progressbar"
-                value={value}
+                value={Math.round(value * 100)}
                 aria-valuetext={ariaValueText}
-                max={max || 1.0}
+                max={max || 100}
                 id={id}
                 role={role || "progressbar"}
                 title={title}
