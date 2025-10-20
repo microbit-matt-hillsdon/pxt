@@ -189,7 +189,7 @@ export function createShadowValue(info: pxtc.BlocksInfo, p: pxt.blocks.BlockPara
 
     const mut = document.createElement('mutation');
     // TODO: split on camel casing for actual name. Same in loader!
-    mut.setAttribute('arialabeloverride', p.label ?? p.actualName);
+    mut.setAttribute('arialabeloverride', pxt.Util.camelCaseToLowercaseWithSpaces(p.label ?? p.actualName));
 
     if (p.range) {
         mut.setAttribute('min', p.range.min.toString());

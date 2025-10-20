@@ -300,7 +300,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                 input.fieldRow.forEach((field: FieldCustom & Blockly.Field) => {
                     const parameter = comp.definitionNameToParam[field.name]
                     if (parameter) {
-                        const label = parameter.label ?? parameter.actualName
+                        const label = pxt.Util.camelCaseToLowercaseWithSpaces(parameter.label ?? parameter.actualName);
                         field.setAriaLabelOverride(label);
                         el.setAttribute('arialabeloverride', label);
                     }
