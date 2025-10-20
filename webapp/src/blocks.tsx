@@ -677,7 +677,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             });
 
             const cleanUpWorkspace = Blockly.ShortcutRegistry.registry.getRegistry()["clean_up_workspace"];
-            console.log(cleanUpWorkspace)
             Blockly.ShortcutRegistry.registry.unregister(cleanUpWorkspace.name);
             Blockly.ShortcutRegistry.registry.register({
                 ...cleanUpWorkspace,
