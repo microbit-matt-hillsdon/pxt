@@ -301,7 +301,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                     const parameter = comp.definitionNameToParam[field.name]
                     if (parameter) {
                         const label = pxt.Util.camelCaseToLowercaseWithSpaces(parameter.label ?? parameter.actualName);
-                        field.setAriaLabelOverride(label);
+                        field.setAriaName(label);
                         el.setAttribute('arialabeloverride', label);
                     }
                     if (field.isFieldCustom_ && field.saveOptions) {
@@ -318,7 +318,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
             block.inputList.forEach(input => {
                 input.fieldRow.forEach((field: FieldCustom & Blockly.Field) => {
                     const ariaLabelOverride = saved.getAttribute('arialabeloverride');
-                    if (ariaLabelOverride) field.setAriaLabelOverride(ariaLabelOverride);
+                    if (ariaLabelOverride) field.setAriaName(ariaLabelOverride);
                     if (field.isFieldCustom_ && field.restoreOptions) {
                         const options = JSON.parse(saved.getAttribute(`customfield`));
                         if (options) {
