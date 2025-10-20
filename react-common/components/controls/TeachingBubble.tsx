@@ -372,8 +372,7 @@ export const TeachingBubble = (props: TeachingBubbleProps) => {
             role={role || "dialog"}
             aria-hidden={ariaHidden}
             aria-label={ariaLabel}
-            aria-describedby={ariaDescribedBy}
-            aria-labelledby="teaching-bubble-title">
+            aria-describedby={ariaDescribedBy}>
             <Button
                 className="teaching-bubble-close"
                 onClick={onClose}
@@ -382,10 +381,10 @@ export const TeachingBubble = (props: TeachingBubbleProps) => {
                 rightIcon="fas fa-times-circle"
             />
             <div className="teaching-bubble-body">
-                <strong aria-live="polite">{targetContent.title}</strong>
-                <p aria-live="polite">{targetContent.description}</p>
+                <strong>{targetContent.title}</strong>
+                <p>{targetContent.description}</p>
                 <div className={`teaching-bubble-navigation ${!hasSteps ? "no-steps" : ""}`}>
-                    {hasSteps && <div className={classList("teaching-bubble-steps", forceHideSteps && "hidden")} aria-live="polite">
+                    {hasSteps && <div className={classList("teaching-bubble-steps", forceHideSteps && "hidden")}>
                         {stepNumber} of {totalSteps}
                     </div>}
                     <div className="teaching-bubble-navigation-buttons">
@@ -396,20 +395,13 @@ export const TeachingBubble = (props: TeachingBubbleProps) => {
                             ariaLabel={backLabel}
                             label={backLabel}
                         />}
-                        {hasNext && <Button
+                        <Button
                             className="tertiary inverted teaching-bubble-button"
-                            onClick={onNext}
-                            title={nextLabel}
-                            ariaLabel={nextLabel}
-                            label={nextLabel}
-                        />}
-                        {!hasNext && <Button
-                            className="tertiary inverted teaching-bubble-button"
-                            onClick={onFinish}
-                            title={finishLabel}
-                            ariaLabel={finishLabel}
-                            label={finishLabel}
-                        />}
+                            onClick={hasNext ? onNext : onFinish}
+                            title={hasNext ? nextLabel : finishLabel}
+                            ariaLabel={hasNext ? nextLabel : finishLabel}
+                            label={hasNext ? nextLabel : finishLabel}
+                        />
                     </div>
                 </div>
             </div>
