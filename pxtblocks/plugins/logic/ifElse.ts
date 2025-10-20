@@ -148,6 +148,8 @@ const IF_ELSE_MIXIN = {
             this.removeInput('DO' + i);
             i++;
         }
+        const ifDoInput = this.getInput('DO0');
+        ifDoInput.getFieldRowLabel = () => 'if';
         // Rebuild block.
         for (let i = 1; i <= this.elseifCount_; i++) {
             const removeElseIf = function (arg) {
@@ -155,8 +157,6 @@ const IF_ELSE_MIXIN = {
                     that.removeElseIf_(arg);
                 };
             }(i);
-            const ifDoInput = this.getInput('DO0');
-            ifDoInput.getFieldRowLabel = () => 'if';
             this.appendValueInput('IF' + i)
                 .setCheck('Boolean')
                 .appendField(Blockly.Msg.CONTROLS_IF_MSG_ELSEIF)
@@ -165,7 +165,7 @@ const IF_ELSE_MIXIN = {
                 .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
             this.appendDummyInput('IFBUTTONS' + i)
                 .appendField(
-                    new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, "*", removeElseIf, false))
+                    new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, "remove else if clause", removeElseIf, false))
                 .setAlign(Blockly.inputs.Align.RIGHT);
             this.appendStatementInput('DO' + i);
             const elseIfDoInput = this.getInput('DO' + i);
@@ -177,7 +177,7 @@ const IF_ELSE_MIXIN = {
             this.appendDummyInput('ELSEBUTTONS')
                 .setAlign(Blockly.inputs.Align.RIGHT)
                 .appendField(
-                    new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, "*", this.removeElse_.bind(this), false));
+                    new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, "remove else clause", this.removeElse_.bind(this), false));
             this.appendStatementInput('ELSE');
             const elseInput = this.getInput('ELSE');
             elseInput.getFieldRowLabel = () =>  'else';
@@ -196,7 +196,7 @@ const IF_ELSE_MIXIN = {
         }();
         this.appendDummyInput('ADDBUTTON')
             .appendField(
-                new FieldImageNoText(this.ADD_IMAGE_DATAURI, 24, 24, "*", addElseIf, false));
+                new FieldImageNoText(this.ADD_IMAGE_DATAURI, 24, 24, this.elseCount_ ? "add else if clause" : "add else clause", addElseIf, false));
     },
     /**
      * Reconstructs the block with all child blocks attached.
