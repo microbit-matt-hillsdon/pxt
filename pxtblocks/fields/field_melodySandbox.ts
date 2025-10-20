@@ -115,7 +115,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         if (keyboardTriggered) {
             this.toggle.getFirstFocusableElement().focus();
         }
-        (this.sourceBlock_ as BlockSvg).getFocusableElement().ariaExpanded = 'true';
+        (this.sourceBlock_ as Blockly.BlockSvg).getFocusableElement().ariaExpanded = 'true';
     }
 
     getValue() {
@@ -165,7 +165,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
 
     private addAriaAtributes() {
         // ariaLabel is set in this.updateFieldLabel() as it is content dependent.
-        const el = (this.sourceBlock_ as BlockSvg).getFocusableElement();
+        const el = (this.sourceBlock_ as Blockly.BlockSvg).getFocusableElement();
         el.ariaHasPopup = 'dialog';
         el.ariaExpanded = 'false';
         el.setAttribute('role', 'button');
@@ -279,7 +279,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         }
 
         this.prevString = undefined;
-        (this.sourceBlock_ as BlockSvg).getFocusableElement().ariaExpanded = 'false';
+        (this.sourceBlock_ as Blockly.BlockSvg).getFocusableElement().ariaExpanded = 'false';
     }
 
     // when click done
