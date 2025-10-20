@@ -5,8 +5,12 @@ import * as Blockly from "blockly";
 import svg = pxt.svgUtil;
 import { clearDropDownDiv, FieldCustom, FieldCustomOptions, setMelodyEditorOpen } from "./field_utils";
 import { FieldMatrix } from "./field_matrix";
+import { BlockSvg } from "blockly";
 export const HEADER_HEIGHT = 50;
 export const TOTAL_WIDTH = 300;
+const melodyContentDivId = "melody-content-div";
+const melodyEditorDivId = "melody-editor-div";
+const melodyGalleryDivId = "melody-editor-gallery";
 
 export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix implements FieldCustom {
     public isFieldCustom_ = true;
@@ -79,10 +83,13 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         Blockly.DropDownDiv.setColour(this.getDropdownBackgroundColour(), this.getDropdownBorderColour());
 
         let contentDiv = Blockly.DropDownDiv.getContentDiv() as HTMLDivElement;
+        contentDiv.id = melodyContentDivId;
+        contentDiv.setAttribute("role", "dialog");
+        contentDiv.ariaLabel = lf("Melody editor");
         pxt.BrowserUtils.addClass(contentDiv, "melody-content-div");
         pxt.BrowserUtils.addClass(contentDiv.parentElement, "melody-editor-dropdown");
 
-        this.gallery = new pxtmelody.MelodyGallery();
+        this.gallery = new pxtmelody.MelodyGallery(melodyGalleryDivId);
         this.renderEditor(contentDiv);
 
         this.addKeyboardFocusHandlers();
@@ -106,8 +113,9 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         });
 
         if (keyboardTriggered) {
-            this.toggle.getRootElement().focus();
+            this.toggle.getFirstFocusableElement().focus();
         }
+        (this.sourceBlock_ as BlockSvg).getFocusableElement().ariaExpanded = 'true';
     }
 
     getValue() {
@@ -151,6 +159,17 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
             (this.sourceBlock_ as Blockly.BlockSvg).getSvgRoot().appendChild(this.fieldGroup_);
             this.updateFieldLabel();
         }
+
+        this.addAriaAtributes();
+    }
+
+    private addAriaAtributes() {
+        // ariaLabel is set in this.updateFieldLabel() as it is content dependent.
+        const el = (this.sourceBlock_ as BlockSvg).getFocusableElement();
+        el.ariaHasPopup = 'dialog';
+        el.ariaExpanded = 'false';
+        el.setAttribute('role', 'button');
+        el.setAttribute('aria-controls', melodyContentDivId);
     }
 
     render_() {
@@ -181,7 +200,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
                 this.showGallery();
             }
         });
-        this.firstFocusableElement = this.toggle.getRootElement();
+        this.firstFocusableElement = this.toggle.getFirstFocusableElement();
 
         this.toggle.layout();
         this.toggle.translate((TOTAL_WIDTH - this.toggle.width()) / 2, TOGGLE_PADDING_TOP);
@@ -191,6 +210,9 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
 
         this.editorDiv = document.createElement("div");
         pxt.BrowserUtils.addClass(this.editorDiv, "melody-editor-div");
+        this.editorDiv.setAttribute("role", "tabpanel");
+        this.editorDiv.setAttribute("aria-labelledby", `${melodyEditorDivId}-control`);
+        this.editorDiv.id = melodyEditorDivId;
         this.editorDiv.style.setProperty("background-color", secondaryColor);
 
         this.gridDiv = this.createGridDisplay();
@@ -208,6 +230,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
 
         this.playButton = document.createElement("button");
         this.playButton.id = "melody-play-button";
+        this.playButton.ariaLabel = lf("Play melody");
         this.playButton.addEventListener("click", () => this.togglePlay());
 
         this.playIcon = document.createElement("i");
@@ -256,6 +279,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         }
 
         this.prevString = undefined;
+        (this.sourceBlock_ as BlockSvg).getFocusableElement().ariaExpanded = 'false';
     }
 
     // when click done
@@ -387,6 +411,8 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
             pxt.BrowserUtils.addClass(cb.el, className);
             this.fieldGroup_.appendChild(cb.el);
         }
+
+        (this.sourceBlock_ as BlockSvg).getFocusableElement().ariaLabel = `${notes.every(n => n === "-") ? "empty" : "custom"}, melody`;
     }
 
     private setTempo(tempo: number): void {
@@ -484,10 +510,12 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
                 if (this.melody.getValue(row, col)) {
                     pxt.BrowserUtils.removeClass(cell, "melody-default");
                     pxt.BrowserUtils.addClass(cell, rowClass);
+                    cell.setAttribute("aria-checked", "true");
                 }
                 else {
                     pxt.BrowserUtils.addClass(cell, "melody-default");
                     pxt.BrowserUtils.removeClass(cell, rowClass);
+                    cell.setAttribute("aria-checked", "false");
                 }
             }
         }
@@ -574,7 +602,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         this.createMatrixDisplay({
             cellWidth: FieldCustomMelody.CELL_WIDTH,
             cellHeight: FieldCustomMelody.CELL_WIDTH,
-            cellLabel: lf("Note"),
+            cellLabel: (rowNum: number) => lf("Note {0}", pxtmelody.rowToNote(rowNum)),
             cellStroke: "white",
             cellHorizontalMargin: FieldCustomMelody.CELL_HORIZONTAL_MARGIN,
             cellVerticalMargin: FieldCustomMelody.CELL_VERTICAL_MARGIN,
@@ -703,18 +731,19 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
             if (result) {
                 this.melody.parseNotes(result);
                 this.toggle.toggle();
-                this.toggle.getRootElement().focus();
                 this.updateFieldLabel();
                 this.updateGrid();
             }
         });
 
+        this.firstFocusableElement = this.toggle.getFirstFocusableElement();
         this.lastFocusableElement = this.gallery.getLastFocusableElement();
     }
 
 
     private hideGallery() {
         this.gallery.hide();
+        this.firstFocusableElement = this.toggle.getFirstFocusableElement();
         this.lastFocusableElement = this.doneButton;
     }
 
@@ -838,20 +867,33 @@ class Toggle {
 
         // Draw the left option
         this.leftElement = this.root.group();
+        this.leftElement.setAttribute("aria-label", this.props.leftText);
+        this.leftElement.el.tabIndex = 0;
+        this.leftElement.el.ariaSelected = "true";
+        this.leftElement.setAttribute("role", "tab");
+        this.leftElement.el.id = `${melodyEditorDivId}-control`;
+        this.leftElement.el.setAttribute("aria-controls", melodyEditorDivId);
         this.leftText = mkText(this.props.leftText)
             .appendClass("sprite-editor-text")
             .fill(this.props.selectedTextColor);
+        this.leftText.setAttribute("aria-hidden", "true");
         this.leftElement.appendChild(this.leftText);
 
         // Draw the right option
         this.rightElement = this.root.group();
+        this.rightElement.el.ariaLabel = this.props.rightText
+        this.rightElement.el.tabIndex = -1;
+        this.rightElement.el.ariaSelected = "false";
+        this.rightElement.setAttribute("role", "tab");
+        this.rightElement.el.id = `${melodyGalleryDivId}-control`;
+        this.rightElement.el.setAttribute("aria-controls", `${melodyGalleryDivId}-outer`);
         this.rightText = mkText(this.props.rightText)
             .appendClass("sprite-editor-text")
             .fill(this.props.unselectedTextColor);
+        this.rightText.setAttribute("aria-hidden", "true");
         this.rightElement.appendChild(this.rightText);
 
         this.root.onClick(() => this.toggle());
-        this.root.el.tabIndex = 0;
         this.root.el.classList.add("melody-editor-toggle-buttons");
         this.root.el.addEventListener("keydown", (e) => {
             if (["Space", "ArrowLeft", "ArrowRight", "Enter"].includes(e.code)) {
@@ -867,12 +909,22 @@ class Toggle {
             this.switch.appendClass("toggle-right");
             this.leftText.fill(this.props.unselectedTextColor);
             this.rightText.fill(this.props.selectedTextColor);
+            this.leftElement.el.tabIndex = -1
+            this.leftElement.el.ariaSelected = "false";
+            this.rightElement.el.tabIndex = 0
+            this.rightElement.el.ariaSelected = "true";
+            this.rightElement.el.focus();
         }
         else {
             this.switch.removeClass("toggle-right");
             this.switch.appendClass("toggle-left");
             this.leftText.fill(this.props.selectedTextColor);
             this.rightText.fill(this.props.unselectedTextColor);
+            this.rightElement.el.tabIndex = -1
+            this.rightElement.el.ariaSelected = "false";
+            this.leftElement.el.tabIndex = 0
+            this.leftElement.el.ariaSelected = "true";
+            this.leftElement.el.focus();
         }
         this.isLeft = !this.isLeft;
 
@@ -903,8 +955,11 @@ class Toggle {
         return TOGGLE_WIDTH;
     }
 
-    getRootElement() {
-        return this.root.el;
+    getFirstFocusableElement() {
+        if (this.leftElement.el.tabIndex === 0) {
+            return this.leftElement.el
+        }
+        return this.rightElement.el
     }
 }
 
