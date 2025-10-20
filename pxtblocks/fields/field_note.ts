@@ -240,6 +240,11 @@ export class FieldNote extends Blockly.FieldNumber implements FieldCustom {
         this.forceRerender();
     }
 
+    protected render_(): void {
+        super.render_();
+        this.getFocusableElement().ariaLabel = `${this.getNoteString()}, ${this.getAriaName()}`;
+    }
+
     onFinishEditing_(text: string) {
         this.refreshText();
     }

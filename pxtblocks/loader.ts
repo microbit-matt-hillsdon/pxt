@@ -297,9 +297,15 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
     appendMutation(block, {
         mutationToDom: (el: Element) => {
             block.inputList.forEach(input => {
-                input.fieldRow.forEach((fieldRow: FieldCustom & Blockly.Field) => {
-                    if (fieldRow.isFieldCustom_ && fieldRow.saveOptions) {
-                        const getOptions = fieldRow.saveOptions();
+                input.fieldRow.forEach((field: FieldCustom & Blockly.Field) => {
+                    const parameter = comp.definitionNameToParam[field.name]
+                    if (parameter) {
+                        const label = pxt.Util.camelCaseToLowercaseWithSpaces(parameter.label ?? parameter.actualName);
+                        field.setAriaLabelOverride(label);
+                        el.setAttribute('arialabeloverride', label);
+                    }
+                    if (field.isFieldCustom_ && field.saveOptions) {
+                        const getOptions = field.saveOptions();
                         if (getOptions) {
                             el.setAttribute(`customfield`, JSON.stringify(getOptions));
                         }
@@ -310,11 +316,13 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
         },
         domToMutation: (saved: Element) => {
             block.inputList.forEach(input => {
-                input.fieldRow.forEach((fieldRow: FieldCustom & Blockly.Field) => {
-                    if (fieldRow.isFieldCustom_ && fieldRow.restoreOptions) {
+                input.fieldRow.forEach((field: FieldCustom & Blockly.Field) => {
+                    const ariaLabelOverride = saved.getAttribute('arialabeloverride');
+                    if (ariaLabelOverride) field.setAriaLabelOverride(ariaLabelOverride);
+                    if (field.isFieldCustom_ && field.restoreOptions) {
                         const options = JSON.parse(saved.getAttribute(`customfield`));
                         if (options) {
-                            fieldRow.restoreOptions(options);
+                            field.restoreOptions(options);
                         }
                     }
                 })

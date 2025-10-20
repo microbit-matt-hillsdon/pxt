@@ -974,6 +974,9 @@ namespace ts.pxtc {
                     } else if (U.endsWith(n, ".max")) {
                         if (!res.paramMax) res.paramMax = {}
                         res.paramMax[n.slice(0, n.length - 4)] = v
+                    } else if (U.endsWith(n, ".label")) {
+                        if (!res.paramLabel) res.paramLabel = {}
+                        res.paramLabel[n.slice(0, n.length - 6)] = v
                     } else {
                         (<any>res)[n] = v;
                     }

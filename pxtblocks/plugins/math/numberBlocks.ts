@@ -92,6 +92,7 @@ const MATH_NUMBER_MINMAX_MIXIN = {
         if (slider.getStep() != undefined) container.setAttribute('step', slider.getStep() + "");
         // if (slider.sliderColor_ != undefined) container.setAttribute('color', slider.sliderColor_);
         if (slider.getPrecision() != undefined) container.setAttribute('precision', slider.getPrecision() + "");
+        if (slider.getAriaLabelOverride()) container.setAttribute('arialabeloverride', slider.getAriaLabelOverride());
         return container;
     },
     /**
@@ -105,10 +106,12 @@ const MATH_NUMBER_MINMAX_MIXIN = {
         const max = (xmlElement.getAttribute('max'));
         const step = (xmlElement.getAttribute('step'));
         const label = (xmlElement.getAttribute('label'));
+        const ariaLabelOverride = (xmlElement.getAttribute('arialabeloverride'));
         // const color = (xmlElement.getAttribute('color'));
         const precision = (xmlElement.getAttribute('precision'));
         slider.setLabel(label);
         slider.setOptions(min, max, step, precision);
+        if (ariaLabelOverride) slider.setAriaLabelOverride(ariaLabelOverride);
         // slider.setColor(color);
     }
 };

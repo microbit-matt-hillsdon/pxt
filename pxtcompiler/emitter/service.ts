@@ -214,6 +214,7 @@ namespace ts.pxtc {
                     let desc = attributes.paramHelp[n] || ""
                     let minVal = attributes.paramMin && attributes.paramMin[n];
                     let maxVal = attributes.paramMax && attributes.paramMax[n];
+                    let label = attributes.paramLabel && attributes.paramLabel[n];
                     let m = /\beg\.?:\s*(.+)/.exec(desc)
                     let props: PropertyDesc[];
                     let parameters: PropertyDesc[];
@@ -251,6 +252,7 @@ namespace ts.pxtc {
                     }
                     if (minVal) options['min'] = { value: minVal };
                     if (maxVal) options['max'] = { value: maxVal };
+                    if (label) options['label'] = { value: label };
                     const pyTypeString = (p.type && emitPyTypeFromTypeNode(p.type))
                         || (paramType && emitPyTypeFromTsType(paramType))
                         || "unknown";

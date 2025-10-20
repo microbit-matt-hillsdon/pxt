@@ -1009,6 +1009,7 @@ declare namespace ts.pxtc {
 
         paramMin?: pxt.Map<string>; // min range
         paramMax?: pxt.Map<string>; // max range
+        paramLabel?: pxt.Map<string>; // label
         // Map for custom field editor parameters
         paramFieldEditor?: pxt.Map<string>; //.fieldEditor
         paramShadowOptions?: pxt.Map<pxt.Map<string>>; //.shadowOptions.

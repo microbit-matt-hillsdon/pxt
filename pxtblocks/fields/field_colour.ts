@@ -68,7 +68,7 @@ export class FieldColorNumber extends FieldGridDropdown implements FieldCustom {
             primaryColour: "white",
             borderColour: "#dadce0",
             columns: !!params.columns ? parseInt(params.columns) : 7,
-            type: "field_dropdown"
+            type: "type_not_defined"
         });
 
         this.allColoursCSSFormat_ = allColoursCSSFormat;

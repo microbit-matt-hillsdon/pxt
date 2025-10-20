@@ -187,9 +187,10 @@ export function createShadowValue(info: pxtc.BlocksInfo, p: pxt.blocks.BlockPara
         }
     }
 
-    let mut: HTMLElement;
+    const mut = document.createElement('mutation');
+    mut.setAttribute('arialabeloverride', pxt.Util.camelCaseToLowercaseWithSpaces(p.label ?? p.actualName));
+
     if (p.range) {
-        mut = document.createElement('mutation');
         mut.setAttribute('min', p.range.min.toString());
         mut.setAttribute('max', p.range.max.toString());
         mut.setAttribute('label', p.actualName.charAt(0).toUpperCase() + p.actualName.slice(1));
@@ -201,7 +202,6 @@ export function createShadowValue(info: pxtc.BlocksInfo, p: pxt.blocks.BlockPara
     }
 
     if (p.fieldOptions) {
-        if (!mut) mut = document.createElement('mutation');
         mut.setAttribute(`customfield`, JSON.stringify(p.fieldOptions));
     }
 
