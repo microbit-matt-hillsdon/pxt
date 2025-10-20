@@ -155,6 +155,8 @@ const IF_ELSE_MIXIN = {
                     that.removeElseIf_(arg);
                 };
             }(i);
+            const ifDoInput = this.getInput('DO0');
+            ifDoInput.getFieldRowLabel = () => 'if';
             this.appendValueInput('IF' + i)
                 .setCheck('Boolean')
                 .appendField(Blockly.Msg.CONTROLS_IF_MSG_ELSEIF)
@@ -166,6 +168,8 @@ const IF_ELSE_MIXIN = {
                     new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, "*", removeElseIf, false))
                 .setAlign(Blockly.inputs.Align.RIGHT);
             this.appendStatementInput('DO' + i);
+            const elseIfDoInput = this.getInput('DO' + i);
+            elseIfDoInput.getFieldRowLabel = () => 'else if';
         }
         if (this.elseCount_) {
             this.appendDummyInput('ELSETITLE')
@@ -175,6 +179,8 @@ const IF_ELSE_MIXIN = {
                 .appendField(
                     new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, "*", this.removeElse_.bind(this), false));
             this.appendStatementInput('ELSE');
+            const elseInput = this.getInput('ELSE');
+            elseInput.getFieldRowLabel = () =>  'else';
         }
         if (this.getInput('ADDBUTTON')) this.removeInput('ADDBUTTON');
         const that = this;
