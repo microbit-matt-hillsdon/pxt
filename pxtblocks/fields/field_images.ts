@@ -14,7 +14,7 @@ export class FieldImages extends FieldImageDropdown implements FieldCustom {
 
     protected addLabel_: boolean;
 
-    constructor(text: string, options: FieldImagesOptions, validator?: Function) {
+    constructor(text: string, options: FieldImagesOptions, validator?: Blockly.FieldValidator) {
         super(text, options, validator);
 
         this.shouldSort_ = options.sort;

@@ -33,8 +33,8 @@ export class BaseFieldTextDropdown extends Blockly.FieldTextInput {
 
     private dropdownKeydownHandler: (e: KeyboardEvent) => {} | undefined;
 
-    constructor(text: string, protected menuGenerator_: any[], opt_validator?: Blockly.FieldValidator) {
-        super(text, opt_validator);
+    constructor(text: string, protected menuGenerator_: any[], opt_validator?: Blockly.FieldValidator, config?: Blockly.FieldConfig) {
+        super(text, opt_validator, config);
     }
 
     initView(): void {
@@ -339,7 +339,7 @@ export class FieldTextDropdown extends BaseFieldTextDropdown implements FieldCus
     public isFieldCustom_ = true;
 
     constructor(text: string, options: FieldTextDropdownOptions, opt_validator?: Blockly.FieldValidator) {
-        super(text, parseDropdownOptions(options), opt_validator);
+        super(text, parseDropdownOptions(options), opt_validator, {type: options.type, ariaName: options.ariaName});
     }
 }
 

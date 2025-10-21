@@ -298,12 +298,6 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
         mutationToDom: (el: Element) => {
             block.inputList.forEach(input => {
                 input.fieldRow.forEach((field: FieldCustom & Blockly.Field) => {
-                    const parameter = comp.definitionNameToParam[field.name]
-                    if (parameter) {
-                        const label = pxt.Util.camelCaseToLowercaseWithSpaces(parameter.label ?? parameter.actualName);
-                        field.setAriaName(label);
-                        el.setAttribute('arialabeloverride', label);
-                    }
                     if (field.isFieldCustom_ && field.saveOptions) {
                         const getOptions = field.saveOptions();
                         if (getOptions) {
@@ -317,8 +311,6 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
         domToMutation: (saved: Element) => {
             block.inputList.forEach(input => {
                 input.fieldRow.forEach((field: FieldCustom & Blockly.Field) => {
-                    const ariaLabelOverride = saved.getAttribute('arialabeloverride');
-                    if (ariaLabelOverride) field.setAriaName(ariaLabelOverride);
                     if (field.isFieldCustom_ && field.restoreOptions) {
                         const options = JSON.parse(saved.getAttribute(`customfield`));
                         if (options) {
@@ -446,6 +438,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                     let customField = pr.fieldEditor;
                     let fieldLabel = defName.charAt(0).toUpperCase() + defName.slice(1);
                     let fieldType = pr.type;
+                    const ariaName = pxt.Util.camelCaseToLowercaseWithSpaces(pr.label ?? pr.actualName);
 
                     if (isEnum || isFixed || isConstantShim || isCombined) {
                         let syms: pxtc.SymbolInfo[];
@@ -504,6 +497,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                         if (customField) {
                             let defl = fn.attributes.paramDefl[actName] || "";
                             const options = {
+                                ariaName,
                                 data: dd,
                                 colour: color,
                                 label: fieldLabel,
@@ -513,12 +507,14 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                             pxt.Util.jsonMergeFrom(options, fn.attributes.paramFieldEditorOptions && fn.attributes.paramFieldEditorOptions[actName] || {});
                             fields.push(namedField(createFieldEditor(customField, defl, options), defName));
                         }
-                        else
-                            fields.push(namedField(new FieldDropdown(dd), defName));
+                        else {
+                            fields.push(namedField(new FieldDropdown(dd, undefined, {type: "field_dropdown", ariaName}), defName));
+                        }
 
                     } else if (customField) {
                         const defl = fn.attributes.paramDefl[pr.actualName] || "";
                         const options = {
+                            ariaName,
                             colour: color,
                             label: fieldLabel,
                             type: fieldType,
@@ -532,7 +528,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                             inputCheck = pr.type;
                         } else if (pr.type == "number" && pr.shadowBlockId && pr.shadowBlockId == "value") {
                             inputName = undefined;
-                            fields.push(namedField(new Blockly.FieldNumber("0"), defName));
+                            fields.push(namedField(new Blockly.FieldNumber("0", undefined, undefined, undefined, undefined, {type: "field_number", ariaName}), defName));
                         } else if (pr.type == "string" && pr.shadowOptions && pr.shadowOptions.toString) {
                             inputCheck = null;
                         } else {

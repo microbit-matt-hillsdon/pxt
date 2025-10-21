@@ -1,7 +1,7 @@
 /// <reference path="../../built/pxtlib.d.ts" />
 
 import * as Blockly from "blockly";
-import { FieldCustom, getBlockDataForField, setBlockDataForField } from "./field_utils";
+import { FieldCustom, FieldCustomOptions, getBlockDataForField, setBlockDataForField } from "./field_utils";
 
 export abstract class FieldBase<U> extends Blockly.Field implements FieldCustom {
     // todo: this was removed in blockly v12
@@ -15,7 +15,7 @@ export abstract class FieldBase<U> extends Blockly.Field implements FieldCustom 
     protected workspace: Blockly.Workspace;
 
     constructor(text: string, params: U, validator?: Blockly.FieldValidator) {
-        super(text, validator);
+        super(text, validator, {type: (params as FieldCustomOptions).type, ariaName: (params as FieldCustomOptions).ariaName});
         this.options = params;
         if (text && !this.valueText) this.valueText = text;
     }

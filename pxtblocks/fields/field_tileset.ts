@@ -83,7 +83,7 @@ export class FieldTileset extends FieldImages implements FieldCustom {
     protected transparent: TilesetDropdownOption;
     protected localTile: pxt.Tile;
 
-    constructor(text: string, options: FieldImageDropdownOptions, validator?: Function) {
+    constructor(text: string, options: FieldImageDropdownOptions, validator?: Blockly.FieldValidator) {
         super(text, options, validator);
         this.blocksInfo = options.blocksInfo;
     }

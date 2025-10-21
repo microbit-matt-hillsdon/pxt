@@ -49,8 +49,8 @@ export class FieldGridPicker extends FieldDropdownGrid implements FieldCustom {
     private lastFocusableElement: HTMLElement | SVGElement;
     private tabKeyBind: Blockly.browserEvents.Data | null = null;
 
-    constructor(text: string, options: FieldGridPickerOptions, validator?: Function) {
-        super(options.data);
+    constructor(text: string, options: FieldGridPickerOptions, validator?: Blockly.FieldValidator) {
+        super(options.data, validator, {type: options.type, ariaName: options.ariaName});
 
         this.columns_ = parseInt(options.columns) || 4;
         this.maxRows_ = parseInt(options.maxRows) || 0;

@@ -20,8 +20,8 @@ class BaseFieldNumberDropdown extends BaseFieldTextDropdown {
     precision_: number;
     decimalPlaces: number;
 
-    constructor(value: number | string, menuGenerator: Blockly.MenuOption[], opt_min?: number, opt_max?: number, opt_precision?: number, opt_validator?: Blockly.FieldValidator) {
-        super(value + "", menuGenerator, opt_validator);
+    constructor(value: number | string, menuGenerator: Blockly.MenuOption[], opt_min?: number, opt_max?: number, opt_precision?: number, opt_validator?: Blockly.FieldValidator, config?: Blockly.FieldConfig) {
+        super(value + "", menuGenerator, opt_validator, config);
 
         this.setConstraints(opt_min, opt_max, opt_precision);
     }
@@ -136,7 +136,7 @@ export class FieldNumberDropdown extends BaseFieldNumberDropdown implements Fiel
     public isFieldCustom_ = true;
 
     constructor(value: number | string, options: FieldNumberDropdownOptions, opt_validator?: Blockly.FieldValidator) {
-        super(value, parseDropdownOptions(options), options.min, options.max, options.precision, opt_validator);
+        super(value, parseDropdownOptions(options), options.min, options.max, options.precision, opt_validator, {type: options.type, ariaName: options.ariaName});
     }
 
     getOptions() {
