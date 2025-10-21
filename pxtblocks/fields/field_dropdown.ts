@@ -19,9 +19,8 @@ export class FieldDropdown extends Blockly.FieldDropdown {
             return;
         }
 
-        // We don't want any additional border rect when the dropdown is a shadow block
-        // with one input and one field.
-        if (this.getSourceBlock()?.isShadow() && this.getSourceBlock().inputList[0].fieldRow.length === 1) {
+        // We don't want any additional border rect when the dropdown is a shadow block.
+        if (this.getSourceBlock()?.isShadow()) {
             this.clickTarget_ = (this.sourceBlock_ as Blockly.BlockSvg).getSvgRoot();
             return;
         }
