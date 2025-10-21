@@ -148,8 +148,6 @@ const IF_ELSE_MIXIN = {
             this.removeInput('DO' + i);
             i++;
         }
-        const ifDoInput = this.getInput('DO0');
-        ifDoInput.getFieldRowLabel = () => 'if';
         // Rebuild block.
         for (let i = 1; i <= this.elseifCount_; i++) {
             const removeElseIf = function (arg) {
@@ -282,6 +280,8 @@ Blockly.Blocks["controls_if"] = {
             const renderer = this.workspace.getRenderer();
             this.setOutputShape(renderer.getConstants().SHAPES["HEXAGONAL"]);
         }
+        const ifDoInput = this.getInput('DO0');
+        ifDoInput.getFieldRowLabel = () => 'if';
         this.updateShape_();
         this.setInputsInline(true);
         this.setColour(Blockly.Msg.LOGIC_HUE);
