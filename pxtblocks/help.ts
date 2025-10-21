@@ -22,7 +22,6 @@ export function setHelpResources(block: Blockly.BlockSvg, id: string, name: stri
     if (url) block.setHelpUrl(url);
     if (colour) block.setColour(colour);
     if (undeletable) block.setDeletable(false);
-    console.log(block);
 
     setDuplicateOnDragStrategy(block);
 

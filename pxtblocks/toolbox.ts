@@ -187,13 +187,13 @@ export function createShadowValue(info: pxtc.BlocksInfo, p: pxt.blocks.BlockPara
         }
     }
 
-    const mut = document.createElement('mutation');
-    mut.setAttribute('arialabeloverride', pxt.Util.camelCaseToLowercaseWithSpaces(p.label ?? p.actualName));
-
+    let mut: HTMLElement;
     if (p.range) {
+        mut = document.createElement('mutation');
         mut.setAttribute('min', p.range.min.toString());
         mut.setAttribute('max', p.range.max.toString());
         mut.setAttribute('label', p.actualName.charAt(0).toUpperCase() + p.actualName.slice(1));
+        mut.setAttribute('arialabeloverride', pxt.Util.camelCaseToLowercaseWithSpaces(p.label ?? p.actualName));
         if (p.fieldOptions) {
             if (p.fieldOptions['step']) mut.setAttribute('step', p.fieldOptions['step']);
             if (p.fieldOptions['color']) mut.setAttribute('color', p.fieldOptions['color']);
@@ -202,6 +202,7 @@ export function createShadowValue(info: pxtc.BlocksInfo, p: pxt.blocks.BlockPara
     }
 
     if (p.fieldOptions) {
+        if (!mut) mut = document.createElement('mutation');
         mut.setAttribute(`customfield`, JSON.stringify(p.fieldOptions));
     }
 
