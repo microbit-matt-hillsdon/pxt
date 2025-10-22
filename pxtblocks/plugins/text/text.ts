@@ -8,6 +8,7 @@ Blockly.defineBlocksWithJsonArray([  // BEGIN JSON EXTRACT
     "args0": [{
       "type": "field_string",
       "name": "TEXT",
+      "ariaName": "text",
       "text": ""
     }],
     "output": "String",

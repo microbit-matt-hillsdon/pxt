@@ -103,6 +103,7 @@ export function initVariables() {
                         {
                             "type": "field_variable",
                             "name": "VAR",
+                            "ariaName": "variable",
                             "variable": "%{BKY_VARIABLES_DEFAULT_NAME}",
                             "variableTypes": [""],
                         },
@@ -144,6 +145,7 @@ export function initVariables() {
                     {
                         "type": "field_variable",
                         "name": "VAR",
+                        "ariaName": "variable",
                         "variable": "%{BKY_VARIABLES_DEFAULT_NAME}",
                         "variableTypes": [""],
                     },
@@ -176,6 +178,7 @@ export function initVariables() {
                     {
                         "type": "field_variable",
                         "name": "VAR",
+                        "ariaName": "variable",
                         "variable": varname,
                         "variableTypes": [""]
                     },
