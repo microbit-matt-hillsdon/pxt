@@ -23,7 +23,7 @@ export class ButtonFlyoutInflater extends Blockly.ButtonFlyoutInflater {
         );
         if (modifiedState.id) {
             // This id is used to manage focus after dialog interactions.
-            button.getSvgRoot().setAttribute("id", modifiedState.id)
+            button.getSvgRoot().querySelector("g").setAttribute("id", modifiedState.id);
         }
         button.show();
 
