@@ -420,7 +420,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         return notes.every(n => n === "-") ? lf("empty") : lf("custom");
     }
 
-    private getAriaLabel(): string {
+    override getAriaLabel(): string {
         const notes = this.melody.getStringRepresentation().trim().split(" ");
         return notes.every(n => n === "-") ? lf("empty melody") : lf("custom melody");
     }
