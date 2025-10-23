@@ -109,6 +109,7 @@ export class FieldImages extends FieldImageDropdown implements FieldCustom {
             // Store a data attribute on all possible click targets so we can match it to the icon.
             button.setAttribute('data-value', value);
             buttonImg.setAttribute('data-value', value);
+            buttonImg.ariaHidden = 'true';
             button.appendChild(buttonImg);
             if (this.addLabel_) {
                 const buttonText = this.createTextNode_(content.alt);

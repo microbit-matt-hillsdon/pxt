@@ -30,6 +30,11 @@ export class FieldImageDropdown extends FieldDropdownGrid implements FieldCustom
         this.borderColour_ = pxt.toolbox.fadeColor(this.backgroundColour_, 0.4, false);
     }
 
+    override init() {
+        super.init();
+        this.getSvgRoot().querySelector('image').ariaHidden = 'true';
+    }
+
     protected setFocusedItem_(gridItemContainer: HTMLElement) {
         this.gridItems.forEach(button => button.setAttribute('class', 'blocklyDropDownButton'));
         const activeButton = this.gridItems[this.activeDescendantIndex];
@@ -148,7 +153,6 @@ export class FieldImageDropdown extends FieldDropdownGrid implements FieldCustom
                 button.setAttribute('role', 'gridcell');
                 button.setAttribute('aria-selected', 'false');
                 button.classList.add('blocklyDropDownButton');
-                button.title = content.alt;
 
                 button.style.width = (columnButtonSize || content.width) + 'px';
                 button.style.height = (columnButtonSize || content.height) + 'px';
@@ -188,6 +192,7 @@ export class FieldImageDropdown extends FieldDropdownGrid implements FieldCustom
                 // Store a data attribute on all possible click targets so we can match it to the icon.
                 button.setAttribute('data-value', value);
                 buttonImg.setAttribute('data-value', value);
+                buttonImg.ariaLabel = content.alt;
                 button.appendChild(buttonImg);
                 this.gridItems.push(button);
                 buttonContainer.appendChild(button);
