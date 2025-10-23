@@ -343,7 +343,7 @@ export class FieldNote extends Blockly.FieldNumber implements FieldCustom {
         Blockly.DropDownDiv.setColour(this.primaryColour, this.borderColour);
         Blockly.DropDownDiv.showPositionedByBlock(this, this.sourceBlock_ as Blockly.BlockSvg, () => this.onHide(), undefined, false);
 
-
+        this.htmlInput_.ariaLabel = lf("Press the up and down arrow keys to select the next or previous note, or enter a value in hertz");
         this.htmlInput_.addEventListener("keydown", this.keyHandler);
     }
 
