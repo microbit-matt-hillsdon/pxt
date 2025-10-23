@@ -67,7 +67,6 @@ export class FieldImages extends FieldImageDropdown implements FieldCustom {
             button.setAttribute('role', 'gridcell');
             button.setAttribute('aria-selected', 'false');
             button.setAttribute('class', 'blocklyDropDownButton');
-            button.title = content.alt;
             if ((this as any).columns_) {
                 button.style.width = (((this as any).width_ / (this as any).columns_) - 8) + 'px';
                 //button.style.height = ((this.width_ / this.columns_) - 8) + 'px';
