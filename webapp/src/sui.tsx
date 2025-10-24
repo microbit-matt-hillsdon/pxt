@@ -617,14 +617,20 @@ export function helpIconLink(url: string, title: string) {
 
 export class Field extends data.Component<{
     label?: string;
+    labelWrapper?: React.ElementType;
     children?: any;
     ariaLabel?: string;
     htmlFor?: string;
 }, {}> {
     renderCore() {
+        let wrappedLabel = <label htmlFor={!this.props.ariaLabel ? this.props.htmlFor : undefined}>{this.props.label}</label>;;
+        const Wrapper = this.props.labelWrapper
+        if (Wrapper) {
+            wrappedLabel = <Wrapper>{wrappedLabel}</Wrapper>
+        }
         return (
             <div className="field">
-                {this.props.label ? <label htmlFor={!this.props.ariaLabel ? this.props.htmlFor : undefined}>{this.props.label}</label> : null}
+                {this.props.label ? wrappedLabel : null}
                 {this.props.ariaLabel && this.props.htmlFor ? (<label htmlFor={this.props.htmlFor} className="accessible-hidden">{this.props.ariaLabel}</label>) : ""}
                 {this.props.children}
             </div>
@@ -638,6 +644,7 @@ export class Field extends data.Component<{
 
 export interface InputProps {
     label?: string;
+    labelWrapper?: React.ElementType;
     inputLabel?: string;
     class?: string;
     value?: string;
@@ -745,14 +752,14 @@ export class Input extends data.Component<InputProps, InputState> {
 
     renderCore() {
         const p = this.props;
-        const { copy, error, ariaLabel, id, label, inputLabel, lines, autoFocus, placeholder, readOnly, autoComplete } = p;
+        const { copy, error, ariaLabel, id, label, labelWrapper, inputLabel, lines, autoFocus, placeholder, readOnly, autoComplete } = p;
         const { value, copied } = this.state;
         const copyBtn = copy && document.queryCommandSupported('copy')
             ? <Button className={`ui right labeled ${copied ? "green" : "primary"} icon button`} text={copied ? lf("Copied!") : lf("Copy")} icon="copy" onClick={this.copy} />
             : null;
 
         return (
-            <Field ariaLabel={ariaLabel} htmlFor={id} label={label}>
+            <Field ariaLabel={ariaLabel} htmlFor={id} label={label} labelWrapper={labelWrapper}>
                 <div className={"ui input" + (p.inputLabel ? " labelled" : "") + (copy ? " action fluid" : "") + (p.disabled ? " disabled" : "")}>
                     {inputLabel ? (<div className="ui label">{inputLabel}</div>) : ""}
                     {!lines || lines == 1 ? <input
