@@ -35,6 +35,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
     private bottomDiv: HTMLDivElement;
     private doneButton: HTMLButtonElement;
     private playButton: HTMLButtonElement;
+    private playButtonAriaText: HTMLSpanElement;
     private playIcon: HTMLElement;
     private tempoInput: HTMLInputElement;
     private firstFocusableElement: HTMLElement | SVGElement;
@@ -230,13 +231,17 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
 
         this.playButton = document.createElement("button");
         this.playButton.id = "melody-play-button";
-        this.playButton.ariaLabel = lf("Play melody");
+        this.playButtonAriaText = document.createElement("span");
+        this.playButtonAriaText.classList.add("sr-only");
+        this.playButtonAriaText.textContent = lf("Play melody");
         this.playButton.addEventListener("click", () => this.togglePlay());
 
         this.playIcon = document.createElement("i");
         this.playIcon.id = "melody-play-icon";
+        this.playIcon.ariaHidden = "true";
         pxt.BrowserUtils.addClass(this.playIcon, "play icon");
         this.playButton.appendChild(this.playIcon);
+        this.playButton.appendChild(this.playButtonAriaText);
 
         this.tempoInput = document.createElement("input");
         pxt.BrowserUtils.addClass(this.tempoInput, "ui input");
@@ -417,12 +422,12 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
 
     override getLabelForBlockOutput(): string {
         const notes = this.melody.getStringRepresentation().trim().split(" ");
-        return notes.every(n => n === "-") ? lf("empty") : lf("custom");
+        return notes.every(n => n === "-") ? lf("empty") : "";
     }
 
     override getAriaLabel(): string {
         const notes = this.melody.getStringRepresentation().trim().split(" ");
-        return notes.every(n => n === "-") ? lf("empty melody") : lf("custom melody");
+        return notes.every(n => n === "-") ? lf("empty melody") : lf("melody");
     }
 
     private setTempo(tempo: number): void {
@@ -705,10 +710,12 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         if (this.isPlaying) {
             pxt.BrowserUtils.removeClass(this.playIcon, "play icon");
             pxt.BrowserUtils.addClass(this.playIcon, "stop icon");
+            this.playButtonAriaText.textContent = lf("Stop melody");
         }
         else {
             pxt.BrowserUtils.removeClass(this.playIcon, "stop icon");
             pxt.BrowserUtils.addClass(this.playIcon, "play icon");
+            this.playButtonAriaText.textContent = lf("Play melody");
         }
     }
 
