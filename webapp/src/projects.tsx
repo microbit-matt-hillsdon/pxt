@@ -566,8 +566,8 @@ class HeroBanner extends data.Component<ISettingsProps, HeroBannerState> {
                     )}
                 </div>}
                 {isGallery && <div key="cards" className="dots" tabIndex={0} role="group" aria-label={lf("Carousel controls")}>
-                    {cards.map((card, i) => <button key={"dot" + i} className={`ui button empty circular label  clear ${i === cardIndex && "active"}`}
-                        onClick={handleSetCard(i)} aria-label={lf("View {0} hero image", card.title || card.name)} tabIndex={-1} title={lf("View {0} hero image", card.title || card.name)}>
+                    {cards.map((_, i) => <button key={"dot" + i} className={`ui button empty circular label  clear ${i === cardIndex && "active"}`}
+                        onClick={handleSetCard(i)}>
                     </button>)}
                 </div>}
             </div>
@@ -1195,7 +1195,7 @@ function codeCardUrl(props: Partial<ProjectsDetailProps>) {
 
 function cardActionButton(props: Partial<ProjectsDetailProps>, className: string, text: string, type: pxt.CodeCardType, onClick: any, autoFocus?: boolean, actionTitle?: string, linkRef?: React.RefObject<HTMLAnchorElement>) {
     const asLink = cardIsLink(props, type) && type != "forumExample";
-    const label = asLink ? lf("Open link in new window") : lf("Open in {0}", actionTitle || lf("Editor"));
+    const label = asLink ? text || lf("Open link in new window") : lf("Open in {0}", actionTitle || lf("Editor"));
 
     return asLink ? // TODO (shakao)  migrate forumurl to otherAction json in md
         <sui.Link
