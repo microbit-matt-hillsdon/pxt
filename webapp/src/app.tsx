@@ -5272,10 +5272,13 @@ export class ProjectView
         setTimeout(() => this.clearUserPoke(), 10000);
     }
 
-    ariaAnnounce(msg: string) {
+    ariaAnnounce(msg: string, assertiveness?: string, role?: string) {
         const el = document.getElementById("aria-announce");
         if (el) {
             el.textContent = msg;
+            el.ariaLive = assertiveness ?? "polite";
+            el.setAttribute("role", role ?? null);
+            setTimeout(() => el.textContent = "", 10_000);
         }
     }
 

@@ -730,9 +730,9 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                             && !pxt.packetio.isConnected()
                             && !pxt.packetio.isConnecting()
                         ) {
-                            cmds.pairAsync(true).then(() => this.parent.compile().then(() => this.parent.ariaAnnounce(lf("Downloaded"))));
+                            cmds.pairAsync(true).then(() => this.parent.compile().then(() => this.parent.ariaAnnounce(lf("Downloaded"), "assertive", "status")));
                         } else {
-                            this.parent.compile().then(() => this.parent.ariaAnnounce(lf("Downloaded")));
+                            this.parent.compile().then(() => this.parent.ariaAnnounce(lf("Downloaded"), "assertive", "status"));
                         }
                     }
                     return true
