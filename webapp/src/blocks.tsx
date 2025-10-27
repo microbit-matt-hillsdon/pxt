@@ -347,8 +347,8 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             const text = s || `<block type="${ts.pxtc.ON_START_TYPE}"></block>`;
             const xml = Blockly.utils.xml.textToDom(text);
             this.cleanXmlForWorkspace(xml);
+            pxtblockly.patchMathBlocks(xml, this.blockInfo);
             pxtblockly.domToWorkspaceNoEvents(xml, this.editor);
-
             this.initLayout(xml);
             this.editor.clearUndo();
             this.reportDeprecatedBlocks();

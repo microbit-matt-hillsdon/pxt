@@ -21,6 +21,19 @@ export interface PostWorkspaceLoad {
     afterWorkspaceLoad?: () => void;
 }
 
+export function patchMathBlocks(dom: Element, info: pxtc.BlocksInfo): void {
+    const sliderShadowBlocks = Array.from(dom.querySelectorAll("[type=math_number_minmax]"));
+    sliderShadowBlocks.forEach(sliderShadowBlock => {
+        const parameterName = sliderShadowBlock.parentElement.getAttribute("name");
+        const blockId = sliderShadowBlock.closest("block, shadow:not([type=math_number_minmax])").getAttribute("type");
+        const blockInfo = info.blocksById[blockId];
+        const parameter = blockInfo.parameters.find(p => p.name === parameterName);
+        if (parameter) {
+            sliderShadowBlock.querySelector("mutation").setAttribute("arialabeloverride", pxt.Util.camelCaseToLowercaseWithSpaces(parameter.options?.label?.value ?? parameter.name));
+        }
+    })
+}
+
 /**
  * Converts a DOM into workspace without triggering any Blockly event. Returns the new block ids
  * @param dom
