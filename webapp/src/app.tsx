@@ -324,9 +324,6 @@ export class ProjectView
      * Run a global action based on shortcuts triggered in sim or main window.
      */
     private runGlobalAction(action: pxsim.GlobalAction) {
-        if (!data.getData<boolean>(auth.ACCESSIBLE_BLOCKS)) {
-            return;
-        }
         switch (action) {
             case "escape": {
                 this.setSimulatorFullScreen(false);
@@ -6495,7 +6492,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             pxt.tickEvent(
                 "accessibilty.accessibleBlocksEnabledForSession",
                 {
-                    enabled: data.getData<boolean>(auth.ACCESSIBLE_BLOCKS) ? "true" : "false",
+                    enabled: "true"
                 }
             );
         })

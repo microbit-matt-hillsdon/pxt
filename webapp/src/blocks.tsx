@@ -933,8 +933,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             }
         })
 
-        core.setAccessibleBlocks(true, "forced");
-        const accessibleBlocksEnabled = data.getData<boolean>(auth.ACCESSIBLE_BLOCKS)
+        const accessibleBlocksEnabled = true;
         if (this.shouldShowCategories()) {
             this.renderToolbox();
         }
@@ -1023,7 +1022,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     }
 
     focusWorkspace() {
-        const accessibleBlocksEnabled = data.getData<boolean>(auth.ACCESSIBLE_BLOCKS)
+        const accessibleBlocksEnabled = true;
         if (accessibleBlocksEnabled) {
             (this.editor.getSvgGroup() as SVGElement).focus();
             Blockly.hideChaff();
@@ -1485,7 +1484,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                         }
                     });
 
-                    const accessibleBlocksEnabled = data.getData<boolean>(auth.ACCESSIBLE_BLOCKS)
+                    const accessibleBlocksEnabled = true;
                     if (accessibleBlocksEnabled) {
                         KeyboardNavigation.registerKeyboardNavigationStyles();
                     }

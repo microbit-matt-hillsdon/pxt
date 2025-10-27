@@ -99,7 +99,7 @@ export class DocsMenu extends data.PureComponent<DocsMenuProps, {}> {
     renderCore() {
         const { parent, editor } = this.props;
         const targetTheme = pxt.appTarget.appTheme;
-        const accessibleBlocksEnabled = data.getData<boolean>(auth.ACCESSIBLE_BLOCKS);
+        const accessibleBlocksEnabled = true;
 
         const items: MenuItem[] = [];
 
