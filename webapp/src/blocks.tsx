@@ -933,7 +933,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             }
         })
 
-
+        core.setAccessibleBlocks(true, "forced");
         const accessibleBlocksEnabled = data.getData<boolean>(auth.ACCESSIBLE_BLOCKS)
         if (this.shouldShowCategories()) {
             this.renderToolbox();

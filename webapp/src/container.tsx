@@ -518,15 +518,6 @@ export class SettingsMenu extends data.Component<SettingsMenuProps, SettingsMenu
             onClick: this.showThemePicker
         });
 
-        if (this.props.inBlocks) {
-            items.push({
-                role: "menuitemcheckbox",
-                label: lf("Keyboard Controls"),
-                isChecked: accessibleBlocks,
-                onChange: this.toggleAccessibleBlocks
-            });
-        }
-
         if (showGreenScreen) {
             items.push({
                 role: "menuitemcheckbox",
