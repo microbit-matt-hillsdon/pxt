@@ -82,7 +82,7 @@ export class EditorAccessibilityMenu extends data.Component<EditorAccessibilityM
         const targetTheme = pxt.appTarget.appTheme;
         const hasHome = !pxt.shell.isControllerMode();
 
-        const accessibleBlocksOn = this.getData<boolean>(auth.ACCESSIBLE_BLOCKS);
+        const accessibleBlocksOn = true;
         const menuClass = classList(targetTheme.invertedMenu && "inverted", "menu");
 
         return <div className="ui accessibleMenu borderless fixed menu" role="menubar">

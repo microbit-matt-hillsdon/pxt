@@ -329,7 +329,6 @@ export class SettingsMenu extends data.Component<SettingsMenuProps, SettingsMenu
         const hasIdentity = pxt.auth.hasIdentity();
         const highContrast = ThemeManager.isCurrentThemeHighContrast();
         const { greenScreen } = this.state;
-        const accessibleBlocks = this.getData<boolean>(auth.ACCESSIBLE_BLOCKS);
         const targetTheme = pxt.appTarget.appTheme;
         const packages = pxt.appTarget.cloud && !!pxt.appTarget.cloud.packages;
         const reportAbuse = pxt.appTarget.cloud && pxt.appTarget.cloud.sharing && pxt.appTarget.cloud.importing;

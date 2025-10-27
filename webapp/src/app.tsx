@@ -4778,7 +4778,7 @@ export class ProjectView
             extensionsVisible: false
         })
 
-        if (this.getData<boolean>(auth.ACCESSIBLE_BLOCKS)) {
+        if (true) {
             this.editor.focusToolbox(CategoryNameID.Extensions);
         }
     }
