@@ -3711,11 +3711,13 @@ export class ProjectView
                 break;
             case SimState.Running:
                 this.stopSimulator(false, opts);
+                this.ariaAnnounce(lf("Simulator stopped"), "assertive", "status");
                 break;
             default:
                 this.maybeShowPackageErrors(true);
                 this.startSimulator(opts);
-                if (!this.state.fullscreen && opts && opts.clickTrigger) getBoardView().focus();
+                if (!this.state.fullscreen && opts && opts.clickTrigger && opts.focus !== false) getBoardView().focus();
+                this.ariaAnnounce(lf("Simulator started"), "assertive", "status");
                 break;
         }
     }
@@ -5278,7 +5280,7 @@ export class ProjectView
             el.textContent = msg;
             el.ariaLive = assertiveness ?? "polite";
             el.setAttribute("role", role ?? null);
-            setTimeout(() => el.textContent = "", 10_000);
+            setTimeout(() => el.textContent = "", 5_000);
         }
     }
 

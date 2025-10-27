@@ -714,7 +714,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 name: "toggle_simulator",
                 keyCodes: [Blockly.ShortcutRegistry.registry.createSerializedKey(Blockly.utils.KeyCodes.S, null)],
                 callback: () => {
-                    this.parent.startStopSimulator({clickTrigger: true});
+                    this.parent.startStopSimulator({clickTrigger: true, focus: false});
                     return true
                 }
             });
