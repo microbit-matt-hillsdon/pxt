@@ -3035,7 +3035,8 @@ export class ProjectView
             .finally(() => {
                 core.hideLoading("newproject");
                 if (options?.firstProject && pxt.appTarget.appTheme?.tours?.editor) {
-                    this.showOnboarding();
+                    // Disable first time tour for screen reader accessibility user testing.
+                    // this.showOnboarding();
                 }
             });
     }
