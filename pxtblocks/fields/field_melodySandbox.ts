@@ -4,7 +4,7 @@ import * as Blockly from "blockly";
 
 import svg = pxt.svgUtil;
 import { clearDropDownDiv, FieldCustom, FieldCustomOptions, setMelodyEditorOpen } from "./field_utils";
-import { FieldMatrix } from "./field_matrix";
+import { FieldMatrix, Selection } from "./field_matrix";
 import { BlockSvg } from "blockly";
 export const HEADER_HEIGHT = 50;
 export const TOTAL_WIDTH = 300;
@@ -417,7 +417,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
             this.fieldGroup_.appendChild(cb.el);
         }
 
-        (this.sourceBlock_ as BlockSvg).getFocusableElement().ariaLabel = `${notes.every(n => n === "-") ? "empty" : "custom"}, melody`;
+        (this.sourceBlock_ as BlockSvg).getFocusableElement().ariaLabel = notes.every(n => n === "-") ? lf("empty melody") : lf("melody");
     }
 
     private setTempo(tempo: number): void {
@@ -607,7 +607,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         this.createMatrixDisplay({
             cellWidth: FieldCustomMelody.CELL_WIDTH,
             cellHeight: FieldCustomMelody.CELL_WIDTH,
-            cellLabel: (rowNum: number) => lf("Note {0}", pxtmelody.rowToNote(rowNum)),
+            cellLabel: (selection: Selection) => lf("Note {0}", pxtmelody.rowToNote(selection.y)),
             cellStroke: "white",
             cellHorizontalMargin: FieldCustomMelody.CELL_HORIZONTAL_MARGIN,
             cellVerticalMargin: FieldCustomMelody.CELL_VERTICAL_MARGIN,
