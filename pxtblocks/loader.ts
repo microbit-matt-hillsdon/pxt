@@ -438,7 +438,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                     let customField = pr.fieldEditor;
                     let fieldLabel = defName.charAt(0).toUpperCase() + defName.slice(1);
                     let fieldType = pr.type;
-                    const ariaName = pxt.Util.camelCaseToLowercaseWithSpaces(pr.label ?? pr.actualName);
+                    const ariaName = pr.label ?? pxt.Util.camelCaseToLowercaseWithSpaces(pr.actualName);
 
                     if (isEnum || isFixed || isConstantShim || isCombined) {
                         let syms: pxtc.SymbolInfo[];

@@ -193,7 +193,7 @@ export function createShadowValue(info: pxtc.BlocksInfo, p: pxt.blocks.BlockPara
         mut.setAttribute('min', p.range.min.toString());
         mut.setAttribute('max', p.range.max.toString());
         mut.setAttribute('label', p.actualName.charAt(0).toUpperCase() + p.actualName.slice(1));
-        mut.setAttribute('arialabeloverride', pxt.Util.camelCaseToLowercaseWithSpaces(p.label ?? p.actualName));
+        mut.setAttribute('arialabeloverride', p.label ?? pxt.Util.camelCaseToLowercaseWithSpaces(p.actualName));
         if (p.fieldOptions) {
             if (p.fieldOptions['step']) mut.setAttribute('step', p.fieldOptions['step']);
             if (p.fieldOptions['color']) mut.setAttribute('color', p.fieldOptions['color']);
