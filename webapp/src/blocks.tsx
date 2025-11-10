@@ -1403,7 +1403,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     showPackageDialog() {
         pxt.tickEvent("blocks.addpackage");
         if (this.editor.getToolbox()) this.editor.getToolbox().clearSelection();
-        this.parent.showPackageDialog();
+        this.parent.showPackageDialog(true);
     }
 
     showVariablesFlyout() {
