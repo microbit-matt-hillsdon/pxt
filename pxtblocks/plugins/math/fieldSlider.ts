@@ -167,6 +167,11 @@ export class FieldSlider extends Blockly.FieldNumber {
                 Blockly.hideChaff();
                 break;
             }
+            case "ArrowDown": {
+                e.preventDefault();
+                e.stopPropagation();
+                break;
+            }
         }
     }
 
