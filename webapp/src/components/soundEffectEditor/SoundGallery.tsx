@@ -164,12 +164,12 @@ const SoundGalleryEntry = (props: SoundGalleryItemProps) => {
             tabIndex={-1}
             ref={selectReference}
             onKeyDown={selectKeyDown}
-            title={name}
+            title={lf("Select {0} Sound", name)}
             role="button">
-            <div className="sound-effect-name">
+            <div className="sound-effect-name" aria-hidden="true">
                 {name}
             </div>
-            <div className="sound-gallery-preview">
+            <div className="sound-gallery-preview" aria-hidden="true">
                 <svg viewBox={`0 0 ${width} ${height}`} xmlns="http://www.w3.org/2000/svg">
                     <path
                         className="sound-gallery-preview-wave"
@@ -183,7 +183,7 @@ const SoundGalleryEntry = (props: SoundGalleryItemProps) => {
             className="sound-effect-play-button"
             buttonRef={playReference}
             tabIndex={-1}
-            title={cancelToken ? lf("Stop Sound Preview") : lf("Preview Sound")}
+            title={cancelToken ? lf("Stop Sound Preview") : lf("Preview {0} Sound", name)}
             onClick={handlePlayButtonClick}
             onKeydown={previewKeyDown}
             leftIcon={cancelToken ? "fas fa-stop" : "fas fa-play"}

@@ -152,7 +152,7 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
     }
 
     return (
-        <div className="sound-effect-editor" onKeyDown={handleKeyDown}>
+        <div id="sound-effect-editor" className="sound-effect-editor" onKeyDown={handleKeyDown} role="dialog" aria-label={lf("Sound effect editor")}>
             {/* 
                 Don't steal focus to prevent focus-visible style if opened by mouse.
                 If opened by keyboard, we focus the editor / gallery toggle anyway.

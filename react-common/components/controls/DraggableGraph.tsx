@@ -27,9 +27,6 @@ export const DraggableGraph = (props: DraggableGraphProps) => {
         id,
         className,
         ariaLabel,
-        ariaHidden,
-        ariaDescribedBy,
-        role,
         aspectRatio,
         squiggly,
         valueUnits
@@ -143,11 +140,7 @@ export const DraggableGraph = (props: DraggableGraphProps) => {
 
     return <div
         id={id}
-        className={classList("common-draggable-graph", className)}
-        aria-label={ariaLabel}
-        aria-hidden={ariaHidden}
-        aria-describedby={ariaDescribedBy}
-        role={role}>
+        className={classList("common-draggable-graph", className)}>
         <svg className="draggable-graph-svg" viewBox={`0 0 ${width} ${height}`} xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <filter id="dropshadow">
@@ -232,7 +225,7 @@ export const DraggableGraph = (props: DraggableGraphProps) => {
                             opacity={0}
                             tabIndex={0}
                             role="slider"
-                            aria-label={lf("{0}, position {1}", ariaLabel, index)}
+                            aria-label={lf("{0}, {1}", ariaLabel, index === 0 ? "start" : "end")}
                             aria-valuemin={min}
                             aria-valuemax={max}
                             aria-valuenow={getValue(index)}
