@@ -926,6 +926,7 @@ declare namespace ts.pxtc {
         pySnippet?: string; // value used to generate python snippet
 
         // On block
+        ariaLabel?: string; // label used for aria
         subcategory?: string;
         group?: string;
         whenUsed?: boolean;
