@@ -66,7 +66,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
     private tabKeyBind: Blockly.browserEvents.Data | null = null;
 
     constructor(value: string, params: U, validator?: Blockly.FieldValidator) {
-        super(value, validator, {type: params.type, ariaName: params.ariaName});
+        super(value, validator, {type: params.type, ariaTypeName: params.ariaName});
         this.params = params;
         this.createMelodyIfDoesntExist();
     }
@@ -417,17 +417,17 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
             this.fieldGroup_.appendChild(cb.el);
         }
 
-        (this.sourceBlock_ as Blockly.BlockSvg).getFocusableElement().ariaLabel = this.getAriaLabel();
+        (this.sourceBlock_ as Blockly.BlockSvg).getFocusableElement().ariaLabel = this.getAriaValue();
     }
 
-    override getLabelForBlockOutput(): string {
-        const notes = this.melody.getStringRepresentation().trim().split(" ");
-        return notes.every(n => n === "-") ? lf("empty") : "";
-    }
-
-    override getAriaLabel(): string {
+    getAriaValue(): string {
         const notes = this.melody.getStringRepresentation().trim().split(" ");
         return notes.every(n => n === "-") ? lf("empty melody") : lf("melody");
+    }
+
+    computeAriaLabel(_verbose?: boolean): string {
+        const notes = this.melody.getStringRepresentation().trim().split(" ");
+        return notes.every(n => n === "-") ? lf("empty") : "";
     }
 
     private setTempo(tempo: number): void {

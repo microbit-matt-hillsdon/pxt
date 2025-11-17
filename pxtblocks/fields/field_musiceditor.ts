@@ -71,6 +71,10 @@ export class FieldMusicEditor extends FieldAssetEditor<FieldMusicEditorOptions, 
         return newAsset;
     }
 
+    getAriaValue() {
+        return "";
+    }
+
     render_() {
         super.render_();
 

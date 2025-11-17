@@ -27,7 +27,7 @@ export class FieldProtractor extends FieldSlider implements FieldCustom {
      * @constructor
      */
     constructor(value_: any, params: FieldProtractorOptions, opt_validator?: Blockly.FieldValidator) {
-        super(String(value_), '0', '180', '1', '15', lf("Angle"), opt_validator);
+        super(String(value_), '0', '180', '1', opt_validator, {type: 'field_protractor', step: 15, labelText: lf("Angle")});
         this.params = params;
     }
 

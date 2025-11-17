@@ -1,5 +1,10 @@
 import * as Blockly from "blockly";
 
+interface FieldSliderConfig extends Blockly.FieldNumberConfig {
+    step?: string | number | null,
+    labelText?: string | null,
+}
+
 export class FieldSlider extends Blockly.FieldNumber {
     protected slider_: HTMLInputElement;
     protected readout_: HTMLSpanElement;
@@ -16,21 +21,19 @@ export class FieldSlider extends Blockly.FieldNumber {
         min?: string | number | null,
         max?: string | number | null,
         precision?: string | number | null,
-        step?: string | number | null,
-        labelText?: string | null,
         validator?: Blockly.FieldNumberValidator | null,
-        config?: Blockly.FieldNumberConfig
+        config?: FieldSliderConfig
     ) {
         super(value, min, max, precision, validator, config);
 
-        if (typeof step === "string") {
-            this.step_ = parseFloat(step);
+        if (typeof config.step === "string") {
+            this.step_ = parseFloat(config.step);
         }
-        else if (typeof step === "number") {
-            this.step_ = step;
+        else if (typeof config.step === "number") {
+            this.step_ = config.step;
         }
 
-        this.labelText_ = labelText;
+        this.labelText_ = config.labelText;
     }
 
     hasMin() {

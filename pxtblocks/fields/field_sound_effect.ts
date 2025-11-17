@@ -57,15 +57,11 @@ export class FieldSoundEffect extends FieldBase<FieldSoundEffectParams> {
         this.fieldGroup_.ariaExpanded = "false";
         this.fieldGroup_.setAttribute("role", "button");
         this.fieldGroup_.setAttribute("aria-controls", "sound-effect-editor");
-        this.fieldGroup_.ariaLabel = this.getAriaLabel();
+        this.fieldGroup_.ariaLabel = this.getAriaValue();
     }
 
-    getAriaLabel(): string {
+    getAriaValue() {
         return lf("sound effect");
-    }
-
-    getLabelForBlockOutput(): string | null {
-        return this.getAriaLabel();
     }
 
     protected onDispose(): void {

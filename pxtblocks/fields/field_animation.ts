@@ -70,6 +70,10 @@ export class FieldAnimationEditor extends FieldAssetEditor<FieldAnimationOptions
         return pxt.AssetType.Animation;
     }
 
+    getAriaValue() {
+        return "";
+    }
+
     protected createNewAsset(text?: string): pxt.Asset {
         const project = pxt.react.getTilemapProject();
 

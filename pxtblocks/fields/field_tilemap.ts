@@ -34,6 +34,10 @@ export class FieldTilemap extends FieldAssetEditor<FieldTilemapOptions, ParsedFi
         return (this.asset as pxt.ProjectTilemap)?.data.tileset;
     }
 
+    getAriaValue() {
+        return "";
+    }
+
     protected getAssetType(): pxt.AssetType {
         return pxt.AssetType.Tilemap;
     }

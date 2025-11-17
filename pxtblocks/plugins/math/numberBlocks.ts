@@ -65,7 +65,8 @@ Blockly.defineBlocksWithJsonArray([
             "name": "SLIDER",
             "value": 0,
             "step": 1,
-            "labelText": "Number"
+            "labelText": "Number",
+            "ariaTypeName": lf("Number"),
         }],
         "output": "Number",
         "outputShape": provider.SHAPES.ROUND,
@@ -92,7 +93,7 @@ const MATH_NUMBER_MINMAX_MIXIN = {
         if (slider.getStep() != undefined) container.setAttribute('step', slider.getStep() + "");
         // if (slider.sliderColor_ != undefined) container.setAttribute('color', slider.sliderColor_);
         if (slider.getPrecision() != undefined) container.setAttribute('precision', slider.getPrecision() + "");
-        if (slider.getAriaName()) container.setAttribute('arialabel', slider.getAriaName());
+        if (slider.getAriaTypeName()) container.setAttribute('ariatypename', slider.getAriaTypeName());
         return container;
     },
     /**
@@ -106,13 +107,12 @@ const MATH_NUMBER_MINMAX_MIXIN = {
         const max = (xmlElement.getAttribute('max'));
         const step = (xmlElement.getAttribute('step'));
         const label = (xmlElement.getAttribute('label'));
-        const ariaLabel = (xmlElement.getAttribute('arialabel'));
-        const ariaLabelOverride = (xmlElement.getAttribute('arialabeloverride'));
+        const ariaTypeName = (xmlElement.getAttribute('ariatypename'));
         // const color = (xmlElement.getAttribute('color'));
         const precision = (xmlElement.getAttribute('precision'));
         slider.setLabel(label);
         slider.setOptions(min, max, step, precision);
-        if (ariaLabel || ariaLabelOverride) slider.setAriaName(ariaLabelOverride ?? ariaLabel);
+        if (ariaTypeName) slider.getAriaTypeName = () => ariaTypeName;
         // slider.setColor(color);
     }
 };

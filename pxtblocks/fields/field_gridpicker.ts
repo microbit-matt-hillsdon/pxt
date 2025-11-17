@@ -50,7 +50,7 @@ export class FieldGridPicker extends FieldDropdownGrid implements FieldCustom {
     private tabKeyBind: Blockly.browserEvents.Data | null = null;
 
     constructor(text: string, options: FieldGridPickerOptions, validator?: Blockly.FieldValidator) {
-        super(options.data, validator, {type: options.type, ariaName: options.ariaName});
+        super(options.data, validator, {type: options.type, ariaTypeName: options.ariaName});
 
         this.columns_ = parseInt(options.columns) || 4;
         this.maxRows_ = parseInt(options.maxRows) || 0;

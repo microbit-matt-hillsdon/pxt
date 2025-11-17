@@ -22,7 +22,7 @@ export class FieldColorWheel extends FieldSlider implements FieldCustom {
      * @constructor
      */
     constructor(value_: any, params: any, opt_validator?: Blockly.FieldValidator) {
-        super(String(value_), '0', '255', '1', '10', 'Color', opt_validator);
+        super(String(value_), '0', '255', '1', opt_validator, {type: 'field_color_wheel', step: 10, labelText: 'Color'});
         this.params = params;
         if (this.params['min']) this.min_ = parseFloat(this.params['min']);
         if (this.params['max']) this.max_ = parseFloat(this.params['max']);

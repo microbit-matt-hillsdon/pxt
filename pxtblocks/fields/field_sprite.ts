@@ -81,6 +81,10 @@ export class FieldSpriteEditor extends FieldAssetEditor<FieldSpriteEditorOptions
         return newAsset;
     }
 
+    getAriaValue() {
+        return "";
+    }
+
     protected getValueText(): string {
         if (!this.asset) return this.valueText || "";
         if (this.asset && !this.isTemporaryAsset()) {

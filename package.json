@@ -72,7 +72,7 @@
     "@zip.js/zip.js": "2.4.20",
     "adm-zip": "^0.5.12",
     "axios": "^1.6.8",
-    "blockly": "file:blockly-12.3.0.tgz",
+    "blockly": "file:blockly-12.3.1.tgz",
     "browserify": "17.0.0",
     "chai": "^3.5.0",
     "chalk": "^4.1.2",

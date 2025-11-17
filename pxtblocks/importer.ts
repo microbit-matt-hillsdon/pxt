@@ -29,7 +29,7 @@ export function patchMathBlocks(dom: Element, info: pxtc.BlocksInfo): void {
         const blockInfo = info.blocksById[blockId];
         const parameter = blockInfo.parameters.find(p => p.name === parameterName);
         if (parameter) {
-            sliderShadowBlock.querySelector("mutation").setAttribute("arialabeloverride", pxt.Util.camelCaseToLowercaseWithSpaces(parameter.options?.label?.value ?? parameter.name));
+            sliderShadowBlock.querySelector("mutation").setAttribute("ariatypename", parameter.options?.label?.value ?? pxt.Util.camelCaseToLowercaseWithSpaces(parameter.name));
         }
     })
 }

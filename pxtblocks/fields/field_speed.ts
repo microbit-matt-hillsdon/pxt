@@ -31,7 +31,7 @@ export class FieldSpeed extends FieldSlider implements FieldCustom {
      * @constructor
      */
     constructor(value_: any, params: FieldSpeedOptions, opt_validator?: Blockly.FieldValidator) {
-        super(String(value_), '-100', '100', '1', '10', 'Speed', opt_validator);
+        super(String(value_), '-100', '100', '1', opt_validator, {type: 'field_speed', step: 10, labelText: 'Speed'});
         this.params = params;
         if (this.params['min']) this.min_ = parseFloat(this.params.min);
         if (this.params['max']) this.max_ = parseFloat(this.params.max);

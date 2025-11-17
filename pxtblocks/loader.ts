@@ -508,7 +508,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                             fields.push(namedField(createFieldEditor(customField, defl, options), defName));
                         }
                         else {
-                            fields.push(namedField(new FieldDropdown(dd, undefined, {type: "field_dropdown", ariaName}), defName));
+                            fields.push(namedField(new FieldDropdown(dd, undefined, {type: "field_dropdown", ariaTypeName: ariaName}), defName));
                         }
 
                     } else if (customField) {
@@ -528,7 +528,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                             inputCheck = pr.type;
                         } else if (pr.type == "number" && pr.shadowBlockId && pr.shadowBlockId == "value") {
                             inputName = undefined;
-                            fields.push(namedField(new Blockly.FieldNumber("0", undefined, undefined, undefined, undefined, {type: "field_number", ariaName}), defName));
+                            fields.push(namedField(new Blockly.FieldNumber("0", undefined, undefined, undefined, undefined, {type: "field_number", ariaTypeName: ariaName}), defName));
                         } else if (pr.type == "string" && pr.shadowOptions && pr.shadowOptions.toString) {
                             inputCheck = null;
                         } else {

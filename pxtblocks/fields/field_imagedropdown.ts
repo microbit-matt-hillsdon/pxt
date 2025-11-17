@@ -20,7 +20,7 @@ export class FieldImageDropdown extends FieldDropdownGrid implements FieldCustom
     protected savedPrimary_: string;
 
     constructor(text: string, options: FieldImageDropdownOptions, validator?: Blockly.FieldValidator) {
-        super(options.data, validator, {type: options.type, ariaName: options.ariaName});
+        super(options.data, validator, {type: options.type, ariaTypeName: options.ariaName});
 
         this.columns_ = parseInt(options.columns);
         this.maxRows_ = parseInt(options.maxRows) || 0;

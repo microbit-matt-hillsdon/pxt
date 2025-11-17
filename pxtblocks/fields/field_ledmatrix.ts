@@ -87,6 +87,10 @@ export class FieldLedMatrix extends FieldMatrix implements FieldCustom {
         return this.cellState[x][y];
     }
 
+    getAriaValue() {
+        return "";
+    }
+
     protected useTwoToneFocusIndicator(x: number, y: number): boolean {
         return this.getCellToggled(x, y);
     }

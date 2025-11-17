@@ -136,7 +136,7 @@ export class FieldNumberDropdown extends BaseFieldNumberDropdown implements Fiel
     public isFieldCustom_ = true;
 
     constructor(value: number | string, options: FieldNumberDropdownOptions, opt_validator?: Blockly.FieldValidator) {
-        super(value, parseDropdownOptions(options), options.min, options.max, options.precision, opt_validator, {type: options.type, ariaName: options.ariaName});
+        super(value, parseDropdownOptions(options), options.min, options.max, options.precision, opt_validator, {type: options.type, ariaTypeName: options.ariaName});
     }
 
     getOptions() {

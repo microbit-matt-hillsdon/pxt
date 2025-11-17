@@ -163,7 +163,7 @@ const IF_ELSE_MIXIN = {
                 .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
             this.appendDummyInput('IFBUTTONS' + i)
                 .appendField(
-                    new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, undefined, removeElseIf, false, {type: "field_mutator", ariaName: 'mutator', alt: "remove else if clause"}))
+                    new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, undefined, removeElseIf, false, {type: "field_mutator", ariaTypeName: 'mutator', alt: "remove else if clause"}))
                 .setAlign(Blockly.inputs.Align.RIGHT);
             this.appendStatementInput('DO' + i);
             const elseIfDoInput = this.getInput('DO' + i);
@@ -175,7 +175,7 @@ const IF_ELSE_MIXIN = {
             this.appendDummyInput('ELSEBUTTONS')
                 .setAlign(Blockly.inputs.Align.RIGHT)
                 .appendField(
-                    new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, undefined, this.removeElse_.bind(this), false, {type: "field_mutator", ariaName: 'mutator', alt: "remove else clause"}));
+                    new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, undefined, this.removeElse_.bind(this), false, {type: "field_mutator", ariaTypeName: 'mutator', alt: "remove else clause"}));
             this.appendStatementInput('ELSE');
             const elseInput = this.getInput('ELSE');
             elseInput.getFieldRowLabel = () =>  'else';
@@ -194,7 +194,7 @@ const IF_ELSE_MIXIN = {
         }();
         this.appendDummyInput('ADDBUTTON')
             .appendField(
-                new FieldImageNoText(this.ADD_IMAGE_DATAURI, 24, 24, undefined, addElseIf, false, {type: "field_mutator", ariaName: 'mutator', alt: this.elseCount_ ? "add else if clause" : "add else clause"}));
+                new FieldImageNoText(this.ADD_IMAGE_DATAURI, 24, 24, undefined, addElseIf, false, {type: "field_mutator", ariaTypeName: 'mutator', alt: this.elseCount_ ? "add else if clause" : "add else clause"}));
     },
     /**
      * Reconstructs the block with all child blocks attached.
