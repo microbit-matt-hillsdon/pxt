@@ -585,6 +585,25 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 that.toolbox.refreshSelection();
             }
         };
+        const oldWorkspaceSvgGetRestoredFocusableNode = Blockly.WorkspaceSvg.prototype.getRestoredFocusableNode;
+        Blockly.WorkspaceSvg.prototype.getRestoredFocusableNode = function (previousNode: Blockly.IFocusableNode | null) {
+            // Specifically handle flyout case to work with the caching flyout implementation
+            if (this.isFlyout &&
+                (!previousNode || that.isFlyoutItemDisposed(previousNode, previousNode instanceof Blockly.BlockSvg ? previousNode : null) || that.ignoreFlyoutPreviousNode)
+            ) {
+                const flyout = that.editor.getFlyout();
+                const node = that.getDefaultFlyoutCursorIfNeeded(flyout);
+                if (node) {
+                    const flyoutCursor = flyout.getWorkspace().getCursor();
+                    // Work around issue with a flyout label being the first item in the flyout.
+                    // Set the cursor node here so the cursor doesn't fall back to last focused block.
+                    flyoutCursor.setCurNode(node);
+                }
+                that.ignoreFlyoutPreviousNode = false;
+                return node;
+            }
+            return oldWorkspaceSvgGetRestoredFocusableNode.call(this, previousNode);
+        };
         const oldWorkspaceSvgOnTreeBlur = Blockly.WorkspaceSvg.prototype.onTreeBlur;
         (Blockly.WorkspaceSvg as any).prototype.onTreeBlur = function (nextTree: Blockly.IFocusableNode | null): void {
             // Keep the flyout open whe a variable is created.
