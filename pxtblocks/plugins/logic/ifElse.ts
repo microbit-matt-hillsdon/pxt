@@ -166,8 +166,6 @@ const IF_ELSE_MIXIN = {
                     new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, undefined, removeElseIf, false, {type: "field_mutator", ariaTypeName: 'mutator', alt: "remove else if clause"}))
                 .setAlign(Blockly.inputs.Align.RIGHT);
             this.appendStatementInput('DO' + i);
-            const elseIfDoInput = this.getInput('DO' + i);
-            elseIfDoInput.getFieldRowLabel = () => 'else if';
         }
         if (this.elseCount_) {
             this.appendDummyInput('ELSETITLE')
@@ -177,8 +175,6 @@ const IF_ELSE_MIXIN = {
                 .appendField(
                     new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, undefined, this.removeElse_.bind(this), false, {type: "field_mutator", ariaTypeName: 'mutator', alt: "remove else clause"}));
             this.appendStatementInput('ELSE');
-            const elseInput = this.getInput('ELSE');
-            elseInput.getFieldRowLabel = () =>  'else';
         }
         if (this.getInput('ADDBUTTON')) this.removeInput('ADDBUTTON');
         const that = this;
@@ -280,8 +276,6 @@ Blockly.Blocks["controls_if"] = {
             const renderer = this.workspace.getRenderer();
             this.setOutputShape(renderer.getConstants().SHAPES["HEXAGONAL"]);
         }
-        const ifDoInput = this.getInput('DO0');
-        ifDoInput.getFieldRowLabel = () => 'if';
         this.updateShape_();
         this.setInputsInline(true);
         this.setColour(Blockly.Msg.LOGIC_HUE);
