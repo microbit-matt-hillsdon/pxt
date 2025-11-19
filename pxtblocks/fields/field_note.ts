@@ -175,6 +175,10 @@ export class FieldNote extends Blockly.FieldNumber implements FieldCustom {
         return this.value_ + "";
     }
 
+    getAriaValue(): string {
+        return this.getNoteString();
+    }
+
     /**
      * Called by setValue if the text input is valid. Updates the value of the
      * field, and updates the text of the field if it is not currently being
@@ -242,7 +246,7 @@ export class FieldNote extends Blockly.FieldNumber implements FieldCustom {
 
     protected render_(): void {
         super.render_();
-        this.getFocusableElement().ariaLabel = `${this.getNoteString()}, ${this.getAriaValue()}`;
+        this.getFocusableElement().ariaLabel = `${this.getNoteString()}, ${this.getAriaTypeName()}`;
     }
 
     onFinishEditing_(text: string) {
