@@ -714,7 +714,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                     treeRow={subTreeRow}
                                     onCategoryClick={this.onCategoryClick}
                                     ariaLevel={1}
-                                    ariaLabel={Util.capitalize(`${subTreeRow.name} ${treeRow.nameid === "led" ? treeRow.nameid.toUpperCase() : treeRow.nameid}`)}
+                                    ariaLabel={Util.capitalize(`${treeRow.nameid === "led" ? treeRow.nameid.toUpperCase() : treeRow.nameid}, ${subTreeRow.name}`)}
                                 />
                             )}
                         </React.Fragment>
@@ -764,7 +764,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                                                 treeRow={subTreeRow}
                                                 onCategoryClick={this.onCategoryClick}
                                                 ariaLevel={1}
-                                                ariaLabel={Util.capitalize(`${subTreeRow.name} ${treeRow.nameid}`)}
+                                                ariaLabel={Util.capitalize(`${treeRow.nameid}, ${subTreeRow.name}`)}
                                             />
                                         )}
                                     </React.Fragment>
