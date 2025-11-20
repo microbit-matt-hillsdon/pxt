@@ -32,7 +32,6 @@ export class FieldImageDropdown extends FieldDropdownGrid implements FieldCustom
 
     override init() {
         super.init();
-        this.getSvgRoot().querySelector('image').ariaHidden = 'true';
     }
 
     protected setFocusedItem_(gridItemContainer: HTMLElement) {
