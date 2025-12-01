@@ -32,6 +32,8 @@ export class FieldString extends Blockly.FieldTextInput {
             'font-size': this.quoteSize_ + 'px',
             'class': 'field-text-quote'
         }, this.fieldGroup_);
+        this.quoteLeft_.ariaHidden = "true"
+        this.quoteRight_.ariaHidden = "true"
         this.quoteLeft_.appendChild(document.createTextNode('"'));
         this.quoteRight_.appendChild(document.createTextNode('"'));
     }
