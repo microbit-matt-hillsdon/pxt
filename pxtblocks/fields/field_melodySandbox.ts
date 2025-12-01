@@ -66,7 +66,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
     private tabKeyBind: Blockly.browserEvents.Data | null = null;
 
     constructor(value: string, params: U, validator?: Blockly.FieldValidator) {
-        super(value, validator, {type: params.type, ariaTypeName: params.ariaName});
+        super(value, validator, {type: params.type, ariaTypeName: params.ariaTypeName});
         this.params = params;
         this.createMelodyIfDoesntExist();
     }

@@ -17,7 +17,7 @@ export interface FieldCustom {
 }
 
 export interface FieldCustomOptions {
-    ariaName?: string,
+    ariaTypeName?: string,
     blocksInfo: any;
     colour?: string | number;
     label?: string;

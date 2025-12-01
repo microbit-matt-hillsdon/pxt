@@ -15,7 +15,7 @@ export abstract class FieldBase<U> extends Blockly.Field implements FieldCustom 
     protected workspace: Blockly.Workspace;
 
     constructor(text: string, params: U, validator?: Blockly.FieldValidator) {
-        super(text, validator, {type: (params as FieldCustomOptions).type, ariaTypeName: (params as FieldCustomOptions).ariaName});
+        super(text, validator, {type: (params as FieldCustomOptions).type, ariaTypeName: (params as FieldCustomOptions).ariaTypeName});
         this.options = params;
         if (text && !this.valueText) this.valueText = text;
     }

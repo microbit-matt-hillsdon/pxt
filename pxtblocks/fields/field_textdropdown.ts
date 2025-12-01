@@ -340,7 +340,7 @@ export class FieldTextDropdown extends BaseFieldTextDropdown implements FieldCus
     public isFieldCustom_ = true;
 
     constructor(text: string, options: FieldTextDropdownOptions, opt_validator?: Blockly.FieldValidator) {
-        super(text, parseDropdownOptions(options), opt_validator, {type: options.type, ariaTypeName: options.ariaName});
+        super(text, parseDropdownOptions(options), opt_validator, {type: options.type, ariaTypeName: options.ariaTypeName});
     }
 }
 

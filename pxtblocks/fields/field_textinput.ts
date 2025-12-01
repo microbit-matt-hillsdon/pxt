@@ -5,7 +5,7 @@ export class FieldTextInput extends Blockly.FieldTextInput implements FieldCusto
     public isFieldCustom_ = true;
 
     constructor(value: string, options: FieldCustomOptions, opt_validator?: Blockly.FieldValidator) {
-        super(value, opt_validator, {type: options.type, ariaTypeName: options.ariaName});
+        super(value, opt_validator, {type: options.type, ariaTypeName: options.ariaTypeName});
     }
 
     getFieldDescription(): string {

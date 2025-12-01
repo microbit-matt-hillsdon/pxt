@@ -438,7 +438,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                     let customField = pr.fieldEditor;
                     let fieldLabel = defName.charAt(0).toUpperCase() + defName.slice(1);
                     let fieldType = pr.type;
-                    const ariaName = pr.label ?? pxt.Util.camelCaseToLowercaseWithSpaces(pr.actualName);
+                    const ariaTypeName = pr.label ?? pxt.Util.camelCaseToLowercaseWithSpaces(pr.actualName);
 
                     if (isEnum || isFixed || isConstantShim || isCombined) {
                         let syms: pxtc.SymbolInfo[];
@@ -498,7 +498,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                         if (customField) {
                             let defl = fn.attributes.paramDefl[actName] || "";
                             const options = {
-                                ariaName,
+                                ariaTypeName,
                                 data: dd,
                                 colour: color,
                                 label: fieldLabel,
@@ -509,13 +509,13 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                             fields.push(namedField(createFieldEditor(customField, defl, options), defName));
                         }
                         else {
-                            fields.push(namedField(new FieldDropdown(dd, undefined, {type: "field_dropdown", ariaTypeName: ariaName}), defName));
+                            fields.push(namedField(new FieldDropdown(dd, undefined, {type: "field_dropdown", ariaTypeName}), defName));
                         }
 
                     } else if (customField) {
                         const defl = fn.attributes.paramDefl[pr.actualName] || "";
                         const options = {
-                            ariaName,
+                            ariaTypeName,
                             colour: color,
                             label: fieldLabel,
                             type: fieldType,
@@ -529,7 +529,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                             inputCheck = pr.type;
                         } else if (pr.type == "number" && pr.shadowBlockId && pr.shadowBlockId == "value") {
                             inputName = undefined;
-                            fields.push(namedField(new Blockly.FieldNumber("0", undefined, undefined, undefined, undefined, {type: "field_number", ariaTypeName: ariaName}), defName));
+                            fields.push(namedField(new Blockly.FieldNumber("0", undefined, undefined, undefined, undefined, {type: "field_number", ariaTypeName}), defName));
                         } else if (pr.type == "string" && pr.shadowOptions && pr.shadowOptions.toString) {
                             inputCheck = null;
                         } else {

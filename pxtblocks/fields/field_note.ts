@@ -115,7 +115,7 @@ export class FieldNote extends Blockly.FieldNumber implements FieldCustom {
 
     constructor(text: string, params: FieldNoteOptions, validator?: Blockly.FieldValidator) {
         // passing null as we need more state before we properly set value.
-        super(null, 0, null, null, validator, {type: params.type, ariaTypeName: params.ariaName});
+        super(null, 0, null, null, validator, {type: params.type, ariaTypeName: params.ariaTypeName});
         this.setSpellcheck(false);
         this.prepareNotes();
 
