@@ -3,6 +3,8 @@ import { FieldSlider } from "./fieldSlider";
 
 const provider = new Blockly.zelos.ConstantProvider();
 
+const ariaTypeName = lf("Number");
+
 Blockly.defineBlocksWithJsonArray([
     // Block for integer numeric value.
     {
@@ -11,7 +13,8 @@ Blockly.defineBlocksWithJsonArray([
         "args0": [{
             "type": "field_number",
             "name": "NUM",
-            "precision": 1
+            "precision": 1,
+            "ariaTypeName": ariaTypeName,
         }],
         "output": "Number",
         "outputShape": provider.SHAPES.ROUND,
@@ -29,7 +32,8 @@ Blockly.defineBlocksWithJsonArray([
             "type": "field_number",
             "name": "NUM",
             "min": 0,
-            "precision": 1
+            "precision": 1,
+            "ariaTypeName": ariaTypeName,
         }],
         "output": "Number",
         "outputShape": provider.SHAPES.ROUND,
@@ -46,7 +50,8 @@ Blockly.defineBlocksWithJsonArray([
         "args0": [{
             "type": "field_number",
             "name": "NUM",
-            "min": 0
+            "min": 0,
+            "ariaTypeName": ariaTypeName,
         }],
         "output": "Number",
         "outputShape": provider.SHAPES.ROUND,
@@ -66,7 +71,7 @@ Blockly.defineBlocksWithJsonArray([
             "value": 0,
             "step": 1,
             "labelText": "Number",
-            "ariaTypeName": lf("Number"),
+            "ariaTypeName": ariaTypeName,
         }],
         "output": "Number",
         "outputShape": provider.SHAPES.ROUND,
