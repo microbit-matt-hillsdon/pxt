@@ -90,7 +90,8 @@ export class FieldSlider extends Blockly.FieldNumber {
         }
 
         // We allow values outside of the range with sliders in pxt
-        // n = Math.min(Math.max(n, this.min_), this.max_);
+        // Turn this validation back on for screen reader testing as there is no feedback otherwise.
+        n = Math.min(Math.max(n, this.min_), this.max_);
 
         // Round to nearest multiple of precision.
         if (this.precision_ && isFinite(n)) {
