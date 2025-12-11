@@ -1836,7 +1836,17 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         if (this.editor.options.hasCategories === hasCategories) {
             // Toolbox is consistent with current mode, safe to update
             if (hasCategories) {
-                this.toolbox.setState({ loading: false, categories: this.getAllCategories(), showSearchBox: this.shouldShowSearch() });
+                const allCategories = this.getAllCategories()
+                this.toolbox.setState({ loading: false, categories: allCategories, showSearchBox: this.shouldShowSearch() });
+                // To include the toolbox category in the Blockly verbose full block summary,
+                // the Blockly toolbox must be populated with items that include their color and name.
+                const allCategoriesToToolboxItemInfo = allCategories.map(c => ({
+                    kind: "category",
+                    name: c.name ? c.name : c.nameid === 'led' ? c.nameid.toUpperCase() : Util.capitalize(c.nameid),
+                    colour: c.color,
+                    contents: [] as Blockly.utils.toolbox.ToolboxItemInfo[]
+                }));
+                (Blockly.getMainWorkspace() as Blockly.WorkspaceSvg).getToolbox().render({contents: allCategoriesToToolboxItemInfo});
             } else {
                 this.showFlyoutOnlyToolbox();
             }
