@@ -70,5 +70,6 @@ export const Tour = (props: TourProps) => {
         showConfetti={confetti}
         forceHideSteps={hideSteps}
         footer={footer}
+        ariaLabel={lf("Tour")}
     />
 };
