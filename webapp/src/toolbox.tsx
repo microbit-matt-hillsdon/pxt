@@ -388,6 +388,11 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
 
     private showFlyout(treeRow: ToolboxCategory) {
         const { parent } = this.props;
+        let categoryName = treeRow.name && !treeRow.subns ? treeRow.name : treeRow.nameid === 'led' ? treeRow.nameid.toUpperCase() : Util.capitalize(treeRow.nameid);
+        if (treeRow.subns) {
+            categoryName = lf("{0} advanced", categoryName)
+        }
+        parent.setFlyoutLabel(categoryName);
         parent.showFlyout(treeRow);
     }
 

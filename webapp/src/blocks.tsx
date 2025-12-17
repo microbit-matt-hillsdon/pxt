@@ -1427,10 +1427,12 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     }
 
     showVariablesFlyout() {
+        this.setFlyoutLabel(lf("Variables"));
         this.showFlyoutInternal_(Blockly.Variables.flyoutCategory(this.editor, true), "variables");
     }
 
     showFunctionsFlyout() {
+        this.setFlyoutLabel(lf("Functions"));
         this.showFlyoutInternal_(pxtblockly.createFunctionsFlyoutCategory(this.editor), "functions", true);
     }
 
@@ -1951,6 +1953,11 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         });
 
         return res;
+    }
+
+    public setFlyoutLabel(categoryName: string) {
+        const blockCanvas = this.editor.getFlyout().getWorkspace().getBlockCanvas();
+        blockCanvas.ariaLabel = lf("{0} blocks", categoryName);
     }
 
     public hideFlyout() {
