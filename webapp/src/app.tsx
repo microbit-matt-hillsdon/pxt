@@ -3715,7 +3715,7 @@ export class ProjectView
                 this.maybeShowPackageErrors(true);
                 this.startSimulator(opts);
                 if (!this.state.fullscreen && opts && opts.clickTrigger && opts.focus !== false) getBoardView().focus();
-                this.ariaAnnounce(lf("Simulator started"), "assertive", "status");
+                this.ariaAnnounce(lf("Simulator running"), "assertive", "status");
                 break;
         }
     }
