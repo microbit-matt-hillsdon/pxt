@@ -840,8 +840,8 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         // Increase the Blockly connection radius
         Blockly.config.snapRadius = 48;
         Blockly.config.connectingSnapRadius = 96;
+        Blockly.Msg['WORKSPACE_ARIA_LABEL'] = lf("Blocks Workspace. %1 stacks of blocks")
         this.editor = Blockly.inject(blocklyDiv, this.getBlocklyOptions(forceHasCategories)) as Blockly.WorkspaceSvg;
-        this.editor.getFocusableElement().ariaLabel = lf("Blocks workspace");
         pxtblockly.contextMenu.setupWorkspaceContextMenu(this.editor);
 
         // set Blockly Colors
