@@ -5,3 +5,12 @@ export function fireClickOnEnter(e: React.KeyboardEvent<HTMLElement>): void {
         (e.currentTarget as HTMLElement).click();
     }
 }
+
+export function ariaAnnounce(msg: string, assertiveness?: string, role?: string) {
+    const el = document.getElementById("aria-announce");
+    if (el) {
+        el.textContent = msg;
+        el.ariaLive = assertiveness ?? "polite";
+        el.setAttribute("role", role ?? null);
+    }
+}

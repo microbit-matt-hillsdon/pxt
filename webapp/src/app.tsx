@@ -88,6 +88,7 @@ import { FeedbackModal } from "../../react-common/components/controls/Feedback/F
 import { ThemeManager } from "../../react-common/components/theming/themeManager";
 import { applyPolyfills } from "./polyfills";
 import { sendUpdateFeedbackTheme } from "../../react-common/components/controls/Feedback/FeedbackEventListener";
+import { ariaAnnounce } from "./util";
 
 pxt.blocks.requirePxtBlockly = () => pxtblockly as any;
 pxt.blocks.requireBlockly = () => Blockly;
@@ -3709,13 +3710,13 @@ export class ProjectView
                 break;
             case SimState.Running:
                 this.stopSimulator(false, opts);
-                this.ariaAnnounce(lf("Simulator stopped"), "assertive", "status");
+                ariaAnnounce(lf("Simulator stopped"), "assertive", "status");
                 break;
             default:
                 this.maybeShowPackageErrors(true);
                 this.startSimulator(opts);
                 if (!this.state.fullscreen && opts && opts.clickTrigger && opts.focus !== false) getBoardView().focus();
-                this.ariaAnnounce(lf("Simulator running"), "assertive", "status");
+                ariaAnnounce(lf("Simulator running"), "assertive", "status");
                 break;
         }
     }
@@ -5273,16 +5274,6 @@ export class ProjectView
         });
 
         setTimeout(() => this.clearUserPoke(), 10000);
-    }
-
-    ariaAnnounce(msg: string, assertiveness?: string, role?: string) {
-        const el = document.getElementById("aria-announce");
-        if (el) {
-            el.textContent = msg;
-            el.ariaLive = assertiveness ?? "polite";
-            el.setAttribute("role", role ?? null);
-            setTimeout(() => el.textContent = "", 5_000);
-        }
     }
 
     ///////////////////////////////////////////////////////////

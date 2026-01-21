@@ -43,6 +43,7 @@ import { HIDDEN_CLASS_NAME } from "../../pxtblocks/plugins/flyout/blockInflater"
 import { AIFooter } from "../../react-common/components/controls/AIFooter";
 import { CREATE_VAR_BTN_ID } from "../../pxtblocks/builtins/variables";
 import { FlyoutButton } from "../../pxtblocks/plugins/flyout/flyoutButton";
+import { ariaAnnounce } from "./util";
 
 interface CopyDataEntry {
     version: 1;
@@ -761,9 +762,9 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                             && !pxt.packetio.isConnected()
                             && !pxt.packetio.isConnecting()
                         ) {
-                            cmds.pairAsync(true).then(() => this.parent.compile().then(() => this.parent.ariaAnnounce(lf("Downloaded"), "assertive", "status")));
+                            cmds.pairAsync(true).then(() => this.parent.compile().then(() => ariaAnnounce(lf("Downloaded"), "assertive", "status")));
                         } else {
-                            this.parent.compile().then(() => this.parent.ariaAnnounce(lf("Downloaded"), "assertive", "status"));
+                            this.parent.compile().then(() => ariaAnnounce(lf("Downloaded"), "assertive", "status"));
                         }
                     }
                     return true

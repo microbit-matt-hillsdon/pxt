@@ -988,7 +988,6 @@ declare namespace pxt.editor {
         clearUserPoke(): void;
         setHintSeen(step: number): void;
         setEditorOffset(): void;
-        ariaAnnounce(msg: string, assertiveness?: string, role?: string): void;
 
         anonymousPublishHeaderByIdAsync(headerId: string, projectName?: string): Promise<ShareData>;
         publishCurrentHeaderAsync(persistent: boolean, screenshotUri?: string): Promise<string>;

@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom";
 import * as sui from "./sui";
 import * as core from "./core";
 import { ProgressBar } from "../../react-common/components/controls/ProgressBar";
+import { ariaAnnounce } from "./util";
 
 interface CoreDialogState {
     visible?: boolean;
@@ -284,8 +285,9 @@ export class LoadingDimmer extends React.Component<LoadingDimmerProps, LoadingDi
         const { visible, content, loadedPercentage } = this.state;
         if (!visible) return <div />;
         const hc = core.getHighContrastOnce();
+        ariaAnnounce(content, "assertive")
         return <sui.Dimmer isOpen={true} active={visible} closable={false}>
-            <sui.Loader className={`large main msg no-select ${hc ? "hc" : ""}`} aria-live="assertive">
+            <sui.Loader className={`large main msg no-select ${hc ? "hc" : ""}`}>
                 {content}
                 {loadedPercentage !== undefined && <ProgressBar value={loadedPercentage} />}
             </sui.Loader>
