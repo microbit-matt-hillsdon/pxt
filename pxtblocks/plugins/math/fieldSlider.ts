@@ -190,6 +190,10 @@ export class FieldSlider extends Blockly.FieldNumber {
         // editor on mobile devices.
         super.showEditor_(_e, true);
 
+        if (this.min_ !== null && this.min_ !== undefined && this.max_ !== null && this.max_ !== undefined ) {
+            this.htmlInput_.ariaLabel = lf("Enter a value between {0} and {1}", this.min_, this.max_);
+        }
+
         Blockly.DropDownDiv.hideWithoutAnimation();
         Blockly.DropDownDiv.clearContent();
         Blockly.DropDownDiv.getContentDiv().style.height = "";
