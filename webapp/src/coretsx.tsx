@@ -273,6 +273,12 @@ export class LoadingDimmer extends React.Component<LoadingDimmerProps, LoadingDi
         });
     }
 
+    setContent(content: string) {
+        this.setState({
+            content,
+        })
+    }
+
     currentlyLoading() {
         return this.state.loadedId;
     }
@@ -285,7 +291,6 @@ export class LoadingDimmer extends React.Component<LoadingDimmerProps, LoadingDi
         const { visible, content, loadedPercentage } = this.state;
         if (!visible) return <div />;
         const hc = core.getHighContrastOnce();
-        ariaAnnounce(content, "assertive")
         return <sui.Dimmer isOpen={true} active={visible} closable={false}>
             <sui.Loader className={`large main msg no-select ${hc ? "hc" : ""}`}>
                 {content}

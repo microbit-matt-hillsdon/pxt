@@ -102,6 +102,12 @@ export function updateLoadingCompletion(id: string, percentComplete: number) {
     }
 }
 
+export function updateLoadingContent(id: string, content: string) {
+    if (loadingDimmer?.currentlyLoading() === id) {
+        loadingDimmer.setContent(content);
+    }
+}
+
 function displayNextLoading() {
     if (!loadingQueue.length) return;
     const id = loadingQueue[loadingQueue.length - 1]; // get last item
