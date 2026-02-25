@@ -30,8 +30,15 @@ export class FieldImageDropdown extends FieldDropdownGrid implements FieldCustom
         this.borderColour_ = pxt.toolbox.fadeColor(this.backgroundColour_, 0.4, false);
     }
 
-    override init() {
-        super.init();
+    protected override recomputeAria() {
+        super.recomputeAria();
+        if (!this.fieldGroup_) return; // There's no element to set currently.
+        const element = this.getFocusableElement();
+        const isInFlyout = this.getSourceBlock()?.workspace?.isFlyout || false;
+        if (!isInFlyout) {
+            element.ariaExpanded = (!!this.gridItems.length).toString();
+            element.ariaHasPopup = "grid";
+        }
     }
 
     protected setFocusedItem_(gridItemContainer: HTMLElement) {
@@ -236,6 +243,7 @@ export class FieldImageDropdown extends FieldDropdownGrid implements FieldCustom
         } else if (this.borderRect_) {
             this.borderRect_.setAttribute('fill', source.getColourTertiary());
         }
+        this.recomputeAria();
     }
 
     doValueUpdate_(newValue: any): void {
@@ -271,6 +279,7 @@ export class FieldImageDropdown extends FieldDropdownGrid implements FieldCustom
         } else if (this.borderRect_) {
             this.borderRect_.setAttribute('fill', this.savedPrimary_);
         }
+        this.recomputeAria();
     };
 }
 

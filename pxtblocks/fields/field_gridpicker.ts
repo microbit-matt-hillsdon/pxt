@@ -68,6 +68,17 @@ export class FieldGridPicker extends FieldDropdownGrid implements FieldCustom {
         this.hasSearchBar_ = !!options.hasSearchBar || false;
     }
 
+    protected override recomputeAria() {
+        super.recomputeAria();
+        if (!this.fieldGroup_) return; // There's no element to set currently.
+        const element = this.getFocusableElement();
+        const isInFlyout = this.getSourceBlock()?.workspace?.isFlyout || false;
+        if (!isInFlyout) {
+            element.ariaExpanded = (!!this.gridItems.length).toString();
+            element.ariaHasPopup = "grid";
+        }
+    }
+
     protected setFocusedItem_(_gridItemContainer: HTMLElement) {
         this.gridItems.forEach(button => button.classList.remove('gridpicker-option-focused', 'gridpicker-menuitem-highlight'));
         const activeItem = this.gridItems[this.activeDescendantIndex];
@@ -99,6 +110,7 @@ export class FieldGridPicker extends FieldDropdownGrid implements FieldCustom {
         this.disposeGrid();
         this.disposeTooltip();
         this.disposeIntersectionObserver();
+        this.recomputeAria();
     }
 
     private createTooltip_() {
@@ -324,6 +336,7 @@ export class FieldGridPicker extends FieldDropdownGrid implements FieldCustom {
     private close() {
         this.disposeTooltip();
         this.disposeGrid();
+        this.recomputeAria();
 
         Blockly.WidgetDiv.hideIfOwner(this);
         Blockly.Events.setGroup(false);
@@ -378,6 +391,7 @@ export class FieldGridPicker extends FieldDropdownGrid implements FieldCustom {
         if (!e) {
             this.addKeyboardNavigableClass();
         }
+       this.recomputeAria();
     }
 
     private positionMenu_(tableContainer: HTMLElement) {
@@ -691,6 +705,7 @@ export class FieldGridPicker extends FieldDropdownGrid implements FieldCustom {
     private onClose_() {
         this.disposeTooltip();
         this.disposeGrid();
+        this.recomputeAria();
     }
 
     // Used for focus trap
