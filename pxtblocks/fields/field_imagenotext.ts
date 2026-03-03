@@ -17,10 +17,16 @@ export class FieldImageNoText extends Blockly.FieldImage implements FieldCustom 
         return undefined;
     }
 
-    protected override showEditor_() {
+    protected override showEditor_(e?: Event) {
         super.showEditor_();
+        const keyboardTriggered = !e;
+        if (keyboardTriggered) {
+            return;
+        }
         const sourceBlock = this.getSourceBlock();
-        if (sourceBlock instanceof Blockly.BlockSvg) {
+        const cursor = (Blockly.getMainWorkspace() as Blockly.WorkspaceSvg).getCursor();
+        const curNode = cursor.getCurNode();
+        if (sourceBlock instanceof Blockly.BlockSvg && !curNode?.canBeFocused()) {
             Blockly.getFocusManager().focusNode(this.getSourceBlock() as Blockly.BlockSvg);
         }
     }
