@@ -1,6 +1,7 @@
 import * as Blockly from "blockly";
 import { InlineSvgsExtensionBlock } from "../functions";
 import { FieldImageNoText } from "../../fields/field_imagenotext";
+import { maybeFocusMutatorButton } from "../../utils";
 
 
 type IfElseMixinType = typeof IF_ELSE_MIXIN;
@@ -15,6 +16,7 @@ const IF_ELSE_MIXIN = {
     valueConnections_: [] as Blockly.Connection[],
     statementConnections_: [] as Blockly.Connection[],
     elseStatementConnection_: null as Blockly.Connection,
+    addButton: null as Blockly.Input | null,
     /**
      * Create XML to represent the number of else-if and else inputs.
      * @return {Element} XML storage element.
@@ -71,6 +73,7 @@ const IF_ELSE_MIXIN = {
         if (this.getInput('ELSE')) this.elseStatementConnection_?.reconnect(this, 'ELSE');
     },
     addElse_: function (this: IfElseBlock) {
+        Blockly.utils.aria.announceDynamicAriaState("Else branch added.");
         const update = () => {
             this.elseCount_++;
         };
@@ -78,22 +81,33 @@ const IF_ELSE_MIXIN = {
 
     },
     removeElse_: function (this: IfElseBlock) {
+        Blockly.utils.aria.announceDynamicAriaState("Else branch removed.");
         const update = () => {
             this.elseCount_--;
         };
         this.update_(update);
+        // Focus the condition of the last elseif branch, fallback to the condition of the if.
+        const focusIndex = this.elseifCount_;
+        const inputName = focusIndex === 0 ? 'IF0' : 'IF' + focusIndex;
+        maybeFocusMutatorButton(this.getInput(inputName)?.connection?.targetBlock() as Blockly.BlockSvg);
     },
     addElseIf_: function (this: IfElseBlock) {
+        Blockly.utils.aria.announceDynamicAriaState("Else if branch added.");
         const update = () => {
             this.elseifCount_++;
         };
         this.update_(update);
     },
     removeElseIf_: function (this: IfElseBlock, arg: number) {
+        Blockly.utils.aria.announceDynamicAriaState("Else if branch removed.");
         const update = () => {
             this.elseifCount_--;
         };
         this.update_(update, arg);
+        // Focus the condition of the branch before the one just removed.
+        const prevIndex = arg - 1;
+        const inputName = prevIndex === 0 ? 'IF0' : 'IF' + prevIndex;
+        maybeFocusMutatorButton(this.getInput(inputName)?.connection?.targetBlock() as Blockly.BlockSvg);
     },
     update_: function (this: IfElseBlock, update: () => void, arg?: number) {
         Blockly.Events.setGroup(true);
@@ -158,7 +172,8 @@ const IF_ELSE_MIXIN = {
             this.appendValueInput('IF' + i)
                 .setCheck('Boolean')
                 .appendField(Blockly.Msg.CONTROLS_IF_MSG_ELSEIF)
-                .setShadowDom(createShadowDom());
+                .setShadowDom(createShadowDom())
+                .setLabel("boolean");
             this.appendDummyInput('IFTITLE' + i)
                 .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
             this.appendDummyInput('IFBUTTONS' + i)
@@ -173,7 +188,8 @@ const IF_ELSE_MIXIN = {
             this.appendDummyInput('ELSEBUTTONS')
                 .setAlign(Blockly.inputs.Align.RIGHT)
                 .appendField(
-                    new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, undefined, this.removeElse_.bind(this), false, {type: "field_mutator", ariaTypeName: 'mutator', alt: "remove else clause"}));
+                    // Updated alt text to include context as to what row/branch the user is on.
+                    new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, undefined, this.removeElse_.bind(this), false, {type: "field_mutator", ariaTypeName: 'mutator', alt: "else, remove else clause"}));
             this.appendStatementInput('ELSE');
         }
         if (this.getInput('ADDBUTTON')) this.removeInput('ADDBUTTON');
@@ -184,11 +200,14 @@ const IF_ELSE_MIXIN = {
                     that.addElse_();
                 } else {
                     if (!that.elseifCount_) that.elseifCount_ = 0;
+                    console.log("adding else if?")
                     that.addElseIf_();
                 }
+                maybeFocusMutatorButton(that.addButton?.fieldRow[0]);
+                that.addButton = null;
             };
         }();
-        this.appendDummyInput('ADDBUTTON')
+        this.addButton = this.appendDummyInput('ADDBUTTON')
             .appendField(
                 new FieldImageNoText(this.ADD_IMAGE_DATAURI, 24, 24, undefined, addElseIf, false, {type: "field_mutator", ariaTypeName: 'mutator', alt: this.elseCount_ ? "add else if clause" : "add else clause"}));
     },
@@ -268,7 +287,8 @@ Blockly.Blocks["controls_if"] = {
         this.setHelpUrl(Blockly.Msg.CONTROLS_IF_HELPURL);
         this.appendValueInput('IF0')
             .setCheck('Boolean')
-            .appendField(Blockly.Msg.CONTROLS_IF_MSG_IF);
+            .appendField(Blockly.Msg.CONTROLS_IF_MSG_IF)
+            .setLabel("boolean");
         this.appendDummyInput('THEN0')
             .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
         this.appendStatementInput('DO0');
