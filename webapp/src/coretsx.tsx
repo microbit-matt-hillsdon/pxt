@@ -238,7 +238,6 @@ export interface LoadingDimmerState {
     content?: string;
     loadedId?: string;
     loadedPercentage?: number;
-    completed?: boolean;
 }
 
 export class LoadingDimmer extends React.Component<LoadingDimmerProps, LoadingDimmerState> {
@@ -246,10 +245,8 @@ export class LoadingDimmer extends React.Component<LoadingDimmerProps, LoadingDi
     constructor(props: LoadingDimmerProps) {
         super(props);
         this.state = {
-            visible: true,
-            completed: false,
+            visible: true
         }
-        this.handleDoneClick = this.handleDoneClick.bind(this);
     }
 
     hide() {
@@ -258,7 +255,6 @@ export class LoadingDimmer extends React.Component<LoadingDimmerProps, LoadingDi
             loadedId: undefined,
             content: undefined,
             loadedPercentage: undefined,
-            completed: false,
         });
     }
 
@@ -268,7 +264,6 @@ export class LoadingDimmer extends React.Component<LoadingDimmerProps, LoadingDi
             loadedId: id,
             content: content,
             loadedPercentage: percentComplete,
-            completed: false,
         });
     }
 
@@ -279,11 +274,9 @@ export class LoadingDimmer extends React.Component<LoadingDimmerProps, LoadingDi
     }
 
     setContent(content: string) {
-        this.setState({ content });
-    }
-
-    setDownloadComplete() {
-        this.setState({ completed: true, loadedPercentage: 1 });
+        this.setState({
+            content,
+        })
     }
 
     currentlyLoading() {
@@ -294,43 +287,15 @@ export class LoadingDimmer extends React.Component<LoadingDimmerProps, LoadingDi
         return this.state.visible;
     }
 
-    private handleDoneClick() {
-        this.hide();
-    }
-
     render() {
-        const { visible, content, loadedPercentage, completed } = this.state;
+        const { visible, content, loadedPercentage } = this.state;
         if (!visible) return <div />;
-
         const hc = core.getHighContrastOnce();
-
-        const buttons: sui.ModalButton[] = [{
-            label: lf("Done"),
-            className: `approve positive${completed ? "" : " disabled"}`,
-            onclick: this.handleDoneClick,
-            approveButton: true,
-            disabled: !completed,
-        }];
-
-        console.log(loadedPercentage)
-
-        return (
-            <sui.Modal
-                isOpen={true}
-                className={`coredialog download-dialog ${hc ? "hc" : ""}`}
-                size="small"
-                dimmer={true}
-                closeIcon={false}
-                closeOnDimmerClick={completed}
-                closeOnDocumentClick={completed}
-                closeOnEscape={completed}
-                header={lf("Downloading to micro:bit")}
-                buttons={buttons}
-                onClose={this.handleDoneClick}
-            >
-                <p className="text-center" aria-live="polite">{completed ? lf("Downloaded") : content}</p>
-                <ProgressBar value={(loadedPercentage ?? 0)} />
-            </sui.Modal>
-        );
+        return <sui.Dimmer isOpen={true} active={visible} closable={false}>
+            <sui.Loader className={`large main msg no-select ${hc ? "hc" : ""}`}>
+                <span aria-live="assertive">{content}</span>
+                {loadedPercentage !== undefined && <ProgressBar value={loadedPercentage} />}
+            </sui.Loader>
+        </sui.Dimmer>;
     }
 }

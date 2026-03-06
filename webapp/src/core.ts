@@ -56,7 +56,7 @@ export function hideLoading(id: string) {
     } else {
         // Hide loading
         if (dimmerInitialized && loadingDimmer) {
-            loadingDimmer.setDownloadComplete();
+            loadingDimmer.hide();
         }
     }
 }
