@@ -258,8 +258,6 @@ export async function hidDeployCoreAsync(resp: pxtc.CompileResult, d?: pxt.comma
                 core.updateLoadingCompletion(LOADING_KEY, percentageFlashed);
             });
             await dev.reconnectAsync();
-            core.updateLoadingContent(LOADING_KEY, lf("Downloaded"));
-            await new Promise(res => setTimeout(res, 1000));
         } finally {
             core.hideLoading(LOADING_KEY);
         }
