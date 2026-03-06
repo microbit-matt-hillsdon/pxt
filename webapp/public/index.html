@@ -34,7 +34,6 @@
 </head>
 
 <body class="main pxt-theme-root">
-    <div id="focus-anchor" class="sr-only" tabindex="-1"></div>
     <div id="aria-announce" class="sr-only" aria-live="polite" aria-atomic="true"></div>
     <div id='loading' class="ui active dimmer">
         <div class="ui large main loader msft"></div>
@@ -76,17 +75,6 @@
     <xml id="blocklyToolboxDefinitionFlyout" style="display: none">
     </xml>
     <script>
-        window.addEventListener('load', () => {
-            const anchor = document.getElementById('focus-anchor');
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    console.log("focusing anchor")
-                    anchor.focus();
-                    console.log("removing anchor")
-                    anchor.remove();
-                }, 0);
-            });
-        });
         // Before loading vs/editor/editor.main, define a global MonacoEnvironment that overwrites
         // the default worker url location (used when creating WebWorkers). The problem here is that
         // HTML5 does not (yet) allow cross-domain web workers, so we need to proxy the instantion of
