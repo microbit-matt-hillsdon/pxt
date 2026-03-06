@@ -78,10 +78,14 @@
     <script>
         window.addEventListener('load', () => {
             const anchor = document.getElementById('focus-anchor');
-            console.log("focusing anchor")
-            anchor.focus();
-            console.log("removing anchor")
-            anchor.remove();
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    console.log("focusing anchor")
+                    anchor.focus();
+                    console.log("removing anchor")
+                    anchor.remove();
+                }, 0);
+            });
         });
         // Before loading vs/editor/editor.main, define a global MonacoEnvironment that overwrites
         // the default worker url location (used when creating WebWorkers). The problem here is that
