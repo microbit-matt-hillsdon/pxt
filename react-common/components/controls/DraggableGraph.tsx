@@ -225,7 +225,7 @@ export const DraggableGraph = (props: DraggableGraphProps) => {
                             opacity={0}
                             tabIndex={0}
                             role="slider"
-                            aria-label={lf("{0}, {1}", ariaLabel, index === 0 ? "start" : "end")}
+                            aria-label={index === 0 ? lf("{0}, start", ariaLabel) : lf("{0}, end", ariaLabel)}
                             aria-valuemin={min}
                             aria-valuemax={max}
                             aria-valuenow={getValue(index)}

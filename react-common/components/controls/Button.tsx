@@ -32,6 +32,7 @@ export interface ButtonProps extends ButtonViewProps {
     onBlur?: () => void;
     onFocus?: () => void;
     onKeydown?: (e: React.KeyboardEvent) => void;
+    onMouseDown?: (e: React.MouseEvent) => void;
 }
 
 export const Button = (props: ButtonProps) => {
@@ -89,6 +90,7 @@ export function inflateButtonProps(props: ButtonProps) {
         onKeydown,
         onBlur,
         onFocus,
+        onMouseDown,
         buttonRef,
         title,
         hardDisabled,
@@ -135,6 +137,7 @@ export function inflateButtonProps(props: ButtonProps) {
         "onKeyDown": onKeydown || fireClickOnEnter,
         "onBlur": onBlur,
         "onFocus": onFocus,
+        "onMouseDown": onMouseDown,
         "role": role || "button",
         "tabIndex": tabIndex || (disabled ? -1 : 0),
         "disabled": hardDisabled,

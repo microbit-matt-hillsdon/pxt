@@ -12,6 +12,7 @@ export interface DropdownProps extends ControlProps {
     id: string;
     selectedId: string;
     items: DropdownItem[];
+    getAriaLabel?: (value: string) => string;
     onItemSelected: (id: string) => void;
     tabIndex?: number;
 }
@@ -22,6 +23,7 @@ export const Dropdown = (props: DropdownProps) => {
         className,
         ariaHidden,
         ariaLabel,
+        getAriaLabel,
         role,
         items,
         tabIndex,
@@ -98,7 +100,8 @@ export const Dropdown = (props: DropdownProps) => {
             onKeydown={onKeyDown}
             ariaHasPopup="listbox"
             ariaExpanded={expanded}
-            ariaLabel={ariaLabel}
+            ariaLabel={ariaLabel ?? getAriaLabel(selected.title) ?? selected.title}
+            title={null}
             ariaHidden={ariaHidden}
             />
         {expanded &&
