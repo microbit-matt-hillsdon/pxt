@@ -158,8 +158,7 @@
   "overrides": {
     "combine-source-map": {
       "source-map": "0.4.4"
-    },
-    "@types/ws": "^8.5.12"
+    }
   },
   "scripts": {
     "build": "gulp",
