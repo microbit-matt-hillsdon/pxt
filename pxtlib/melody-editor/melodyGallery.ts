@@ -32,7 +32,7 @@ namespace pxtmelody {
             this.containerDiv.setAttribute("aria-labelledby", `${melodyGalleryDivId}-control`);
             this.contentDiv = document.createElement("div");
             this.contentDiv.setAttribute("id", melodyGalleryDivId);
-            this.contentDiv.setAttribute("role", "menu");
+            this.contentDiv.setAttribute("role", "grid");
             this.contentDiv.setAttribute("tabindex", "0");
 
             this.keyDownHandler = this.keyDownListener.bind(this);
@@ -237,7 +237,8 @@ namespace pxtmelody {
         protected mkButton(sample: pxtmelody.MelodyInfo, i: number, width: string, height: string) {
             const outer = mkElement("div", {
                 className: "melody-gallery-button melody-editor-card",
-                id: `:${i}`
+                id: `:${i}`,
+                role: "row"
             });
 
             const icon = mkElement("i", {
@@ -246,7 +247,8 @@ namespace pxtmelody {
             addAriaHidden(icon);
 
             const label = mkElement("div", {
-                className: "melody-editor-text"
+                className: "melody-editor-text",
+                "aria-hidden": "true",
             });
 
             label.innerText = sample.name;
@@ -255,12 +257,17 @@ namespace pxtmelody {
 
             const leftButton = mkElement("div", {
                 className: "melody-editor-button left-button",
-                role: "menuitem",
-                title: sample.name,
+                role: "gridcell",
                 tabIndex: -1,
                 id: getCellId(0, i)
-            }, () => this.handleSelection(sample))
+            }, () => this.handleSelection(sample));
 
+            const leftButtonAriaText = mkElement("p", {
+                className: "sr-only"
+            })
+            leftButtonAriaText.textContent = lf("Select {0} melody", sample.name)
+
+            leftButton.appendChild(leftButtonAriaText);
             leftButton.appendChild(icon);
             leftButton.appendChild(label);
             leftButton.appendChild(preview);
@@ -271,8 +278,7 @@ namespace pxtmelody {
 
             const rightButton = mkElement("div", {
                 className: "melody-editor-button right-button",
-                role: "menuitem",
-                title: lf("Preview {0}", sample.name),
+                role: "gridcell",
                 tabIndex: -1,
                 id: getCellId(1, i)
             }, () => this.togglePlay(sample, i));
@@ -284,6 +290,12 @@ namespace pxtmelody {
 
             this.playIcons[i] = playIcon;
 
+            const rightButtonAriaText = mkElement("p", {
+                className: "sr-only"
+            })
+            rightButtonAriaText.textContent = lf("Preview {0} melody", sample.name)
+
+            rightButton.appendChild(rightButtonAriaText);
             rightButton.appendChild(playIcon);
             outer.appendChild(rightButton);
 
