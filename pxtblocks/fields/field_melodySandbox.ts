@@ -653,6 +653,8 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         }
         const [x, y] = this.selected;
         this.focusCell(x, y);
+        const focusVisible = this.matrixSvg.matches(":focus-visible");
+        if (!focusVisible && !this.forceFocusVisible) return;
         if (this.hasMelodyNote(x)) {
             this.playNote(y, x);
         }
