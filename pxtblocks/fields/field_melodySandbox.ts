@@ -98,8 +98,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         this.attachEventHandlersToMatrix();
         this.matrixFocusBind = Blockly.browserEvents.bind(this.matrixSvg, 'focus', this, this.handleMatrixFocus.bind(this));
         this.matrixKeydownBind = Blockly.browserEvents.bind(this.matrixSvg, 'keydown', this, this.handleMatrixKeydown.bind(this));
-        this.matrixSvg.ariaLabel = lf(`Melody grid of eight notes. Use the left and right arrows to select the previous or next note in the sequence.
-            Use the up and down arrows to select the note pitch. Use Enter or Space to toggle the note on or off. Press P to play the note.`)
+        this.matrixSvg.ariaLabel = lf("Melody grid of eight notes. Use the left and right arrows to select the previous or next note in the sequence. Use the up and down arrows to select the note pitch. Use Enter or Space to toggle the note on or off. Press P to play the note.");
         this.tabKeyBind = Blockly.browserEvents.bind(contentDiv, 'keydown', this, this.handleTabKey.bind(this));
 
         this.prevString = this.getValue();
