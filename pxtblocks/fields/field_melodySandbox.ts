@@ -63,6 +63,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
     private gallery: pxtmelody.MelodyGallery;
     protected clearSelectionOnBlur = false;
     private matrixFocusBind: Blockly.browserEvents.Data | null = null;
+    private matrixKeydownBind: Blockly.browserEvents.Data | null = null;
     private tabKeyBind: Blockly.browserEvents.Data | null = null;
 
     constructor(value: string, params: U, validator?: Blockly.FieldValidator) {
@@ -96,6 +97,9 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         this.addKeyboardFocusHandlers();
         this.attachEventHandlersToMatrix();
         this.matrixFocusBind = Blockly.browserEvents.bind(this.matrixSvg, 'focus', this, this.handleMatrixFocus.bind(this));
+        this.matrixKeydownBind = Blockly.browserEvents.bind(this.matrixSvg, 'keydown', this, this.handleMatrixKeydown.bind(this));
+        this.matrixSvg.ariaLabel = lf(`Melody grid of eight notes. Use the left and right arrows to select the previous or next note in the sequence.
+            Use the up and down arrows to select the note pitch. Use Enter or Space to toggle the note on or off. Press P to play the note.`)
         this.tabKeyBind = Blockly.browserEvents.bind(contentDiv, 'keydown', this, this.handleTabKey.bind(this));
 
         this.prevString = this.getValue();
@@ -268,6 +272,10 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         if (this.matrixFocusBind) {
             Blockly.browserEvents.unbind(this.matrixFocusBind);
             this.matrixFocusBind = undefined;
+        }
+        if (this.matrixKeydownBind) {
+            Blockly.browserEvents.unbind(this.matrixKeydownBind);
+            this.matrixKeydownBind = undefined;
         }
         if (this.tabKeyBind) {
             Blockly.browserEvents.unbind(this.tabKeyBind);
@@ -520,17 +528,19 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
             const rowClass = pxtmelody.getColorClass(row);
 
             for (let col = 0; col < this.numMatrixCols; col++) {
-                const cell = this.cells[col][row];
+                const cell = this.cells[col][row]
+                const cellRect = cell.querySelector('rect');
+                const cellTextEl = cell.querySelector('text');
 
                 if (this.melody.getValue(row, col)) {
-                    pxt.BrowserUtils.removeClass(cell, "melody-default");
-                    pxt.BrowserUtils.addClass(cell, rowClass);
-                    cell.setAttribute("aria-checked", "true");
+                    pxt.BrowserUtils.removeClass(cellRect, "melody-default");
+                    pxt.BrowserUtils.addClass(cellRect, rowClass);
+                    cellTextEl.textContent = this.getCellLabel(row, true)
                 }
                 else {
-                    pxt.BrowserUtils.addClass(cell, "melody-default");
-                    pxt.BrowserUtils.removeClass(cell, rowClass);
-                    cell.setAttribute("aria-checked", "false");
+                    pxt.BrowserUtils.addClass(cellRect, "melody-default");
+                    pxt.BrowserUtils.removeClass(cellRect, rowClass);
+                    cellTextEl.textContent = this.getCellLabel(row, false)
                 }
             }
         }
@@ -602,8 +612,9 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         const cells = this.cells[col];
 
         cells.forEach(cell => {
-            if (on) pxt.BrowserUtils.addClass(cell, "playing")
-            else pxt.BrowserUtils.removeClass(cell, "playing")
+            const cellRect = cell.querySelector('rect');
+            if (on) pxt.BrowserUtils.addClass(cellRect, "playing")
+            else pxt.BrowserUtils.removeClass(cellRect, "playing")
         });
     }
 
@@ -617,7 +628,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         this.createMatrixDisplay({
             cellWidth: FieldCustomMelody.CELL_WIDTH,
             cellHeight: FieldCustomMelody.CELL_WIDTH,
-            cellLabel: (rowNum: number) => lf("Note {0}", pxtmelody.rowToNote(rowNum)),
+            cellLabel: this.getCellLabel,
             cellStroke: "white",
             cellHorizontalMargin: FieldCustomMelody.CELL_HORIZONTAL_MARGIN,
             cellVerticalMargin: FieldCustomMelody.CELL_VERTICAL_MARGIN,
@@ -628,6 +639,13 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         return this.matrixSvg;
     }
 
+    private getCellLabel(rowNum: number, value: boolean) {
+        if (value) {
+            return lf("Note {0}, on", pxtmelody.rowToNote(rowNum))
+        }
+        return lf("Note {0}, off", pxtmelody.rowToNote(rowNum))
+    }
+
     private handleMatrixFocus(_e: FocusEvent) {
         if (!this.selected) {
             const startNote = this.getMelodyNote(0) ?? 0;
@@ -635,6 +653,15 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
         }
         const [x, y] = this.selected;
         this.focusCell(x, y);
+        if (this.hasMelodyNote(x)) {
+            this.playNote(y, x);
+        }
+    }
+
+    private handleMatrixKeydown(e: KeyboardEvent) {
+        if (e.key === "p") {
+            this.playNote(this.selected[1], this.selected[0]);
+        }
     }
 
     // Used for focus trap
@@ -660,30 +687,40 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
     }
 
     protected override handleArrowUp(x: number, y: number) {
-        const hasNote = this.getMelodyNote(x) !== undefined;
         this.selected = [x, y - 1]
-        if (hasNote) {
+        if (this.hasMelodyNote(x)) {
             this.toggleCell(this.selected[0], this.selected[1]);
         }
     }
     protected override handleArrowDown(x: number, y: number) {
-        const hasNote = this.getMelodyNote(x) !== undefined;
         this.selected = [x, y + 1]
-        if (hasNote) {
+        if (this.hasMelodyNote(x)) {
             this.toggleCell(this.selected[0], this.selected[1]);
         }
     }
 
     protected override handleArrowLeft(x: number, y: number) {
-        const newX = (x + this.numMatrixCols - 1) % this.numMatrixCols;
+        if (x === 0) {
+            return;
+        }
+        const newX = (x - 1);
         const existingY = this.getMelodyNote(newX) ?? y;
-        this.selected = [newX, existingY]
+        this.selected = [newX, existingY];
+        if (this.hasMelodyNote(newX)) {
+            this.playNote(this.selected[1], this.selected[0]);
+        }
     }
 
     protected override handleArrowRight(x: number, y: number) {
-        const newX = (x + this.numMatrixCols + 1) % this.numMatrixCols;
+        if (x === this.numMatrixCols - 1) {
+            return;
+        }
+        const newX = (x + 1);
         const existingY = this.getMelodyNote(newX) ?? y;
-        this.selected = [newX, existingY]
+        this.selected = [newX, existingY];
+        if (this.hasMelodyNote(newX)) {
+            this.playNote(this.selected[1], this.selected[0]);
+        }
     }
 
     private getMelodyNote(col: number) {
@@ -693,6 +730,10 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
             }
         }
         return undefined;
+    }
+
+    private hasMelodyNote(col: number): boolean {
+        return typeof this.getMelodyNote(col) === "number";
     }
 
     private togglePlay() {
@@ -737,7 +778,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
             pxt.AudioContextManager.stop();
             this.isPlaying = false;
 
-            this.cells.forEach(row => row.forEach(cell => pxt.BrowserUtils.removeClass(cell, "playing")));
+            this.cells.forEach(row => row.forEach(cell => pxt.BrowserUtils.removeClass(cell.querySelector('rect'), "playing")));
         }
     }
 

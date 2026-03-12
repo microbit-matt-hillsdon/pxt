@@ -3,7 +3,7 @@ import * as Blockly from "blockly";
 interface MatrixDisplayProps {
     cellWidth: number;
     cellHeight: number;
-    cellLabel: string | ((value: number) => string);
+    cellLabel: string | ((rowNum: number, value: boolean) => string);
     cellHorizontalMargin: number;
     cellVerticalMargin: number;
     cornerRadius: number;
@@ -14,7 +14,7 @@ interface MatrixDisplayProps {
 }
 
 export abstract class FieldMatrix extends Blockly.Field {
-    protected cells: SVGRectElement[][] = [];
+    protected cells: SVGElement[][] = [];
     protected matrixSvg: SVGSVGElement;
     private keyDownBinding: Blockly.browserEvents.Data | null = null;
     private blurBinding: Blockly.browserEvents.Data | null = null;
@@ -50,12 +50,18 @@ export abstract class FieldMatrix extends Blockly.Field {
                 const tx = scale * x * (cellWidth + cellHorizontalMargin) + cellHorizontalMargin + padLeft;
                 const ty = scale * y * (cellHeight + cellVerticalMargin) + cellVerticalMargin;
 
-                const cellG = pxsim.svg.child(row, "g", { transform: `translate(${tx} ${ty})`, 'role': 'gridcell' });
-                const rectOptions = {
+                const cellOptions = {
                     'id': this.getCellId(x,y),  // For aria-activedescendant
-                    'aria-label': typeof cellLabel === 'string' ? cellLabel : cellLabel(y),
-                    'role': 'switch',
-                    'aria-checked': "false",
+                    'transform': `translate(${tx} ${ty})`,
+                    'role': 'gridcell',
+                };
+                const cellG = pxsim.svg.child(row, "g", cellOptions);
+
+                const textEl = pxsim.svg.child(cellG, "text", {"font-size": 0});
+                textEl.textContent = typeof cellLabel === 'string' ? cellLabel : cellLabel(y, false);
+
+                const rectOptions = {
+                    'aria-hidden': 'true',
                     'width': scale * cellWidth,
                     'height': scale * cellHeight,
                     'fill': cellFill ?? "none",
@@ -64,8 +70,8 @@ export abstract class FieldMatrix extends Blockly.Field {
                     'data-y': y,
                     'rx': Math.max(2, scale * cornerRadius)
                 };
-                const cellRect = pxsim.svg.child(cellG, "rect", rectOptions) as SVGRectElement;
-                this.cells[x][y] = cellRect;
+                pxsim.svg.child(cellG, "rect", rectOptions) as SVGRectElement;
+                this.cells[x][y] = cellG;
             }
         }
     }
@@ -187,15 +193,15 @@ export abstract class FieldMatrix extends Blockly.Field {
         this.matrixSvg.removeAttribute('aria-activedescendant');
     }
 
-    private setFocusIndicator(cell: SVGRectElement, useTwoToneFocusIndicator: boolean) {
+    private setFocusIndicator(cell: SVGElement, useTwoToneFocusIndicator: boolean) {
         this.clearFocusIndicator();
         const focusVisible = this.matrixSvg.matches(":focus-visible");
         if (!focusVisible && !this.forceFocusVisible) return;
-        const cellG = cell.parentNode as SVGRectElement;
-        const cellWidth = parseInt(cell.getAttribute("width"))
-        const cornerRadius = parseInt(cell.getAttribute("rx"));
+        const cellRect = cell.querySelector('rect');
+        const cellWidth = parseInt(cellRect.getAttribute("width"))
+        const cornerRadius = parseInt(cellRect.getAttribute("rx"));
 
-        pxsim.svg.child(cellG, "rect", {
+        pxsim.svg.child(cell, "rect", {
             transform: 'translate(-2, -2)',
             width: cellWidth + 4,
             height: cellWidth + 4,
@@ -205,7 +211,7 @@ export abstract class FieldMatrix extends Blockly.Field {
             fill: "none"
         });
         if (useTwoToneFocusIndicator) {
-            pxsim.svg.child(cellG, "rect", {
+            pxsim.svg.child(cell, "rect", {
                 transform: 'translate(-1, -1)',
                 width: cellWidth + 2,
                 height: cellWidth + 2,
@@ -215,12 +221,17 @@ export abstract class FieldMatrix extends Blockly.Field {
                 fill: "none"
             });
         }
+        const cellTextEl = cell.querySelector("text");
+        cellTextEl.setAttribute("aria-live", "polite");
     }
 
     protected clearFocusIndicator() {
         this.cells.forEach(cell => cell.forEach(cell => {
-            while (cell.nextElementSibling) {
-                cell.nextElementSibling.remove();
+            const cellTextEl = cell.querySelector("text");
+            cellTextEl.removeAttribute("aria-live");
+            const cellRect = cell.querySelector("rect");
+            while (cellRect.nextElementSibling) {
+                cellRect.nextElementSibling.remove();
             }
         }));
     }
