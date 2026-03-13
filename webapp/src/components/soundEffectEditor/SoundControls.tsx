@@ -248,7 +248,6 @@ export const SoundControls = (props: SoundControlsProps) => {
                         >
                             <Dropdown
                                 id="effect-dropdown"
-                                ariaLabel={pxt.U.lf("Effect")}
                                 getAriaLabel={(value: string) => pxt.U.lf("{0}, Effect", value)}
                                 className="icon-preview"
                                 selectedId={sound.effect}
