@@ -102,6 +102,10 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
                     return;
                 if (document.activeElement.id === "sound-effect-play-button")
                     return;
+                if (
+                    document.activeElement.tagName === "BUTTON"
+                )
+                    return;
             }
             // Ignore in gallery view
             if (selectedView === "gallery") return;
