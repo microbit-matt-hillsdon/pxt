@@ -178,7 +178,7 @@ const IF_ELSE_MIXIN = {
                 .appendField(Blockly.Msg.CONTROLS_IF_MSG_THEN);
             this.appendDummyInput('IFBUTTONS' + i)
                 .appendField(
-                    new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, undefined, removeElseIf, false, {type: "field_mutator", ariaTypeName: 'mutator', alt: "remove else if clause"}))
+                    new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, undefined, removeElseIf, false, {type: "field_mutator", alt: "remove else if clause"}))
                 .setAlign(Blockly.inputs.Align.RIGHT);
             this.appendStatementInput('DO' + i);
         }
@@ -189,7 +189,7 @@ const IF_ELSE_MIXIN = {
                 .setAlign(Blockly.inputs.Align.RIGHT)
                 .appendField(
                     // Updated alt text to include context as to what row/branch the user is on.
-                    new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, undefined, this.removeElse_.bind(this), false, {type: "field_mutator", ariaTypeName: 'mutator', alt: "else, remove else clause"}));
+                    new FieldImageNoText(this.REMOVE_IMAGE_DATAURI, 24, 24, undefined, this.removeElse_.bind(this), false, {type: "field_mutator", alt: "else, remove else clause"}));
             this.appendStatementInput('ELSE');
         }
         if (this.getInput('ADDBUTTON')) this.removeInput('ADDBUTTON');
@@ -209,7 +209,7 @@ const IF_ELSE_MIXIN = {
         }();
         this.addButton = this.appendDummyInput('ADDBUTTON')
             .appendField(
-                new FieldImageNoText(this.ADD_IMAGE_DATAURI, 24, 24, undefined, addElseIf, false, {type: "field_mutator", ariaTypeName: 'mutator', alt: this.elseCount_ ? "add else if clause" : "add else clause"}));
+                new FieldImageNoText(this.ADD_IMAGE_DATAURI, 24, 24, undefined, addElseIf, false, {type: "field_mutator", alt: this.elseCount_ ? "add else if clause" : "add else clause"}));
     },
     /**
      * Reconstructs the block with all child blocks attached.

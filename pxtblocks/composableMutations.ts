@@ -279,7 +279,7 @@ export function initExpandableBlock(info: pxtc.BlocksInfo, b: Blockly.Block, def
 
     function addButton(name: string, uri: string, alt: string, delta: number) {
         return b.appendDummyInput(name)
-        .appendField(new FieldImageNoText(uri, 24, 24, undefined, () => updateShape(delta, false, false, true), false, {type: "field_mutator", ariaTypeName: 'mutator', alt}));
+        .appendField(new FieldImageNoText(uri, 24, 24, undefined, () => updateShape(delta, false, false, true), false, {type: "field_mutator", alt}));
     }
 
     function updateButtons() {
@@ -305,8 +305,8 @@ export function initExpandableBlock(info: pxtc.BlocksInfo, b: Blockly.Block, def
 
     function addPlusAndMinusButtons() {
         return b.appendDummyInput(buttonAddRemName)
-            .appendField(new FieldImageNoText((b as any).REMOVE_IMAGE_DATAURI, 24, 24, undefined, () => updateShape(-1 * buttonDelta, false, false, true), false, {type: "field_mutator", ariaTypeName: 'mutator', alt: lf("Hide optional arguments")}))
-            .appendField(new FieldImageNoText((b as any).ADD_IMAGE_DATAURI, 24, 24, undefined, () => updateShape(buttonDelta, false, false, true), false, {type: "field_mutator", ariaTypeName: 'mutator', alt: lf("Reveal optional arguments")}))
+            .appendField(new FieldImageNoText((b as any).REMOVE_IMAGE_DATAURI, 24, 24, undefined, () => updateShape(-1 * buttonDelta, false, false, true), false, {type: "field_mutator", alt: lf("Hide optional arguments")}))
+            .appendField(new FieldImageNoText((b as any).ADD_IMAGE_DATAURI, 24, 24, undefined, () => updateShape(buttonDelta, false, false, true), false, {type: "field_mutator", alt: lf("Reveal optional arguments")}))
     }
 
     function addPlusButton(): Blockly.Input {
