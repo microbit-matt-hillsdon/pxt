@@ -81,36 +81,14 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
         setCancelToken(null);
     }, [sound]);
 
-    const handleKeyDown = React.useCallback((ev: React.KeyboardEvent) => {
-            // Ignore all keys that could be used for accessibility navigation
-            // Enter is exempt to maintain the same behaviour with Space (" ")
-            if ((ev.key.length !== 1 && ev.key !== "Enter") || ev.metaKey || ev.ctrlKey || /[0-9]/.test(ev.key)) return;
-
-            // Ignore when a text input is focused
-            if (document.activeElement) {
-                if (
-                    document.activeElement.tagName === "INPUT" &&
-                    (document.activeElement as HTMLInputElement).type === "text"
-                )
-                    return;
-                // Space and Enter shouldn't fire these as these keys open dropdowns
-                if (
-                      (document.activeElement.id === "effect-dropdown" ||
-                     document.activeElement.id === "interpolation-dropdown") &&
-                     (ev.key === " " || ev.key === "Enter")
-                )
-                    return;
-                if (document.activeElement.id === "sound-effect-play-button")
-                    return;
-                if (
-                    document.activeElement.tagName === "BUTTON"
-                )
-                    return;
-            }
-            // Ignore in gallery view
-            if (selectedView === "gallery") return;
-
+    const handleKeyDown = React.useCallback((e: React.KeyboardEvent) => {
+        // Ignore in gallery view
+        if (selectedView === "gallery") return;
+        if (e.key.toLowerCase() === "p") {
             play();
+            e.preventDefault();
+            e.stopPropagation();
+        }
     }, [play, selectedView])
 
     const handlePlayButtonClick = () => {
@@ -156,7 +134,7 @@ export const SoundEffectEditor = (props: SoundEffectEditorProps) => {
     }
 
     return (
-        <div id="sound-effect-editor" className="sound-effect-editor" onKeyDown={handleKeyDown} role="dialog" aria-label={lf("Sound effect editor")}>
+        <div id="sound-effect-editor" className="sound-effect-editor" onKeyDown={handleKeyDown} role="dialog" aria-label={lf('Sound effect editor. Press "p" to play the sound effect at any point while in the editor tab.')}>
             {/*
                 Don't steal focus to prevent focus-visible style if opened by mouse.
                 If opened by keyboard, we focus the editor / gallery toggle anyway.
