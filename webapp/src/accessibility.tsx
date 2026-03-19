@@ -7,6 +7,7 @@ import * as sui from "./sui";
 
 import ISettingsProps = pxt.editor.ISettingsProps;
 import { classList } from "../../react-common/components/util";
+import { fireClickOnEnter } from "./util";
 
 export interface EditorAccessibilityMenuProps extends ISettingsProps {
     highContrast?: boolean;
@@ -78,6 +79,30 @@ export class EditorAccessibilityMenu extends data.Component<EditorAccessibilityM
         return this.state.highContrast != nextState.highContrast;
     }
 
+    handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
+        if (e.key === "ArrowRight") {
+            e.preventDefault();
+            const next = (e.currentTarget as HTMLElement).nextElementSibling as HTMLElement | null;
+            if (next) {
+                e.currentTarget.tabIndex = -1;
+                next.tabIndex = 0;
+                next.focus();
+            }
+            return;
+        }
+        if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            const prev = (e.currentTarget as HTMLElement).previousElementSibling as HTMLElement | null;
+            if (prev) {
+                e.currentTarget.tabIndex = -1;
+                prev.tabIndex = 0;
+                prev.focus();
+            }
+            return;
+        }
+        fireClickOnEnter(e);
+    }
+
     renderCore() {
         const targetTheme = pxt.appTarget.appTheme;
         const hasHome = !pxt.shell.isControllerMode();
@@ -93,6 +118,8 @@ export class EditorAccessibilityMenu extends data.Component<EditorAccessibilityM
                     icon="xicon blocks"
                     text={lf("Enable blocks keyboard controls")}
                     onClick={this.toggleAccessibleBlocks}
+                    onKeyDown={this.handleKeyDown}
+                    tabIndex={0}
                 />
             }
             {accessibleBlocksOn &&
@@ -102,6 +129,8 @@ export class EditorAccessibilityMenu extends data.Component<EditorAccessibilityM
                     icon="xicon blocks"
                     text={lf("Skip to Blocks workspace")}
                     onClick={this.openBlocks}
+                    onKeyDown={this.handleKeyDown}
+                    tabIndex={0}
                 />
             }
             <sui.Item
@@ -110,6 +139,8 @@ export class EditorAccessibilityMenu extends data.Component<EditorAccessibilityM
                 icon="xicon js"
                 text={lf("Skip to JavaScript editor")}
                 onClick={this.openJavaScript}
+                onKeyDown={this.handleKeyDown}
+                tabIndex={-1}
             />
             {targetTheme.python &&
                 <sui.Item
@@ -118,6 +149,8 @@ export class EditorAccessibilityMenu extends data.Component<EditorAccessibilityM
                     icon="xicon python"
                     text={lf("Skip to Python editor")}
                     onClick={this.openPython}
+                    onKeyDown={this.handleKeyDown}
+                    tabIndex={-1}
                 />
             }
             {targetTheme.selectLanguage &&
@@ -127,6 +160,8 @@ export class EditorAccessibilityMenu extends data.Component<EditorAccessibilityM
                     icon="xicon globe"
                     text={lf("Select Language")}
                     onClick={this.showLanguagePicker}
+                    onKeyDown={this.handleKeyDown}
+                    tabIndex={-1}
                 />
             }
             {targetTheme.defaultColorTheme &&
@@ -136,6 +171,8 @@ export class EditorAccessibilityMenu extends data.Component<EditorAccessibilityM
                     icon="paint brush"
                     text={lf("Select Theme")}
                     onClick={this.showThemePicker}
+                    onKeyDown={this.handleKeyDown}
+                    tabIndex={-1}
                 />
             }
             {hasHome &&
@@ -145,6 +182,8 @@ export class EditorAccessibilityMenu extends data.Component<EditorAccessibilityM
                     icon="home"
                     text={lf("Go Home")}
                     onClick={this.goHome}
+                    onKeyDown={this.handleKeyDown}
+                    tabIndex={-1}
                 />
             }
         </div>;
@@ -207,14 +246,38 @@ export class HomeAccessibilityMenu extends data.Component<HomeAccessibilityMenuP
         return this.state.highContrast != nextState.highContrast;
     }
 
+    handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
+        if (e.key === "ArrowRight") {
+            e.preventDefault();
+            const next = (e.currentTarget as HTMLElement).nextElementSibling as HTMLElement | null;
+            if (next) {
+                e.currentTarget.tabIndex = -1;
+                next.tabIndex = 0;
+                next.focus();
+            }
+            return;
+        }
+        if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            const prev = (e.currentTarget as HTMLElement).previousElementSibling as HTMLElement | null;
+            if (prev) {
+                e.currentTarget.tabIndex = -1;
+                prev.tabIndex = 0;
+                prev.focus();
+            }
+            return;
+        }
+        fireClickOnEnter(e);
+    }
+
     renderCore() {
         const { highContrast } = this.state;
         const targetTheme = pxt.appTarget.appTheme;
         return <div className="ui accessibleMenu borderless fixed menu" role="menubar">
-            <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="menuitem" icon="add circle" text={lf("New Project")} onClick={this.newProject} />
-            <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="menuitem" icon="upload" text={lf("Import Project")} onClick={this.importProjectDialog} />
-            {targetTheme.selectLanguage ? <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="menuitem" icon="xicon globe" text={lf("Select Language")} onClick={this.showLanguagePicker} /> : undefined}
-            {targetTheme.defaultColorTheme ? <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="menuitem" icon="paint brush" text={("Select Theme")} onClick={this.showThemePicker} /> : undefined}
+            <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="menuitem" icon="add circle" text={lf("New Project")} onClick={this.newProject} onKeyDown={this.handleKeyDown} tabIndex={0} />
+            <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="menuitem" icon="upload" text={lf("Import Project")} onClick={this.importProjectDialog} onKeyDown={this.handleKeyDown} tabIndex={-1} />
+            {targetTheme.selectLanguage ? <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="menuitem" icon="xicon globe" text={lf("Select Language")} onClick={this.showLanguagePicker} onKeyDown={this.handleKeyDown} tabIndex={-1} /> : undefined}
+            {targetTheme.defaultColorTheme ? <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="menuitem" icon="paint brush" text={("Select Theme")} onClick={this.showThemePicker} onKeyDown={this.handleKeyDown} tabIndex={-1} /> : undefined}
         </div>;
     }
 }
