@@ -459,7 +459,7 @@ export class Item extends data.Component<ItemProps, {}> {
             ariaLabel,
             ariaHidden
         } = this.props;
-        console.log(this.props.onKeyDown)
+
         return (
             <div className={genericClassName("ui item link", this.props, true) + ` ${this.props.active ? 'active' : ''}`}
                 role={this.props.role}
