@@ -3722,7 +3722,6 @@ export class ProjectView
             default:
                 this.maybeShowPackageErrors(true);
                 this.startSimulator(opts);
-                if (!this.state.fullscreen && opts && opts.clickTrigger) getBoardView().focus();
                 break;
         }
     }
@@ -3933,9 +3932,6 @@ export class ProjectView
             this.startSimulator();
         } else {
             simulator.driver.restart(); // fast restart
-        }
-        if (!this.state.fullscreen) {
-            getBoardView().focus();
         }
         if (!isDebug) {
             this.blocksEditor.clearBreakpoints();
