@@ -25,7 +25,8 @@ export const Card = (props: CardProps) => {
         tabIndex
     } = props;
 
-    
+    const lastFocusedRef = React.useRef<HTMLElement | null>(null);
+
     const handleLinkOrTriggerClick = (e: React.MouseEvent | React.KeyboardEvent) => {
         if (e.target && (e.target as HTMLElement).tagName == "A") {
             console.log('Another debug line for this A tag')
@@ -39,6 +40,10 @@ export const Card = (props: CardProps) => {
             console.log("active element alternative approach")
             return;
         }
+        if (lastFocusedRef.current?.tagName === 'A') {
+            console.log("the ref alternative approach")
+        return;
+    }
         e.preventDefault();
         onClick();
     }
@@ -62,6 +67,8 @@ export const Card = (props: CardProps) => {
         aria-labelledby={ariaLabelledBy}
         aria-hidden={ariaHidden}
         aria-label={ariaLabel}
+        onFocus={(e) => { lastFocusedRef.current = e.target as HTMLElement; }}
+        onBlur={() => { lastFocusedRef.current = null; }}   
         onClick={handleClick}
         tabIndex={tabIndex}
         onKeyDown={handleKeyDown}>
