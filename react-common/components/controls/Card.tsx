@@ -28,6 +28,11 @@ export const Card = (props: CardProps) => {
     
     const handleLinkOrTriggerClick = (e: React.MouseEvent | React.KeyboardEvent) => {
         if (e.target && (e.target as HTMLElement).tagName == "A") {
+            console.log('Another debug line for this A tag')
+            return;
+        }
+        if ((e.target as HTMLElement).closest?.('a')) {
+            console.log("a better way with screen readers?")
             return;
         }
         e.preventDefault();
