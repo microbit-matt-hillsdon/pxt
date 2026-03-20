@@ -79,30 +79,6 @@ export class EditorAccessibilityMenu extends data.Component<EditorAccessibilityM
         return this.state.highContrast != nextState.highContrast;
     }
 
-    handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
-        if (e.key === "ArrowRight") {
-            e.preventDefault();
-            const next = (e.currentTarget as HTMLElement).nextElementSibling as HTMLElement | null;
-            if (next) {
-                e.currentTarget.tabIndex = -1;
-                next.tabIndex = 0;
-                next.focus();
-            }
-            return;
-        }
-        if (e.key === "ArrowLeft") {
-            e.preventDefault();
-            const prev = (e.currentTarget as HTMLElement).previousElementSibling as HTMLElement | null;
-            if (prev) {
-                e.currentTarget.tabIndex = -1;
-                prev.tabIndex = 0;
-                prev.focus();
-            }
-            return;
-        }
-        fireClickOnEnter(e);
-    }
-
     renderCore() {
         const targetTheme = pxt.appTarget.appTheme;
         const hasHome = !pxt.shell.isControllerMode();
@@ -110,83 +86,69 @@ export class EditorAccessibilityMenu extends data.Component<EditorAccessibilityM
         const accessibleBlocksOn = true;
         const menuClass = classList(targetTheme.invertedMenu && "inverted", "menu");
 
-        return <div className="ui accessibleMenu borderless fixed menu" role="menubar">
+        return <nav className="ui accessibleMenu borderless fixed menu" aria-label={lf("Skip links")}>
             {!accessibleBlocksOn &&
                 <sui.Item
                     className={menuClass}
-                    role="menuitem"
+                    role="button"
                     icon="xicon blocks"
                     text={lf("Enable blocks keyboard controls")}
                     onClick={this.toggleAccessibleBlocks}
-                    onKeyDown={this.handleKeyDown}
-                    tabIndex={0}
                 />
             }
             {accessibleBlocksOn &&
                 <sui.Item
                     className={menuClass}
-                    role="menuitem"
+                    role="button"
                     icon="xicon blocks"
                     text={lf("Skip to Blocks workspace")}
                     onClick={this.openBlocks}
-                    onKeyDown={this.handleKeyDown}
-                    tabIndex={0}
                 />
             }
             <sui.Item
                 className={menuClass}
-                role="menuitem"
+                role="button"
                 icon="xicon js"
                 text={lf("Skip to JavaScript editor")}
                 onClick={this.openJavaScript}
-                onKeyDown={this.handleKeyDown}
-                tabIndex={-1}
             />
             {targetTheme.python &&
                 <sui.Item
                     className={menuClass}
-                    role="menuitem"
+                    role="button"
                     icon="xicon python"
                     text={lf("Skip to Python editor")}
                     onClick={this.openPython}
-                    onKeyDown={this.handleKeyDown}
-                    tabIndex={-1}
                 />
             }
             {targetTheme.selectLanguage &&
                 <sui.Item
                     className={menuClass}
-                    role="menuitem"
+                    role="button"
                     icon="xicon globe"
                     text={lf("Select Language")}
                     onClick={this.showLanguagePicker}
-                    onKeyDown={this.handleKeyDown}
-                    tabIndex={-1}
                 />
             }
             {targetTheme.defaultColorTheme &&
                 <sui.Item
                     className={menuClass}
-                    role="menuitem"
+                    role="button"
                     icon="paint brush"
                     text={lf("Select Theme")}
                     onClick={this.showThemePicker}
-                    onKeyDown={this.handleKeyDown}
-                    tabIndex={-1}
                 />
             }
             {hasHome &&
                 <sui.Item
                     className={menuClass}
-                    role="menuitem"
+                    role="button"
                     icon="home"
                     text={lf("Go Home")}
                     onClick={this.goHome}
-                    onKeyDown={this.handleKeyDown}
-                    tabIndex={-1}
                 />
             }
-        </div>;
+        </nav>;
     }
 }
 
@@ -246,38 +208,14 @@ export class HomeAccessibilityMenu extends data.Component<HomeAccessibilityMenuP
         return this.state.highContrast != nextState.highContrast;
     }
 
-    handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
-        if (e.key === "ArrowRight") {
-            e.preventDefault();
-            const next = (e.currentTarget as HTMLElement).nextElementSibling as HTMLElement | null;
-            if (next) {
-                e.currentTarget.tabIndex = -1;
-                next.tabIndex = 0;
-                next.focus();
-            }
-            return;
-        }
-        if (e.key === "ArrowLeft") {
-            e.preventDefault();
-            const prev = (e.currentTarget as HTMLElement).previousElementSibling as HTMLElement | null;
-            if (prev) {
-                e.currentTarget.tabIndex = -1;
-                prev.tabIndex = 0;
-                prev.focus();
-            }
-            return;
-        }
-        fireClickOnEnter(e);
-    }
-
     renderCore() {
         const { highContrast } = this.state;
         const targetTheme = pxt.appTarget.appTheme;
-        return <div className="ui accessibleMenu borderless fixed menu" role="menubar">
-            <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="menuitem" icon="add circle" text={lf("New Project")} onClick={this.newProject} onKeyDown={this.handleKeyDown} tabIndex={0} />
-            <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="menuitem" icon="upload" text={lf("Import Project")} onClick={this.importProjectDialog} onKeyDown={this.handleKeyDown} tabIndex={-1} />
-            {targetTheme.selectLanguage ? <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="menuitem" icon="xicon globe" text={lf("Select Language")} onClick={this.showLanguagePicker} onKeyDown={this.handleKeyDown} tabIndex={-1} /> : undefined}
-            {targetTheme.defaultColorTheme ? <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="menuitem" icon="paint brush" text={("Select Theme")} onClick={this.showThemePicker} onKeyDown={this.handleKeyDown} tabIndex={-1} /> : undefined}
-        </div>;
+        return <nav className="ui accessibleMenu borderless fixed menu" aria-label={lf("Skip links")}>
+            <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="button" icon="add circle" text={lf("New Project")} onClick={this.newProject} />
+            <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="button" icon="upload" text={lf("Import Project")} onClick={this.importProjectDialog} />
+            {targetTheme.selectLanguage ? <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="button" icon="xicon globe" text={lf("Select Language")} onClick={this.showLanguagePicker} /> : undefined}
+            {targetTheme.defaultColorTheme ? <sui.Item className={`${targetTheme.invertedMenu ? `inverted` : ''} menu`} role="button" icon="paint brush" text={("Select Theme")} onClick={this.showThemePicker} /> : undefined}
+        </nav>;
     }
 }
