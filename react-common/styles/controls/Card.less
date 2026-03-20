@@ -5,14 +5,15 @@
     border: 1px solid var(--pxt-neutral-stencil1);
     transition: border 0.1s ease;
     position: relative;
+    overflow: hidden; // moved here
 
     .common-card-body {
-        overflow: hidden;
-        border-radius: 0.5rem;
+        border-radius: 0.5rem; // can also drop this now, clipped by parent
     }
 }
 
-.common-card[role="button"] {
+.common-card[role="button"],
+.common-card:has(.common-extension-card-action) {
     cursor: pointer;
 
     &:hover {

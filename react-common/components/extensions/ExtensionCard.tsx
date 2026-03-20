@@ -29,49 +29,50 @@ export const ExtensionCard = <U,>(props: ExtensionCardProps<U>) => {
         showDisclaimer
     } = props;
 
-    const onCardClick = () => {
-        if (onClick) onClick(extension);
-    }
-
     const id = pxt.Util.guidGen();
 
-    return <>
-        <Card
-            className={classList("common-extension-card", loading && "loading")}
-            onClick={onCardClick}
-            ariaLabelledBy={id + "-title"}
-            ariaDescribedBy={id + "-description"}
-            tabIndex={onClick && 0}
-            label={label}>
-            <div className="common-extension-card-contents">
-                {!loading && <>
-                    {imageUrl && <LazyImage src={imageUrl} alt={title} />}
-                    <div className="common-extension-card-title" id={id + "-title"} title={title}>
-                        {title}
-                    </div>
-                    <div className="common-extension-card-description">
-                        <div id={id + "-description"}>
-                            {description}
-                        </div>
-                    </div>
-                    {(showDisclaimer || learnMoreUrl) &&
-                        <div className="common-extension-card-extra-content">
-                            {showDisclaimer && lf("User-provided extension, not endorsed by Microsoft.")}
-                            {learnMoreUrl &&
-                                <Link
-                                    className="link-button"
-                                    href={learnMoreUrl}
-                                    target="_blank"
-                                >
-                                    {lf("Learn More")}
-                                </Link>
-                            }
-                        </div>
-                    }
-                </>
+    return (
+        <div className={classList("common-card common-extension-card", loading && "loading")}>
+            <div className="common-card-body">
+                {onClick && !loading &&
+                    <button
+                        className="common-extension-card-action"
+                        tabIndex={0}
+                        aria-labelledby={id + "-title"}
+                        aria-describedby={id + "-description"}
+                        onClick={() => onClick(extension)}
+                    />
                 }
+                <div className="common-extension-card-contents">
+                    {!loading && <>
+                        {imageUrl && <LazyImage src={imageUrl} alt={title} />}
+                        <div className="common-extension-card-title" id={id + "-title"} title={title}>
+                            {title}
+                        </div>
+                        <div className="common-extension-card-description">
+                            <div id={id + "-description"}>
+                                {description}
+                            </div>
+                        </div>
+                        {(showDisclaimer || learnMoreUrl) &&
+                            <div className="common-extension-card-extra-content">
+                                {showDisclaimer && lf("User-provided extension, not endorsed by Microsoft.")}
+                                {learnMoreUrl &&
+                                    <Link
+                                        className="link-button"
+                                        href={learnMoreUrl}
+                                        target="_blank"
+                                    >
+                                        {lf("Learn More")}
+                                    </Link>
+                                }
+                            </div>
+                        }
+                    </>}
+                </div>
+                <div className="common-spinner" />
             </div>
-            <div className="common-spinner" />
-        </Card>
-    </>
+            {label && <label className="common-card-label">{label}</label>}
+        </div>
+    );
 }
