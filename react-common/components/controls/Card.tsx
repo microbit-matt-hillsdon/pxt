@@ -35,6 +35,10 @@ export const Card = (props: CardProps) => {
             console.log("a better way with screen readers?")
             return;
         }
+        if (document.activeElement?.tagName === 'A') {
+            console.log("active element alternative approach")
+            return;
+        }
         e.preventDefault();
         onClick();
     }
