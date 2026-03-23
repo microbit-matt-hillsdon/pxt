@@ -262,7 +262,7 @@ export const AreaMenuOverlay = ({ parent }: AreaMenuOverlapProps) => {
     }
     return ReactDOM.createPortal(
         <FocusTrap dontRestoreFocus onEscape={handleEscape} arrowKeyNavigation={true} focusFirstItem>
-            <div className="area-menu-container" role="menu" aria-label={lf("area overlay")}>
+            <div className="area-menu-container" role="menu" aria-label={lf("Area overlay")}>
                 {areas.map(area => {
                     const rect = areaRects.get(area.id);
                     return rect ? (<AreaButton

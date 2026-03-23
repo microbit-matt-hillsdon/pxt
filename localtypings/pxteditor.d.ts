@@ -820,6 +820,7 @@ declare namespace pxt.editor {
         simSerialActive?: boolean;
         deviceSerialActive?: boolean;
         errorListState?: ErrorListState;
+        errorListCollapsedByUser?: boolean;
         screenshoting?: boolean;
         extensionsVisible?: boolean;
         extensionsToolboxTriggered?: boolean;
@@ -916,7 +917,7 @@ declare namespace pxt.editor {
         forceUpdate(): void;
 
         reloadEditor(): void;
-        openBlocks(): void;
+        openBlocks(showKeyboardControlsHint?: boolean): void;
         openJavaScript(giveFocusOnLoading?: boolean): void;
         openPython(giveFocusOnLoading?: boolean): void;
         openAssets(): void;
@@ -991,7 +992,7 @@ declare namespace pxt.editor {
 
         anonymousPublishHeaderByIdAsync(headerId: string, projectName?: string): Promise<ShareData>;
         publishCurrentHeaderAsync(persistent: boolean, screenshotUri?: string): Promise<string>;
-        publishAsync (name: string, screenshotUri?: string, forceAnonymous?: boolean): Promise<ShareData>;
+        publishAsync (name: string, description?: string,screenshotUri?: string, forceAnonymous?: boolean): Promise<ShareData>;
 
         startStopSimulator(opts?: SimulatorStartOptions): void;
         stopSimulator(unload?: boolean, opts?: SimulatorStartOptions): void;

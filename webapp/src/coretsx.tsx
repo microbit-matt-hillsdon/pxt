@@ -182,7 +182,8 @@ export class CoreDialog extends React.Component<core.PromptOptions, CoreDialogSt
                     <>
                         <p>Type '{options.confirmationText}' to confirm:</p>
                         <sui.Input ref="confirmationInput" id="confirmationInput"
-                            ariaLabel={lf("Type your name to confirm")} autoComplete={false}
+                            label={lf("Type your name to confirm")} visuallyHiddenLabel
+                            autoComplete={false}
                             value={this.state.confirmationText || ''} onChange={this.handleConfirmationTextChange}
                             selectOnMount={!mobile} autoFocus={!mobile} />
                     </>
@@ -292,9 +293,9 @@ export class LoadingDimmer extends React.Component<LoadingDimmerProps, LoadingDi
         if (!visible) return <div />;
         const hc = core.getHighContrastOnce();
         return <sui.Dimmer isOpen={true} active={visible} closable={false}>
-            <sui.Loader className={`large main msg no-select ${hc ? "hc" : ""}`}>
-                <span aria-live="assertive">{content}</span>
-                {loadedPercentage !== undefined && <ProgressBar value={loadedPercentage} />}
+            <sui.Loader className={`large main msg no-select ${hc ? "hc" : ""}`} aria-live="assertive">
+                {content}
+                {loadedPercentage !== undefined && <ProgressBar value={100 * loadedPercentage} />}
             </sui.Loader>
         </sui.Dimmer>;
     }

@@ -263,8 +263,19 @@ namespace pxt.blocks {
     }
 
     export function getHelpUrl(fn: pxtc.SymbolInfo) {
-        if (fn.attributes.help) {
-            const helpUrl = fn.attributes.help.replace(/^\//, '');
+        let helpAttr = fn.attributes.help;
+        if (fn.attributes.blockId?.endsWith(`_blockCombine_get`)) {
+            helpAttr = fn.attributes.blockCombineGetHelp || helpAttr;
+        }
+        else if (fn.attributes.blockId?.endsWith(`_blockCombine_set`)) {
+            helpAttr = fn.attributes.blockCombineSetHelp || helpAttr;
+        }
+        else if (fn.attributes.blockId?.endsWith(`_blockCombine_change`)) {
+            helpAttr = fn.attributes.blockCombineChangeHelp || helpAttr;
+        }
+
+        if (helpAttr) {
+            const helpUrl = helpAttr.replace(/^\//, '');
             if (/^github:/.test(helpUrl)) {
                 return helpUrl;
             } else if (helpUrl !== "none") {
@@ -366,8 +377,8 @@ namespace pxt.blocks {
                 url: '/blocks/loops/while',
                 category: 'loops',
                 block: {
-                    message0: Util.lf("while %1"),
-                    appendField: Util.lf("{id:while}do")
+                    message0: Util.blf("while %1"),
+                    appendField: Util.blf("{id:while}do")
                 }
             },
             'pxt_controls_for': {
@@ -376,9 +387,9 @@ namespace pxt.blocks {
                 url: '/blocks/loops/for',
                 category: 'loops',
                 block: {
-                    message0: Util.lf("for %1 from 0 to %2"),
-                    variable: Util.lf("{id:var}index"),
-                    appendField: Util.lf("{id:for}do")
+                    message0: Util.blf("for %1 from 0 to %2"),
+                    variable: Util.blf("{id:var}index"),
+                    appendField: Util.blf("{id:for}do")
                 }
             },
             'controls_simple_for': {
@@ -387,9 +398,9 @@ namespace pxt.blocks {
                 url: '/blocks/loops/for',
                 category: 'loops',
                 block: {
-                    message0: Util.lf("for %1 from 0 to %2"),
-                    variable: Util.lf("{id:var}index"),
-                    appendField: Util.lf("{id:for}do")
+                    message0: Util.blf("for %1 from 0 to %2"),
+                    variable: Util.blf("{id:var}index"),
+                    appendField: Util.blf("{id:for}do")
                 }
             },
             'pxt_controls_for_of': {
@@ -398,9 +409,9 @@ namespace pxt.blocks {
                 url: '/blocks/loops/for-of',
                 category: 'loops',
                 block: {
-                    message0: Util.lf("for element %1 of %2"),
-                    variable: Util.lf("{id:var}value"),
-                    appendField: Util.lf("{id:for_of}do")
+                    message0: Util.blf("for element %1 of %2"),
+                    variable: Util.blf("{id:var}value"),
+                    appendField: Util.blf("{id:for_of}do")
                 }
             },
             'controls_for_of': {
@@ -409,9 +420,9 @@ namespace pxt.blocks {
                 url: '/blocks/loops/for-of',
                 category: 'loops',
                 block: {
-                    message0: Util.lf("for element %1 of %2"),
-                    variable: Util.lf("{id:var}value"),
-                    appendField: Util.lf("{id:for_of}do")
+                    message0: Util.blf("for element %1 of %2"),
+                    variable: Util.blf("{id:var}value"),
+                    appendField: Util.blf("{id:for_of}do")
                 }
             },
             'math_op2': {
@@ -424,6 +435,11 @@ namespace pxt.blocks {
                 operators: {
                     'op': ["min", "max"]
                 },
+                block: {
+                    message0: Util.blf("%1 of %2 and %3"),
+                    optionMin: Util.blf("{id:op}min"),
+                    optionMax: Util.blf("{id:op}max"),
+                },
                 category: 'math'
             },
             'math_op3': {
@@ -432,7 +448,7 @@ namespace pxt.blocks {
                 url: '/reference/math',
                 category: 'math',
                 block: {
-                    message0: Util.lf("absolute of %1")
+                    message0: Util.blf("absolute of %1")
                 }
             },
             'math_number': {
@@ -474,11 +490,11 @@ namespace pxt.blocks {
                 },
                 category: 'math',
                 block: {
-                    MATH_ADDITION_SYMBOL: Util.lf("{id:op}+"),
-                    MATH_SUBTRACTION_SYMBOL: Util.lf("{id:op}-"),
-                    MATH_MULTIPLICATION_SYMBOL: Util.lf("{id:op}×"),
-                    MATH_DIVISION_SYMBOL: Util.lf("{id:op}/"),
-                    MATH_POWER_SYMBOL: Util.lf("{id:op}**")
+                    MATH_ADDITION_SYMBOL: Util.blf("{id:op}+"),
+                    MATH_SUBTRACTION_SYMBOL: Util.blf("{id:op}-"),
+                    MATH_MULTIPLICATION_SYMBOL: Util.blf("{id:op}×"),
+                    MATH_DIVISION_SYMBOL: Util.blf("{id:op}/"),
+                    MATH_POWER_SYMBOL: Util.blf("{id:op}**")
                 }
             },
             'math_modulo': {
@@ -487,7 +503,7 @@ namespace pxt.blocks {
                 url: '/blocks/math',
                 category: 'math',
                 block: {
-                    MATH_MODULO_TITLE: Util.lf("remainder of %1 / %2")
+                    MATH_MODULO_TITLE: Util.blf("remainder of %1 / %2")
                 }
             },
             'math_js_op': {
@@ -509,15 +525,15 @@ namespace pxt.blocks {
                 },
                 category: 'math',
                 block: {
-                    "sqrt": Util.lf("{id:op}square root"),
-                    "sin": Util.lf("{id:op}sin"),
-                    "cos": Util.lf("{id:op}cos"),
-                    "asin": Util.lf("{id:op}asin"),
-                    "acos": Util.lf("{id:op}acos"),
-                    "tan": Util.lf("{id:op}tan"),
-                    "atan2": Util.lf("{id:op}atan2"),
-                    "idiv": Util.lf("{id:op}integer /"),
-                    "imul": Util.lf("{id:op}integer ×"),
+                    "sqrt": Util.blf("{id:op}square root"),
+                    "sin": Util.blf("{id:op}sin"),
+                    "cos": Util.blf("{id:op}cos"),
+                    "asin": Util.blf("{id:op}asin"),
+                    "acos": Util.blf("{id:op}acos"),
+                    "tan": Util.blf("{id:op}tan"),
+                    "atan2": Util.blf("{id:op}atan2"),
+                    "idiv": Util.blf("{id:op}integer /"),
+                    "imul": Util.blf("{id:op}integer ×"),
                 }
             },
             "math_js_round": {
@@ -534,10 +550,10 @@ namespace pxt.blocks {
                 },
                 category: 'math',
                 block: {
-                    "round": Util.lf("{id:op}round"),
-                    "ceil": Util.lf("{id:op}ceiling"),
-                    "floor": Util.lf("{id:op}floor"),
-                    "trunc": Util.lf("{id:op}truncate"),
+                    "round": Util.blf("{id:op}round"),
+                    "ceil": Util.blf("{id:op}ceiling"),
+                    "floor": Util.blf("{id:op}floor"),
+                    "trunc": Util.blf("{id:op}truncate"),
                 }
             },
             'variables_change': {
@@ -546,7 +562,7 @@ namespace pxt.blocks {
                 url: '/blocks/variables/change',
                 category: 'variables',
                 block: {
-                    message0: Util.lf("change %1 by %2")
+                    message0: Util.blf("change %1 by %2")
                 }
             },
             'controls_repeat_ext': {
@@ -555,8 +571,8 @@ namespace pxt.blocks {
                 url: '/blocks/loops/repeat',
                 category: 'loops',
                 block: {
-                    CONTROLS_REPEAT_TITLE: Util.lf("repeat %1 times"),
-                    CONTROLS_REPEAT_INPUT_DO: Util.lf("{id:repeat}do")
+                    CONTROLS_REPEAT_TITLE: Util.blf("repeat %1 times"),
+                    CONTROLS_REPEAT_INPUT_DO: Util.blf("{id:repeat}do")
                 }
             },
             'variables_get': {
@@ -565,7 +581,7 @@ namespace pxt.blocks {
                 url: '/blocks/variables',
                 category: 'variables',
                 block: {
-                    VARIABLES_GET_CREATE_SET: Util.lf("Create 'set %1'")
+                    VARIABLES_GET_CREATE_SET: Util.blf("Create 'set %1'")
                 }
             },
             'variables_get_reporter': {
@@ -574,7 +590,7 @@ namespace pxt.blocks {
                 url: '/blocks/variables',
                 category: 'variables',
                 block: {
-                    VARIABLES_GET_CREATE_SET: Util.lf("Create 'set %1'")
+                    VARIABLES_GET_CREATE_SET: Util.blf("Create 'set %1'")
                 }
             },
             'variables_set': {
@@ -583,7 +599,7 @@ namespace pxt.blocks {
                 url: '/blocks/variables/assign',
                 category: 'variables',
                 block: {
-                    VARIABLES_SET: Util.lf("set %1 to %2")
+                    VARIABLES_SET: Util.blf("set %1 to %2")
                 }
             },
             'controls_if': {
@@ -598,10 +614,10 @@ namespace pxt.blocks {
                 url: '/blocks/logic/if',
                 category: 'logic',
                 block: {
-                    CONTROLS_IF_MSG_IF: Util.lf("{id:logic}if"),
-                    CONTROLS_IF_MSG_THEN: Util.lf("{id:logic}then"),
-                    CONTROLS_IF_MSG_ELSE: Util.lf("{id:logic}else"),
-                    CONTROLS_IF_MSG_ELSEIF: Util.lf("{id:logic}else if")
+                    CONTROLS_IF_MSG_IF: Util.blf("{id:logic}if"),
+                    CONTROLS_IF_MSG_THEN: Util.blf("{id:logic}then"),
+                    CONTROLS_IF_MSG_ELSE: Util.blf("{id:logic}else"),
+                    CONTROLS_IF_MSG_ELSEIF: Util.blf("{id:logic}else if")
                 }
             },
             'lists_create_with': {
@@ -611,10 +627,10 @@ namespace pxt.blocks {
                 category: 'arrays',
                 blockTextSearch: "LISTS_CREATE_WITH_INPUT_WITH",
                 block: {
-                    LISTS_CREATE_EMPTY_TITLE: Util.lf("empty array"),
-                    LISTS_CREATE_WITH_INPUT_WITH: Util.lf("array of"),
-                    LISTS_CREATE_WITH_CONTAINER_TITLE_ADD: Util.lf("array"),
-                    LISTS_CREATE_WITH_ITEM_TITLE: Util.lf("value")
+                    LISTS_CREATE_EMPTY_TITLE: Util.blf("empty array"),
+                    LISTS_CREATE_WITH_INPUT_WITH: Util.blf("array of"),
+                    LISTS_CREATE_WITH_CONTAINER_TITLE_ADD: Util.blf("array"),
+                    LISTS_CREATE_WITH_ITEM_TITLE: Util.blf("value")
                 }
             },
             'lists_length': {
@@ -623,7 +639,7 @@ namespace pxt.blocks {
                 url: '/reference/arrays/length',
                 category: 'arrays',
                 block: {
-                    LISTS_LENGTH_TITLE: Util.lf("length of array %1")
+                    LISTS_LENGTH_TITLE: Util.blf("length of array %1")
                 }
             },
             'lists_index_get': {
@@ -632,7 +648,7 @@ namespace pxt.blocks {
                 url: '/reference/arrays/get',
                 category: 'arrays',
                 block: {
-                    message0: Util.lf("%1 get value at %2")
+                    message0: Util.blf("%1 get value at %2")
                 }
             },
             'lists_index_set': {
@@ -641,7 +657,7 @@ namespace pxt.blocks {
                 url: '/reference/arrays/set',
                 category: 'arrays',
                 block: {
-                    message0: Util.lf("%1 set value at %2 to %3")
+                    message0: Util.blf("%1 set value at %2 to %3")
                 }
             },
             'logic_compare': {
@@ -669,8 +685,8 @@ namespace pxt.blocks {
                 url: '/blocks/logic/boolean',
                 category: 'logic',
                 block: {
-                    LOGIC_OPERATION_AND: Util.lf("{id:op}and"),
-                    LOGIC_OPERATION_OR: Util.lf("{id:op}or")
+                    LOGIC_OPERATION_AND: Util.blf("{id:op}and"),
+                    LOGIC_OPERATION_OR: Util.blf("{id:op}or")
                 }
             },
             'logic_negate': {
@@ -679,7 +695,7 @@ namespace pxt.blocks {
                 url: '/blocks/logic/boolean',
                 category: 'logic',
                 block: {
-                    LOGIC_NEGATE_TITLE: Util.lf("not %1")
+                    LOGIC_NEGATE_TITLE: Util.blf("not %1")
                 }
             },
             'logic_boolean': {
@@ -688,8 +704,8 @@ namespace pxt.blocks {
                 url: '/blocks/logic/boolean',
                 category: 'logic',
                 block: {
-                    LOGIC_BOOLEAN_TRUE: Util.lf("{id:boolean}true"),
-                    LOGIC_BOOLEAN_FALSE: Util.lf("{id:boolean}false")
+                    LOGIC_BOOLEAN_TRUE: Util.blf("{id:boolean}true"),
+                    LOGIC_BOOLEAN_FALSE: Util.blf("{id:boolean}false")
                 }
             },
             'text': {
@@ -707,7 +723,7 @@ namespace pxt.blocks {
                 url: '/reference/text/length',
                 category: 'text',
                 block: {
-                    TEXT_LENGTH_TITLE: Util.lf("length of %1")
+                    TEXT_LENGTH_TITLE: Util.blf("length of %1")
                 }
             },
             'text_join': {
@@ -716,7 +732,7 @@ namespace pxt.blocks {
                 url: '/reference/text/join',
                 category: 'text',
                 block: {
-                    TEXT_JOIN_TITLE_CREATEWITH: Util.lf("join")
+                    TEXT_JOIN_TITLE_CREATEWITH: Util.blf("join")
                 }
             },
             'procedures_defnoreturn': {
@@ -725,8 +741,8 @@ namespace pxt.blocks {
                 url: '/types/function/define',
                 category: 'functions',
                 block: {
-                    PROCEDURES_DEFNORETURN_TITLE: Util.lf("function"),
-                    PROCEDURE_ALREADY_EXISTS: Util.lf("A function named '%1' already exists.")
+                    PROCEDURES_DEFNORETURN_TITLE: Util.blf("function"),
+                    PROCEDURE_ALREADY_EXISTS: Util.blf("A function named '%1' already exists.")
                 }
             },
             'procedures_callnoreturn': {
@@ -735,7 +751,7 @@ namespace pxt.blocks {
                 url: '/types/function/call',
                 category: 'functions',
                 block: {
-                    PROCEDURES_CALLNORETURN_TITLE: Util.lf("call function")
+                    PROCEDURES_CALLNORETURN_TITLE: Util.blf("call function")
                 }
             },
             'function_return': {
@@ -744,8 +760,8 @@ namespace pxt.blocks {
                 url: '/types/function/return',
                 category: 'functions',
                 block: {
-                    message_with_value: Util.lf("return %1"),
-                    message_no_value: Util.lf("return")
+                    message_with_value: Util.blf("return %1"),
+                    message_no_value: Util.blf("return")
                 }
             },
             'function_definition': {
@@ -754,7 +770,7 @@ namespace pxt.blocks {
                 url: '/types/function/define',
                 category: 'functions',
                 block: {
-                    FUNCTIONS_EDIT_OPTION: Util.lf("Edit Function")
+                    FUNCTIONS_EDIT_OPTION: Util.blf("Edit Function")
                 }
             },
             'function_call': {
@@ -763,8 +779,8 @@ namespace pxt.blocks {
                 url: '/types/function/call',
                 category: 'functions',
                 block: {
-                    FUNCTIONS_CALL_TITLE: Util.lf("call"),
-                    FUNCTIONS_GO_TO_DEFINITION_OPTION: Util.lf("Go to Definition")
+                    FUNCTIONS_CALL_TITLE: Util.blf("call"),
+                    FUNCTIONS_GO_TO_DEFINITION_OPTION: Util.blf("Go to Definition")
                 }
             },
             'function_call_output': {
@@ -782,7 +798,7 @@ namespace pxt.blocks {
             url: '/blocks/on-start',
             category: "loops", // The real category is overriden by apptarget in blocklyloader.ts
             block: {
-                message0: Util.lf("on start %1 %2")
+                message0: Util.blf("on start %1 %2")
             }
         };
         _blockDefinitions[pxtc.PAUSE_UNTIL_TYPE] = {
@@ -791,7 +807,7 @@ namespace pxt.blocks {
             url: '/blocks/pause-until',
             category: "loops", // The real category is overriden by apptarget in blocklyloader.ts
             block: {
-                message0: Util.lf("pause until %1")
+                message0: Util.blf("pause until %1")
             }
         };
         _blockDefinitions[pxtc.TS_BREAK_TYPE] = {
@@ -800,7 +816,7 @@ namespace pxt.blocks {
             url: '/blocks/loops/break',
             category: 'loops',
             block: {
-                message0: Util.lf("break")
+                message0: Util.blf("break")
             }
         }
         _blockDefinitions[pxtc.TS_CONTINUE_TYPE] = {
@@ -809,7 +825,19 @@ namespace pxt.blocks {
             url: '/blocks/loops/continue',
             category: 'loops',
             block: {
-                message0: Util.lf("continue")
+                message0: Util.blf("continue")
+            }
+        }
+
+        if (pxt.Util.isTranslationMode()) {
+            for (const id of Object.keys(_blockDefinitions)) {
+                const def = _blockDefinitions[id];
+                if (def.block) {
+                    def.translationIds = Object.values(def.block).map(v => pxt.U.rlf(v));
+                    for (const key of Object.keys(def.block)) {
+                        def.block[key] = pxt.U.fmt_va(def.block[key].replace(/^\{(id|loc):[^\}]+\}/g, ''), []);
+                    }
+                }
             }
         }
 
@@ -827,29 +855,5 @@ namespace pxt.blocks {
                 }
             }
         }
-    }
-
-    export async function initInContextTranslationAsync() {
-        if (!_blockDefinitions) cacheBlockDefinitions();
-
-        const msg: pxt.Map<string> = {}
-        await Promise.all(
-            Util.values(_blockDefinitions).filter(b => b.block).map(async b => {
-                const keys = Object.keys(b.block);
-                b.translationIds = Util.values(b.block);
-                await Promise.all(
-                    keys.map(async k => {
-                        const r = await pxt.crowdin.inContextLoadAsync(b.block[k])
-                        b.block[k] = r;
-                        // override builtin blockly namespace strings
-                        if (/^[A-Z_]+$/.test(k)) {
-                            msg[k] = r;
-                        }
-                    })
-                );
-            })
-        );
-
-        return msg;
     }
 }

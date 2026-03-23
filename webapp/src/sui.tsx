@@ -6,7 +6,7 @@ import * as ReactTooltip from 'react-tooltip';
 import * as data from "./data";
 import * as core from "./core";
 import { fireClickOnEnter } from "./util";
-import { focusLastActive } from "../../react-common/components/util";
+import { classList, focusLastActive } from "../../react-common/components/util";
 import { ThemeManager } from "../../react-common/components/theming/themeManager";
 
 export const appElement = document.getElementById('content');
@@ -25,6 +25,7 @@ export interface UiProps {
     tabIndex?: number;
     rightIcon?: boolean;
     inverted?: boolean;
+    fontAwesome?: boolean;
 }
 
 export type SIZES = 'mini' | 'tiny' | 'small' | 'medium' | 'large' | 'big' | 'huge' | 'massive';
@@ -43,7 +44,7 @@ function genericClassName(cls: string, props: UiProps, ignoreIcon: boolean = fal
 
 export function genericContent(props: UiProps) {
     let retVal = [
-        props.icon ? (<Icon key='iconkey' icon={props.icon + (props.text ? " icon-and-text " : "") + (props.iconClass ? " " + props.iconClass : '')} />) : null,
+        props.icon ? (<Icon key='iconkey' icon={props.icon + (props.text ? " icon-and-text " : "") + (props.iconClass ? " " + props.iconClass : '')} fontAwesome={props.fontAwesome} />) : null,
         props.text ? (<span key='textkey' className={'ui text' + (props.textClass ? ' ' + props.textClass : '')}>{props.text}</span>) : null,
     ]
     if (props.icon && props.rightIcon) retVal = retVal.reverse();
@@ -618,8 +619,8 @@ export function helpIconLink(url: string, title: string) {
 export class Field extends data.Component<{
     label?: string;
     labelWrapper?: React.ElementType;
+    visuallyHidden?: boolean;
     children?: any;
-    ariaLabel?: string;
     htmlFor?: string;
 }, {}> {
     renderCore() {
@@ -630,12 +631,23 @@ export class Field extends data.Component<{
         }
         return (
             <div className="field">
-                {this.props.label ? wrappedLabel : null}
-                {this.props.ariaLabel && this.props.htmlFor ? (<label htmlFor={this.props.htmlFor} className="accessible-hidden">{this.props.ariaLabel}</label>) : ""}
+                <LabelWrapper
+                    wrapperType={this.props.labelWrapper}
+                >
+                    {this.props.label && this.props.htmlFor && (<label className={classList(this.props.visuallyHidden ? "accessible-hidden" : "")} htmlFor={this.props.htmlFor}>{this.props.label}</label>)}
+                </LabelWrapper>
                 {this.props.children}
             </div>
         );
     }
+}
+
+const LabelWrapper = ({wrapperType, children}: {wrapperType?: React.ElementType, children: React.ReactNode}) => {
+    if (wrapperType) {
+        const Wrapper = wrapperType;
+        return <Wrapper>{children}</Wrapper>
+    }
+    return <>{children}</>
 }
 
 ///////////////////////////////////////////////////////////
@@ -644,8 +656,9 @@ export class Field extends data.Component<{
 
 export interface InputProps {
     label?: string;
-    labelWrapper?: React.ElementType;
+    labelWrapper?: React.ElementType
     inputLabel?: string;
+    visuallyHiddenLabel?: boolean;
     class?: string;
     value?: string;
     error?: string;
@@ -659,7 +672,6 @@ export interface InputProps {
     copy?: boolean;
     selectOnClick?: boolean;
     id?: string;
-    ariaLabel?: string;
     autoFocus?: boolean;
     autoComplete?: boolean;
     selectOnMount?: boolean;
@@ -752,14 +764,14 @@ export class Input extends data.Component<InputProps, InputState> {
 
     renderCore() {
         const p = this.props;
-        const { copy, error, ariaLabel, id, label, labelWrapper, inputLabel, lines, autoFocus, placeholder, readOnly, autoComplete } = p;
+        const { copy, error, id, label, labelWrapper, inputLabel, lines, autoFocus, placeholder, readOnly, autoComplete, visuallyHiddenLabel } = p;
         const { value, copied } = this.state;
         const copyBtn = copy && document.queryCommandSupported('copy')
             ? <Button className={`ui right labeled ${copied ? "green" : "primary"} icon button`} text={copied ? lf("Copied!") : lf("Copy")} icon="copy" onClick={this.copy} />
             : null;
 
         return (
-            <Field ariaLabel={ariaLabel} htmlFor={id} label={label} labelWrapper={labelWrapper}>
+            <Field htmlFor={id} label={label} visuallyHidden={visuallyHiddenLabel} labelWrapper={labelWrapper}>
                 <div className={"ui input" + (p.inputLabel ? " labelled" : "") + (copy ? " action fluid" : "") + (p.disabled ? " disabled" : "")}>
                     {inputLabel ? (<div className="ui label">{inputLabel}</div>) : ""}
                     {!lines || lines == 1 ? <input
@@ -843,11 +855,12 @@ export interface IconProps extends UiProps {
     icon?: string;
     onClick?: () => void;
     onKeyDown?: () => void;
+    fontAwesome?: boolean;
 }
 
 export const Icon: React.FunctionComponent<IconProps> = (props: IconProps) => {
-    const { icon, className, onClick, onKeyDown, children, ...rest } = props;
-    return <i className={`icon ${icon} ${className ? className : ''}`}
+    const { icon, className, onClick, onKeyDown, fontAwesome, children, ...rest } = props;
+    return <i className={`${fontAwesome ? '' : 'icon '}${icon} ${className ? className : ''}`}
         onClick={onClick}
         onKeyDown={onKeyDown || fireClickOnEnter}
         aria-hidden={true} role="presentation" {...rest}>
