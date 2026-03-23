@@ -100,7 +100,7 @@ export const Dropdown = (props: DropdownProps) => {
             onKeydown={onKeyDown}
             ariaHasPopup="listbox"
             ariaExpanded={expanded}
-            ariaLabel={ariaLabel ?? getAriaLabel(selected.title) ?? selected.title}
+            ariaLabel={ariaLabel ?? getAriaLabel?.(selected.title) ?? selected.title}
             title={null}
             ariaHidden={ariaHidden}
             />
