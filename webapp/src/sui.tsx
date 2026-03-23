@@ -624,11 +624,6 @@ export class Field extends data.Component<{
     htmlFor?: string;
 }, {}> {
     renderCore() {
-        let wrappedLabel = <label htmlFor={!this.props.ariaLabel ? this.props.htmlFor : undefined}>{this.props.label}</label>;;
-        const Wrapper = this.props.labelWrapper
-        if (Wrapper) {
-            wrappedLabel = <Wrapper>{wrappedLabel}</Wrapper>
-        }
         return (
             <div className="field">
                 <LabelWrapper
@@ -641,6 +636,7 @@ export class Field extends data.Component<{
         );
     }
 }
+
 
 const LabelWrapper = ({wrapperType, children}: {wrapperType?: React.ElementType, children: React.ReactNode}) => {
     if (wrapperType) {
