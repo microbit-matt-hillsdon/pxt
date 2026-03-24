@@ -326,9 +326,9 @@ export class ProjectView
      */
     private runGlobalAction(action: pxsim.GlobalAction) {
         // Escape always works to exit fullscreen, other actions require accessible blocks
-        if (action !== "escape" && !data.getData<boolean>(auth.ACCESSIBLE_BLOCKS)) {
-            return;
-        }
+        // if (action !== "escape" && !data.getData<boolean>(auth.ACCESSIBLE_BLOCKS)) {
+        //     return;
+        // }
 
         switch (action) {
             case "escape": {
