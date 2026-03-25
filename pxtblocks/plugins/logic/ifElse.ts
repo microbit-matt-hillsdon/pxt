@@ -200,7 +200,6 @@ const IF_ELSE_MIXIN = {
                     that.addElse_();
                 } else {
                     if (!that.elseifCount_) that.elseifCount_ = 0;
-                    console.log("adding else if?")
                     that.addElseIf_();
                 }
                 maybeFocusMutatorButton(that.addButton?.fieldRow[0]);
