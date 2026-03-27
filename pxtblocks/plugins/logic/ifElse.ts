@@ -16,7 +16,6 @@ const IF_ELSE_MIXIN = {
     valueConnections_: [] as Blockly.Connection[],
     statementConnections_: [] as Blockly.Connection[],
     elseStatementConnection_: null as Blockly.Connection,
-    addButton: null as Blockly.Input | null,
     /**
      * Create XML to represent the number of else-if and else inputs.
      * @return {Element} XML storage element.
@@ -198,15 +197,19 @@ const IF_ELSE_MIXIN = {
             return function () {
                 if (that.elseCount_ == 0) {
                     that.addElse_();
+                    // Focus the else 'remove branch' button (keyboard users only).
+                    maybeFocusMutatorButton(that.getInput('ELSEBUTTONS')?.fieldRow[0]);
                 } else {
                     if (!that.elseifCount_) that.elseifCount_ = 0;
                     that.addElseIf_();
+                    // Focus the else if boolean (keyboard users only).
+                    const focusManager = Blockly.getFocusManager();
+                    const node = (that.getInput('IF' + that.elseifCount_)?.connection?.targetBlock() as Blockly.BlockSvg);
+                    focusManager.focusNode(node);
                 }
-                maybeFocusMutatorButton(that.addButton?.fieldRow[0]);
-                that.addButton = null;
             };
         }();
-        this.addButton = this.appendDummyInput('ADDBUTTON')
+        this.appendDummyInput('ADDBUTTON')
             .appendField(
                 new FieldImageNoText(this.ADD_IMAGE_DATAURI, 24, 24, undefined, addElseIf, false, {type: "field_mutator", alt: this.elseCount_ ? "add else if clause" : "add else clause"}));
     },
