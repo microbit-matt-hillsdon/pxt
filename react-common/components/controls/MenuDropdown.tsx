@@ -73,10 +73,7 @@ export const MenuDropdown = (props: MenuDropdownProps) => {
             for (const node of nodes) {
                 const el = node as HTMLElement;
                 if (el.offsetParent !== null) {
-                    // Timeout is required so that some screen readers announce the newly
-                    // focused menuitem, rather than announcing the change in the expanded
-                    // state of the trigger menu button.
-                    setTimeout(() => el.focus(), 0)
+                    el.focus();
                     break;
                 }
             }
