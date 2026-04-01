@@ -820,7 +820,7 @@ declare namespace pxt.editor {
         simSerialActive?: boolean;
         deviceSerialActive?: boolean;
         errorListState?: ErrorListState;
-        errorListCollapsedByUser?: boolean;
+        errorListCollapsed?: boolean;
         screenshoting?: boolean;
         extensionsVisible?: boolean;
         extensionsToolboxTriggered?: boolean;
