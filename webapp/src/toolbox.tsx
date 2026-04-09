@@ -652,6 +652,7 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
                 <div className="blocklyTreeRoot">
                     <div
                         className="blocklyTreeInner"
+                        id="toolbox-tree"
                         role="tree"
                         tabIndex={0}
                         ref="categoryTree"
