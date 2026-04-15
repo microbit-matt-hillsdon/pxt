@@ -200,7 +200,7 @@ const SoundGalleryEntry = (props: SoundGalleryItemProps) => {
         setCancelToken(null);
     }
 
-    return <div className="sound-gallery-item-label" role="row">
+    return <div className="sound-gallery-item-label" role="row" id={`sound-gallery-row-${index}`}>
         <div
             id={selectId}
             className="sound-gallery-item-label-inner"

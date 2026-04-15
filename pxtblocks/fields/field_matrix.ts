@@ -45,7 +45,7 @@ export abstract class FieldMatrix extends Blockly.Field {
 
         // Create the cells of the matrix that is displayed
         for (let y = 0; y < this.numMatrixRows; y++) {
-            const row = pxsim.svg.child(this.matrixSvg, "g", { 'role': 'row' });
+            const row = pxsim.svg.child(this.matrixSvg, "g", { 'role': 'row', 'id': this.getRowId(y) });
             for (let x = 0; x < this.numMatrixCols; x++) {
                 const tx = scale * x * (cellWidth + cellHorizontalMargin) + cellHorizontalMargin + padLeft;
                 const ty = scale * y * (cellHeight + cellVerticalMargin) + cellVerticalMargin;
@@ -276,6 +276,8 @@ export abstract class FieldMatrix extends Blockly.Field {
     }
 
     protected getCellId = (x: number, y: number) => `${this.sourceBlock_.id}:${x}-${y}`;
+
+    protected getRowId = (index: number) => `${this.sourceBlock_.id}:row-${index}`;
 
     protected abstract attachPointerEventHandlersToCell(x: number, y: number, cellRect: SVGElement): void;
 

@@ -237,7 +237,7 @@ namespace pxtmelody {
         protected mkButton(sample: pxtmelody.MelodyInfo, i: number, width: string, height: string) {
             const outer = mkElement("div", {
                 className: "melody-gallery-button melody-editor-card",
-                id: `:${i}`,
+                id: `melody-gallery:row-${i}`,
                 role: "row"
             });
 
@@ -432,6 +432,6 @@ namespace pxtmelody {
     }
 }
 
-const getCellId = (x: number, y: number) => `:${y}-${x === 0 ? "selection" : "preview"}`;
+const getCellId = (x: number, y: number) => `melody-gallery-cell:${y}-${x === 0 ? "selection" : "preview"}`;
 
 const addAriaHidden = (el: HTMLElement) => el.ariaHidden = "true";
