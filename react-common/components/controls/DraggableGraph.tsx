@@ -110,16 +110,39 @@ export const DraggableGraph = (props: DraggableGraphProps) => {
             };
 
             ref.onkeydown = ev => {
-                const step = (max - min) / 100;
-                if (ev.code === "ArrowDown" || ev.code === "ArrowLeft") {
-                    onPointChange(index, Math.max(min, points[index] - step));
-                    ev.stopPropagation();
+                const key = ev.key;
+                if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "PageUp", "PageDown", "Home", "End"].includes(key)) {
                     ev.preventDefault();
-                } else if (ev.code === "ArrowUp" || ev.code === "ArrowRight") {
-                    onPointChange(index, Math.min(max, points[index] + step));
-                    ev.stopPropagation();
-                    ev.preventDefault();
-                } 
+                }
+                const currentValue = points[index]
+                switch(key) {
+                    case "ArrowDown":
+                    case "ArrowLeft": {
+                        return onPointChange(index, Math.max(min, currentValue - 1));
+                    }
+                    case "ArrowUp":
+                    case "ArrowRight": {
+                        return onPointChange(index, Math.min(max, currentValue + 1));
+                    }
+                    case "Home": {
+                        return onPointChange(index, min);
+                    }
+                    case "End": {
+                        return onPointChange(index, max);
+                    }
+                    case "PageDown": {
+                        const range = Math.abs(min) + Math.abs(max);
+                        const step = Math.floor(range / 10);
+                        const value = currentValue - step;
+                        return onPointChange(index, Math.max(min, value));
+                    }
+                    case "PageUp": {
+                        const range = Math.abs(min) + Math.abs(max);
+                        const step = Math.floor(range / 10);
+                        const value = currentValue + step;
+                        return onPointChange(index, Math.min(max, value));
+                    }
+                }
             }
         });
     }, [dragIndex, onPointChange])
