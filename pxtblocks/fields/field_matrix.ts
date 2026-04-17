@@ -147,7 +147,9 @@ export abstract class FieldMatrix extends Blockly.Field {
                 case "Enter":
                 case "Space": {
                     this.toggleCell(x, y, !this.getCellToggled(x, y));
-                    break;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
                 }
                 case "Escape": {
                     (this.sourceBlock_.workspace as Blockly.WorkspaceSvg).markFocused();
