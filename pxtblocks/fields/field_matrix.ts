@@ -222,7 +222,9 @@ export abstract class FieldMatrix extends Blockly.Field {
             });
         }
         const cellTextEl = cell.querySelector("text");
-        cellTextEl.setAttribute("aria-live", "polite");
+        // Don't take effect for initial gridcell focus.
+        // Only announce gridcells being toggled on/off, not navigated to.
+        setTimeout(() => cellTextEl.setAttribute("aria-live", "polite"), 0);
     }
 
     protected clearFocusIndicator() {
