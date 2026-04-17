@@ -16,6 +16,12 @@ export interface DraggableGraphProps extends ControlProps {
     handleStartAnimationRef?: (startAnimation: (duration: number) => void) => void;
 }
 
+const getSliderStepValue = (min: number, max: number) => {
+    const range = max - min;
+    // Assumes slider values are always integers.
+    return Math.max(1, Math.floor(range / 10));
+}
+
 export const DraggableGraph = (props: DraggableGraphProps) => {
     const {
         interpolation,
@@ -131,14 +137,12 @@ export const DraggableGraph = (props: DraggableGraphProps) => {
                         return onPointChange(index, max);
                     }
                     case "PageDown": {
-                        const range = Math.abs(min) + Math.abs(max);
-                        const step = Math.floor(range / 10);
+                        const step = getSliderStepValue(min, max);
                         const value = currentValue - step;
                         return onPointChange(index, Math.max(min, value));
                     }
                     case "PageUp": {
-                        const range = Math.abs(min) + Math.abs(max);
-                        const step = Math.floor(range / 10);
+                        const step = getSliderStepValue(min, max);
                         const value = currentValue + step;
                         return onPointChange(index, Math.min(max, value));
                     }
