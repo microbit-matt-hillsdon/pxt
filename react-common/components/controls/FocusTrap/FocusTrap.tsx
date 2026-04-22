@@ -14,21 +14,18 @@ export interface FocusTrapProps extends ContainerProps {
     focusFirstItem?: boolean;
     tagName?: keyof JSX.IntrinsicElements;
     ariaLabelledby?: string;
+    ariaModal?: boolean;
 }
 
-export const FocusTrap = React.forwardRef<HTMLDivElement, FocusTrapProps>((props, ref) => {
+export const FocusTrap = (props: FocusTrapProps) => {
     return (
         <FocusTrapProvider>
-            <FocusTrapInner {...props} externalRef={ref} />
+            <FocusTrapInner {...props} />
         </FocusTrapProvider>
     );
-});
-
-interface FocusTrapInnerProps extends FocusTrapProps {
-    externalRef?: React.Ref<HTMLDivElement>;
 }
 
-const FocusTrapInner = (props: FocusTrapInnerProps) => {
+const FocusTrapInner = (props: FocusTrapProps) => {
     const {
         children,
         id,
@@ -45,7 +42,8 @@ const FocusTrapInner = (props: FocusTrapInnerProps) => {
         ariaLabelledby,
         ariaLabel,
         ariaHidden,
-        externalRef
+        ariaDescribedBy,
+        ariaModal,
     } = props;
 
     const containerRef = React.useRef<HTMLDivElement | null>(null);
@@ -109,16 +107,9 @@ const FocusTrapInner = (props: FocusTrapInnerProps) => {
         return all as HTMLElement[];
     }, [regions, includeOutsideTabOrder]);
 
-    const handleRef = React.useCallback((ref: HTMLDivElement | null) => {
-        containerRef.current = ref;
-
-        if (typeof externalRef === "function") {
-            externalRef(ref);
-        } else if (externalRef) {
-            (externalRef as React.MutableRefObject<HTMLDivElement | null>).current = ref;
-        }
-
+    const handleRef = React.useCallback((ref: HTMLDivElement) => {
         if (!ref) return;
+        containerRef.current = ref;
 
         const elements = getElements();
 
@@ -131,7 +122,7 @@ const FocusTrapInner = (props: FocusTrapInnerProps) => {
             // Only steal focus once
             setStoleFocus(true);
         }
-    }, [getElements, dontStealFocus, stoleFocus, focusFirstItem, externalRef]);
+    }, [getElements, dontStealFocus, stoleFocus, focusFirstItem]);
 
     const onKeyDown = React.useCallback((e: React.KeyboardEvent) => {
         if (!containerRef.current) return;
@@ -234,6 +225,8 @@ const FocusTrapInner = (props: FocusTrapInnerProps) => {
             "aria-labelledby": ariaLabelledby,
             "aria-label": ariaLabel,
             "aria-hidden": ariaHidden,
+            "aria-describedby": ariaDescribedBy,
+            "aria-modal": ariaModal,
         },
         children
 

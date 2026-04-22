@@ -66,15 +66,18 @@ export const Modal = (props: ModalProps) => {
     const portalTarget = parentElement || document.body;
     useInertSiblings(modalRootRef, portalTarget);
 
-    return ReactDOM.createPortal(<FocusTrap ref={modalRootRef} className={classes} onEscape={closeClickHandler}>
-        <div id={id}
+    return ReactDOM.createPortal(<div className={classes} ref={modalRootRef}>
+        <FocusTrap
+            id={id}
             className="common-modal"
             role={role || "dialog"}
-            aria-modal={true}
-            aria-hidden={ariaHidden}
-            aria-label={ariaLabel}
-            aria-describedby={ariaDescribedBy}
-            aria-labelledby="modal-title">
+            ariaModal={true}
+            ariaHidden={ariaHidden}
+            ariaLabel={ariaLabel}
+            ariaDescribedBy={ariaDescribedBy}
+            ariaLabelledby="modal-title"
+            onEscape={closeClickHandler}
+        >
             <div className="common-modal-header">
                 {fullscreen && !hideDismissButton &&
                     <div className="common-modal-back">
@@ -136,6 +139,6 @@ export const Modal = (props: ModalProps) => {
                     )}
                 </div>
             }
-        </div>
-    </FocusTrap>, portalTarget)
+        </FocusTrap>
+    </div>, portalTarget)
 }

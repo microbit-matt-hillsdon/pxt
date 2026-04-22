@@ -370,19 +370,22 @@ export const TeachingBubble = (props: TeachingBubbleProps) => {
     const portalTarget = parentElement || document.getElementById("root") || document.body;
     useInertSiblings(bubbleRootRef, portalTarget, !activeTarget);
 
-    return ReactDOM.createPortal(<FocusTrap ref={bubbleRootRef} className={classes} onEscape={onClose}>
+    return ReactDOM.createPortal(<div className={classes} ref={bubbleRootRef}>
         {props.showConfetti && <Confetti />}
         <div className="teaching-bubble-cutout" />
         <div className="teaching-bubble-arrow" />
         <div className="teaching-bubble-arrow-outline" />
-        <div id={id}
+        <FocusTrap
+            id={id}
             className="teaching-bubble"
             role={role || "dialog"}
-            aria-modal={!activeTarget}
-            aria-hidden={ariaHidden}
-            aria-label={ariaLabel}
-            aria-describedby={ariaDescribedBy}
-            aria-labelledby="teaching-bubble-title">
+            ariaModal={!activeTarget}
+            ariaHidden={ariaHidden}
+            ariaLabel={ariaLabel}
+            ariaDescribedBy={ariaDescribedBy}
+            ariaLabelledby="teaching-bubble-title"
+            onEscape={onClose}
+        >
             <Button
                 className="teaching-bubble-close"
                 onClick={onClose}
@@ -425,6 +428,6 @@ export const TeachingBubble = (props: TeachingBubbleProps) => {
             {footer && <div className="teaching-bubble-footer">
                 {footer}
             </div>}
-        </div>
-    </FocusTrap>, portalTarget)
+        </FocusTrap>
+    </div>, portalTarget)
 }
