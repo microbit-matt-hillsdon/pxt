@@ -16,15 +16,19 @@ export interface FocusTrapProps extends ContainerProps {
     ariaLabelledby?: string;
 }
 
-export const FocusTrap = (props: FocusTrapProps) => {
+export const FocusTrap = React.forwardRef<HTMLDivElement, FocusTrapProps>((props, ref) => {
     return (
         <FocusTrapProvider>
-            <FocusTrapInner {...props} />
+            <FocusTrapInner {...props} externalRef={ref} />
         </FocusTrapProvider>
     );
+});
+
+interface FocusTrapInnerProps extends FocusTrapProps {
+    externalRef?: React.Ref<HTMLDivElement>;
 }
 
-const FocusTrapInner = (props: FocusTrapProps) => {
+const FocusTrapInner = (props: FocusTrapInnerProps) => {
     const {
         children,
         id,
@@ -40,7 +44,8 @@ const FocusTrapInner = (props: FocusTrapProps) => {
         role,
         ariaLabelledby,
         ariaLabel,
-        ariaHidden
+        ariaHidden,
+        externalRef
     } = props;
 
     const containerRef = React.useRef<HTMLDivElement | null>(null);
@@ -104,9 +109,16 @@ const FocusTrapInner = (props: FocusTrapProps) => {
         return all as HTMLElement[];
     }, [regions, includeOutsideTabOrder]);
 
-    const handleRef = React.useCallback((ref: HTMLDivElement) => {
-        if (!ref) return;
+    const handleRef = React.useCallback((ref: HTMLDivElement | null) => {
         containerRef.current = ref;
+
+        if (typeof externalRef === "function") {
+            externalRef(ref);
+        } else if (externalRef) {
+            (externalRef as React.MutableRefObject<HTMLDivElement | null>).current = ref;
+        }
+
+        if (!ref) return;
 
         const elements = getElements();
 
@@ -119,7 +131,7 @@ const FocusTrapInner = (props: FocusTrapProps) => {
             // Only steal focus once
             setStoleFocus(true);
         }
-    }, [getElements, dontStealFocus, stoleFocus, focusFirstItem]);
+    }, [getElements, dontStealFocus, stoleFocus, focusFirstItem, externalRef]);
 
     const onKeyDown = React.useCallback((e: React.KeyboardEvent) => {
         if (!containerRef.current) return;

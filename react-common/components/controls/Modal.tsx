@@ -4,6 +4,7 @@ import { classList, ContainerProps } from "../util";
 import { Button } from "./Button";
 import { FocusTrap } from "./FocusTrap";
 import { Link } from "./Link";
+import { useInertSiblings } from "../../hooks/useInertSiblings";
 
 export interface ModalAction {
     label: string;
@@ -61,35 +62,15 @@ export const Modal = (props: ModalProps) => {
         className
     );
 
-    const modalRef = React.useRef<HTMLDivElement>(null);
+    const modalRootRef = React.useRef<HTMLDivElement>(null);
+    const portalTarget = parentElement || document.body;
+    useInertSiblings(modalRootRef, portalTarget);
 
-    React.useEffect(() => {
-        const root = parentElement || document.body;
-        const parent = modalRef.current?.parentElement;
-
-        const hiddenSiblings: Element[] = [];
-
-        for (const child of root.children) {
-            if (child !== parent) {
-                if (!child.hasAttribute("aria-hidden") || child.getAttribute("aria-hidden") === "false") {
-                    (child as HTMLElement).setAttribute("aria-hidden", "true");
-                    hiddenSiblings.push(child);
-                }
-            }
-        }
-
-        return () => {
-            for (const child of hiddenSiblings) {
-                (child as HTMLElement).removeAttribute("aria-hidden");
-            }
-        };
-    }, [parentElement])
-
-    return ReactDOM.createPortal(<FocusTrap className={classes} onEscape={closeClickHandler}>
+    return ReactDOM.createPortal(<FocusTrap ref={modalRootRef} className={classes} onEscape={closeClickHandler}>
         <div id={id}
             className="common-modal"
-            ref={modalRef}
             role={role || "dialog"}
+            aria-modal={true}
             aria-hidden={ariaHidden}
             aria-label={ariaLabel}
             aria-describedby={ariaDescribedBy}
@@ -156,5 +137,5 @@ export const Modal = (props: ModalProps) => {
                 </div>
             }
         </div>
-    </FocusTrap>, parentElement || document.body)
+    </FocusTrap>, portalTarget)
 }

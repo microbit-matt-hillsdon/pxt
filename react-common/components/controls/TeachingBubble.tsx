@@ -4,7 +4,8 @@ import { Button } from "./Button";
 import { Confetti } from "../animations/Confetti";
 import { ContainerProps, classList } from "../util";
 import { FocusTrap } from "./FocusTrap";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useInertSiblings } from "../../hooks/useInertSiblings";
 
 
 export interface CutoutBounds {
@@ -365,7 +366,11 @@ export const TeachingBubble = (props: TeachingBubbleProps) => {
         targetContent.bubbleStyle
     );
 
-    return ReactDOM.createPortal(<FocusTrap className={classes} onEscape={onClose}>
+    const bubbleRootRef = useRef<HTMLDivElement>(null);
+    const portalTarget = parentElement || document.getElementById("root") || document.body;
+    useInertSiblings(bubbleRootRef, portalTarget, !activeTarget);
+
+    return ReactDOM.createPortal(<FocusTrap ref={bubbleRootRef} className={classes} onEscape={onClose}>
         {props.showConfetti && <Confetti />}
         <div className="teaching-bubble-cutout" />
         <div className="teaching-bubble-arrow" />
@@ -373,6 +378,7 @@ export const TeachingBubble = (props: TeachingBubbleProps) => {
         <div id={id}
             className="teaching-bubble"
             role={role || "dialog"}
+            aria-modal={!activeTarget}
             aria-hidden={ariaHidden}
             aria-label={ariaLabel}
             aria-describedby={ariaDescribedBy}
@@ -420,5 +426,5 @@ export const TeachingBubble = (props: TeachingBubbleProps) => {
                 {footer}
             </div>}
         </div>
-    </FocusTrap>, parentElement || document.getElementById("root") || document.body)
+    </FocusTrap>, portalTarget)
 }
