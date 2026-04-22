@@ -63,8 +63,13 @@ export const Modal = (props: ModalProps) => {
     );
 
     const modalRootRef = React.useRef<HTMLDivElement>(null);
+    const titleRef = React.useRef<HTMLDivElement>(null);
     const portalTarget = parentElement || document.body;
     useInertSiblings(modalRootRef, portalTarget);
+
+    React.useEffect(() => {
+        titleRef.current?.focus();
+    }, []);
 
     return ReactDOM.createPortal(<div className={classes} ref={modalRootRef}>
         <FocusTrap
@@ -76,6 +81,7 @@ export const Modal = (props: ModalProps) => {
             ariaLabel={ariaLabel}
             ariaDescribedBy={ariaDescribedBy}
             ariaLabelledby="modal-title"
+            dontStealFocus={true}
             onEscape={closeClickHandler}
         >
             <div className="common-modal-header">
@@ -90,7 +96,7 @@ export const Modal = (props: ModalProps) => {
                         />
                     </div>
                 }
-                <div id="modal-title" className="common-modal-title">
+                <div id="modal-title" className="common-modal-title" tabIndex={-1} ref={titleRef}>
                     {leftIcon && <i className={leftIcon} aria-hidden={true}/>}
                     {title}
                 </div>

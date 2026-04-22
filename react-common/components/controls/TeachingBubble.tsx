@@ -367,8 +367,13 @@ export const TeachingBubble = (props: TeachingBubbleProps) => {
     );
 
     const bubbleRootRef = useRef<HTMLDivElement>(null);
+    const titleRef = useRef<HTMLElement>(null);
     const portalTarget = parentElement || document.getElementById("root") || document.body;
     useInertSiblings(bubbleRootRef, portalTarget, !activeTarget);
+
+    useEffect(() => {
+        titleRef.current?.focus();
+    }, []);
 
     return ReactDOM.createPortal(<div className={classes} ref={bubbleRootRef}>
         {props.showConfetti && <Confetti />}
@@ -384,6 +389,7 @@ export const TeachingBubble = (props: TeachingBubbleProps) => {
             ariaLabel={ariaLabel}
             ariaDescribedBy={ariaDescribedBy}
             ariaLabelledby="teaching-bubble-title"
+            dontStealFocus={true}
             onEscape={onClose}
         >
             <Button
@@ -394,7 +400,7 @@ export const TeachingBubble = (props: TeachingBubbleProps) => {
                 rightIcon="fas fa-times-circle"
             />
             <div className="teaching-bubble-body">
-                <strong aria-live="polite">{targetContent.title}</strong>
+                <strong id="teaching-bubble-title" tabIndex={-1} ref={titleRef} aria-live="polite">{targetContent.title}</strong>
                 <p aria-live="polite">{targetContent.description}</p>
                 <div className={`teaching-bubble-navigation ${!hasSteps ? "no-steps" : ""}`}>
                     {hasSteps && <div className={classList("teaching-bubble-steps", forceHideSteps && "hidden")} aria-live="polite">
