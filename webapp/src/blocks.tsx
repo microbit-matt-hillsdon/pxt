@@ -674,20 +674,24 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
         // const listShortcuts = Blockly.ShortcutRegistry.registry.getRegistry()["list_shortcuts"];
         // Blockly.ShortcutRegistry.registry.unregister(listShortcuts.name);
-        // Blockly.ShortcutRegistry.registry.register({
-        //     ...listShortcuts,
-        //     keyCodes: [
-        //         Blockly.ShortcutRegistry.registry.createSerializedKey(Blockly.utils.KeyCodes.SLASH, [
-        //             Blockly.utils.KeyCodes.META,
-        //         ]),
-        //         Blockly.ShortcutRegistry.registry.createSerializedKey(Blockly.utils.KeyCodes.SLASH, [
-        //             Blockly.utils.KeyCodes.CTRL,
-        //         ]),
-        //     ]
-        // });
+        Blockly.ShortcutRegistry.registry.register({
+            name: ShortcutNames.LIST_SHORTCUTS,
+            callback: (workspace) => {
+                Blockly.Toast.hide(workspace, "helpHint");
+                return true
+            },
+            keyCodes: [
+                Blockly.ShortcutRegistry.registry.createSerializedKey(Blockly.utils.KeyCodes.SLASH, [
+                    Blockly.utils.KeyCodes.META,
+                ]),
+                Blockly.ShortcutRegistry.registry.createSerializedKey(Blockly.utils.KeyCodes.SLASH, [
+                    Blockly.utils.KeyCodes.CTRL,
+                ]),
+            ]
+        });
 
-        // const cleanUpWorkspace = Blockly.ShortcutRegistry.registry.getRegistry()["clean_up_workspace"];
-        // Blockly.ShortcutRegistry.registry.unregister(cleanUpWorkspace.name);
+        const cleanUpWorkspace = Blockly.ShortcutRegistry.registry.getRegistry()[Blockly.ShortcutItems.names.CLEANUP];
+        Blockly.ShortcutRegistry.registry.unregister(cleanUpWorkspace.name);
         Blockly.ShortcutRegistry.registry.register({
             name: ShortcutNames.CLEAN_UP,
             // The default key is 'c' to "clean up workspace". Use 'f' instead to align with "format code".
