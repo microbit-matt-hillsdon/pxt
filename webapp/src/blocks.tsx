@@ -693,6 +693,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         const cleanUpWorkspace = Blockly.ShortcutRegistry.registry.getRegistry()[Blockly.ShortcutItems.names.CLEANUP];
         Blockly.ShortcutRegistry.registry.unregister(cleanUpWorkspace.name);
         Blockly.ShortcutRegistry.registry.register({
+            ...cleanUpWorkspace,
             name: ShortcutNames.CLEAN_UP,
             // The default key is 'c' to "clean up workspace". Use 'f' instead to align with "format code".
             keyCodes: [Blockly.ShortcutRegistry.registry.createSerializedKey(Blockly.utils.KeyCodes.F, null)],
