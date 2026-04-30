@@ -195,6 +195,7 @@ export class FieldCustomMelody<U extends FieldCustomOptions> extends FieldMatrix
 
         // Same toggle set up as sprite editor
         this.root = new svg.SVG(this.topDiv).id("melody-editor-header-controls");
+        this.root.setAttribute("role", "presentation");
         this.toggle = new Toggle(this.root, { leftText: lf("Editor"), rightText: lf("Gallery"), baseColor: color });
         this.toggle.onStateChange(isLeft => {
             if (isLeft) {
