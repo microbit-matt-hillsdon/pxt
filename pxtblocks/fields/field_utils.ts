@@ -21,6 +21,7 @@ export interface FieldCustomOptions {
     colour?: string | number;
     label?: string;
     type?: string;
+    ariaTypeName?: string;
 }
 
 export interface FieldCustomDropdownOptions extends FieldCustomOptions {
