@@ -547,6 +547,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
          */
         const that = this;
         Blockly.FlyoutNavigator.prototype.getOutNode = function(_node?: Blockly.IFocusableNode | null, _bypassAdjustments = false) {
+            Blockly.getFocusManager().focusNode(that.editor.getToolbox().getToolboxItems()[0]);
             that.toolbox.focus();
             return null
         }
