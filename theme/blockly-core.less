@@ -173,6 +173,7 @@ i.icon.blocklyTreeButton {
 .blocklyFlyoutLabelText {
     fill: var(--pxt-neutral-foreground3) !important;
     font-size: 1rem;
+    outline: none !important;
 }
 
 .blocklyFlyoutHeading .blocklyFlyoutLabelText {
@@ -206,7 +207,6 @@ path.blocklyFlyoutBackground {
 *******************************/
 
 div.blocklyWidgetDiv {
-    position: fixed;
     /* Lower Z index for BlocklyWidgetDiv and grid picker tooltips */
     z-index: @blocklyWidgetDivZIndex;
     &:focus-visible {
@@ -267,7 +267,7 @@ text.blocklyCheckbox {
     .blocklyEditableText > rect.blocklySpriteField,
     .blocklyEditableText > rect.blocklyAnimationField,
     .blocklyEditableText > rect.blocklyTilemapField {
-        fill: #dedede;
+        fill: #dedede !important;
         stroke: #898989;
         stroke-width: 1;
     }
