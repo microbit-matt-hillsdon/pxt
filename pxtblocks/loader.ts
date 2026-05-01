@@ -500,6 +500,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                     let customField = pr.fieldEditor;
                     let fieldLabel = defName.charAt(0).toUpperCase() + defName.slice(1);
                     let fieldType = pr.type;
+                    let ariaTypeName = pxt.Util.camelCaseToLowercaseWithSpaces(pr.actualName);
 
                     if (isEnum || isFixed || isConstantShim || isCombined) {
                         let syms: pxtc.SymbolInfo[];
@@ -534,9 +535,9 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                                     alt: k,
                                     width: 36,
                                     height: 36,
-                                    value: v.name
+                                    value: v.name,
                                 } : k,
-                                v.namespace + "." + v.name
+                                v.namespace + "." + v.name,
                             ];
                         });
                         // if a value is provided, move it first
@@ -562,13 +563,14 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                                 colour: color,
                                 label: fieldLabel,
                                 type: fieldType,
-                                blocksInfo: info
+                                blocksInfo: info,
+                                ariaTypeName
                             } as FieldCustomDropdownOptions;
                             pxt.Util.jsonMergeFrom(options, fn.attributes.paramFieldEditorOptions && fn.attributes.paramFieldEditorOptions[actName] || {});
                             fields.push(namedField(createFieldEditor(customField, defl, options), defName));
                         }
                         else
-                            fields.push(namedField(new FieldDropdown(dd), defName));
+                            fields.push(namedField(new FieldDropdown(dd, undefined, {ariaTypeName}), defName));
 
                     } else if (customField) {
                         const defl = fn.attributes.paramDefl[pr.actualName] || "";
@@ -576,7 +578,8 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                             colour: color,
                             label: fieldLabel,
                             type: fieldType,
-                            blocksInfo: info
+                            blocksInfo: info,
+                            ariaTypeName
                         } as FieldCustomOptions;
                         pxt.Util.jsonMergeFrom(options, fn.attributes.paramFieldEditorOptions && fn.attributes.paramFieldEditorOptions[pr.actualName] || {});
                         fields.push(namedField(createFieldEditor(customField, defl, options), pr.definitionName));
@@ -586,7 +589,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                             inputCheck = pr.type;
                         } else if (pr.type == "number" && pr.shadowBlockId && pr.shadowBlockId == "value") {
                             inputName = undefined;
-                            fields.push(namedField(new Blockly.FieldNumber("0"), defName));
+                            fields.push(namedField(new Blockly.FieldNumber("0", undefined, undefined, undefined, undefined, {ariaTypeName}), defName));
                         } else if (pr.type == "string" && pr.shadowOptions && pr.shadowOptions.toString) {
                             inputCheck = null;
                         } else {
