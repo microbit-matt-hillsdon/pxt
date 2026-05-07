@@ -151,10 +151,10 @@
   },
   "overrides": {
     "@blockly/field-grid-dropdown": {
-      "blockly": "13.0.0-beta.1"
+      "blockly": "13.0.0-beta.3"
     },
     "@blockly/plugin-workspace-search": {
-      "blockly": "13.0.0-beta.1"
+      "blockly": "13.0.0-beta.3"
     },
     "combine-source-map": {
       "source-map": "0.4.4"
