@@ -60,7 +60,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     loadingXmlPromise: Promise<any>;
     compilationResult: pxtblockly.BlockCompilationResult;
     shouldFocusWorkspace = false;
-    pendingKeyboardControlsHint = false;
     functionsDialog: CreateFunctionDialog = null;
 
     showCategories: boolean = true;
@@ -156,16 +155,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
     clearBreakpoints(): void {
         simulator.driver.setBreakpoints([]);
-    }
-
-    handleKeyDown = (e: any) => {
-        if (this.parent.state?.accessibleBlocks) {
-            let charCode = (typeof e.which == "number") ? e.which : e.keyCode
-            if (charCode === 84 /* T Key */) {
-                this.focusToolbox();
-                e.stopPropagation();
-            }
-        }
     }
 
     setVisible(v: boolean) {
@@ -677,8 +666,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         this.unregisterBlocklyShortcutIfExists("keyboard_nav_cut");
         this.unregisterBlocklyShortcutIfExists("keyboard_nav_paste");
 
-        Blockly.keyboardNavigationController.setIsActive(true);
-
         // const listShortcuts = Blockly.ShortcutRegistry.registry.getRegistry()["list_shortcuts"];
         // Blockly.ShortcutRegistry.registry.unregister(listShortcuts.name);
         Blockly.ShortcutRegistry.registry.register({
@@ -927,7 +914,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         })
 
 
-        const accessibleBlocksEnabled = data.getData<boolean>(auth.ACCESSIBLE_BLOCKS)
         if (this.shouldShowCategories()) {
             this.renderToolbox();
         }
@@ -936,16 +922,10 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         this.initBlocklyToolbox();
         this.initWorkspaceSounds();
         initContextMenu();
-        initCopyPaste(accessibleBlocksEnabled);
-        // This must come after initCopyPaste and initContextMenu.
-        // initCopyPaste overrides the default cut, copy, paste shortcuts.
-        // The keyboard navigation plugin utilizes these cut, copy and paste shortcuts
-        // and wraps them with additional behaviours (e.g., toast notifications).
-        // initContextMenu overrides the default context menu options. The plugin
-        // decorates the duplicate block context menu item to display the shortcut.
-        if (accessibleBlocksEnabled) {
-            this.initAccessibleBlocks();
-        }
+        initCopyPaste();
+        // This must come after initCopyPaste and initContextMenu so our
+        // wrapped shortcuts/context-menu items override Blockly's defaults.
+        this.initAccessibleBlocks();
         this.initWorkspaceSearch();
         this.setupIntersectionObserver();
         this.resize();
@@ -1020,23 +1000,8 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     }
 
     focusWorkspace() {
-        const accessibleBlocksEnabled = data.getData<boolean>(auth.ACCESSIBLE_BLOCKS)
-        if (accessibleBlocksEnabled) {
-            (this.editor.getSvgGroup() as SVGElement).focus();
-            Blockly.hideChaff();
-
-            if (this.pendingKeyboardControlsHint) {
-                this.pendingKeyboardControlsHint = false;
-                this.showKeyboardControlsHint();
-            }
-        }
-    }
-
-    showKeyboardControlsHint() {
-        if (!this.editor || !Blockly.Msg["HELP_PROMPT"]) return;
-        const shortcut = pxt.BrowserUtils.isMac() ? "⌘ /" : lf("Ctrl") + " + /";
-        const message = Blockly.Msg["HELP_PROMPT"].replace("%1", shortcut);
-        Blockly.Toast.show(this.editor, { message, id: "helpHint", oncePerSession: true });
+        (this.editor.getSvgGroup() as SVGElement).focus();
+        Blockly.hideChaff();
     }
 
     hasUndo() {

@@ -8,7 +8,7 @@ let oldCopy: Blockly.ShortcutRegistry.KeyboardShortcut;
 let oldCut: Blockly.ShortcutRegistry.KeyboardShortcut;
 let oldPaste: Blockly.ShortcutRegistry.KeyboardShortcut;
 
-export function initCopyPaste(accessibleBlocksEnabled: boolean, forceRefresh: boolean = false) {
+export function initCopyPaste(forceRefresh: boolean = false) {
     if (!getCopyPasteHandlers()) return;
 
     if (oldCopy && !forceRefresh) return;
@@ -26,11 +26,6 @@ export function initCopyPaste(accessibleBlocksEnabled: boolean, forceRefresh: bo
     registerCopy();
     registerCut();
     registerPaste();
-
-    if (!accessibleBlocksEnabled) {
-        registerCopyContextMenu();
-        registerPasteContextMenu();
-    }
 }
 
 export function initAccessibleBlocksCopyPasteContextMenu() {
