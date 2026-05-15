@@ -415,7 +415,9 @@ text.blocklyCheckbox {
 *******************************/
 
 
-.injectionDiv {
+// body prefix bumps specificity so these win over Blockly's runtime-injected
+// .injectionDiv defaults regardless of stylesheet load order.
+body .injectionDiv {
     --blockly-active-node-color: #fff200;
     --blockly-active-tree-color: var(--pxt-target-foreground1);
     /* Comments are yellow default highlight is orange */
