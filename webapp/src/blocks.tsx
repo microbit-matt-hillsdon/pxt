@@ -634,38 +634,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         };
     }
 
-    private unregisterBlocklyShortcutIfExists(shortcutName: string) {
-        if (Blockly.ShortcutRegistry.registry.getRegistry()[shortcutName]) {
-            Blockly.ShortcutRegistry.registry.unregister(shortcutName);
-        }
-    }
-
     private initAccessibleBlocks() {
-        // Keyboard navigation plugin (note message text is actually in Blockly)
-        // Excludes text used only in the shortcut dialog that we don't use.
-        Object.assign(Blockly.Msg, {
-            EDIT_BLOCK_CONTENTS: lf("Edit Block contents"),
-            MOVE_BLOCK: lf("Move Block"),
-            // Longer versions not used (COMMAND_KEY, OPTION_KEY), short ones used in hints.
-            CONTROL_KEY: lf("Ctrl"),
-            ALT_KEY: lf("Alt"),
-            CUT_SHORTCUT: lf("Cut"),
-            COPY_SHORTCUT: lf("Copy"),
-            PASTE_SHORTCUT: lf("Paste"),
-            HELP_PROMPT: lf("Press %1 for help on keyboard controls"),
-            KEYBOARD_NAV_UNCONSTRAINED_MOVE_HINT: lf("Hold %1 and use arrow keys to move anywhere, then %2 to accept the position"),
-            KEYBOARD_NAV_CONSTRAINED_MOVE_HINT: lf("Use the arrow keys to move, then %1 to accept the position"),
-            KEYBOARD_NAV_COPIED_HINT: lf("Copied. Press %1 to paste."),
-            KEYBOARD_NAV_CUT_HINT: lf("Cut. Press %1 to paste."),
-            // Used for Blocky's toast's close aria label.
-            CLOSE: lf("Close")
-        });
-
-        // Unregister shortcuts that will be re-created when the keyboard nav plugin registers
-        this.unregisterBlocklyShortcutIfExists("keyboard_nav_copy");
-        this.unregisterBlocklyShortcutIfExists("keyboard_nav_cut");
-        this.unregisterBlocklyShortcutIfExists("keyboard_nav_paste");
-
         // const listShortcuts = Blockly.ShortcutRegistry.registry.getRegistry()["list_shortcuts"];
         // Blockly.ShortcutRegistry.registry.unregister(listShortcuts.name);
         Blockly.ShortcutRegistry.registry.register({

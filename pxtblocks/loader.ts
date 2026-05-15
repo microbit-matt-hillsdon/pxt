@@ -633,6 +633,7 @@ function init(blockInfo: pxtc.BlocksInfo) {
     initText();
     initComments();
     initTooltip();
+    initKeyboardNavMessages();
 
     // in safari on ios, Blockly isn't always great at clearing touch
     // identifiers. for most browsers this doesn't matter because the
@@ -723,6 +724,28 @@ export function setOutputCheck(block: Blockly.Block, retType: string, info: pxtc
 
 function initComments() {
     Blockly.Msg.WORKSPACE_COMMENT_DEFAULT_TEXT = '';
+}
+
+function initKeyboardNavMessages() {
+    // Translatable overrides for Blockly's built-in keyboard-navigation strings.
+    // Excludes text used only in the shortcut dialog that we don't use.
+    Object.assign(Blockly.Msg, {
+        EDIT_BLOCK_CONTENTS: lf("Edit Block contents"),
+        MOVE_BLOCK: lf("Move Block"),
+        // Longer versions not used (COMMAND_KEY, OPTION_KEY); short ones used in hints.
+        CONTROL_KEY: lf("Ctrl"),
+        ALT_KEY: lf("Alt"),
+        CUT_SHORTCUT: lf("Cut"),
+        COPY_SHORTCUT: lf("Copy"),
+        PASTE_SHORTCUT: lf("Paste"),
+        HELP_PROMPT: lf("Press %1 for help on keyboard controls"),
+        KEYBOARD_NAV_UNCONSTRAINED_MOVE_HINT: lf("Hold %1 and use arrow keys to move anywhere, then %2 to accept the position"),
+        KEYBOARD_NAV_CONSTRAINED_MOVE_HINT: lf("Use the arrow keys to move, then %1 to accept the position"),
+        KEYBOARD_NAV_COPIED_HINT: lf("Copied. Press %1 to paste."),
+        KEYBOARD_NAV_CUT_HINT: lf("Cut. Press %1 to paste."),
+        // Used for Blockly's toast close aria label.
+        CLOSE: lf("Close")
+    });
 }
 
 function initTooltip() {
