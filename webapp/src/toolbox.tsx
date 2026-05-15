@@ -590,6 +590,8 @@ export class Toolbox extends data.Component<ToolboxProps, ToolboxState> {
             // Escape tab and shift key
         } else {
             this.setSearch();
+            // We don't want any Blockly shortcut to fight search.
+            e.stopPropagation();
         }
     }
 
