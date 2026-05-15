@@ -547,9 +547,15 @@ export class Editor extends toolboxeditor.ToolboxEditor {
          */
         const that = this;
         Blockly.FlyoutNavigator.prototype.getOutNode = function(_node?: Blockly.IFocusableNode | null, _bypassAdjustments = false) {
-            Blockly.getFocusManager().focusNode(that.editor.getToolbox().getToolboxItems()[0]);
+            // Focus the React toolbox tree and return a non-null node so the
+            // left-arrow shortcut doesn't beep. Blockly's subsequent
+            // focusNode(firstItem) is a no-op because React replaced the stock
+            // toolbox DOM, so firstItem's element is detached from the document
+            // and .focus() on it does nothing.
+            const firstItem = that.editor.getToolbox().getToolboxItems()[0];
+            Blockly.getFocusManager().focusNode(firstItem);
             that.toolbox.focus();
-            return null
+            return firstItem;
         }
         Blockly.Toolbox.prototype.getFocusableElement = function() {
             return that.getToolboxDiv()?.querySelector(".blocklyTreeRoot [role=tree]") as HTMLElement ?? that.getBlocksAreaDiv();
