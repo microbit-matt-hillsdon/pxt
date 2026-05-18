@@ -285,6 +285,9 @@ function createFlyoutLabel(name: string, color?: string, icon?: string, iconClas
         }
         else {
             headingLabel.setAttribute('web-icon-class', `blocklyFlyoutIcon${name}`);
+            if (pxt.toolbox.isImageIcon(icon)) {
+                headingLabel.setAttribute('web-icon-image', pxt.Util.pathJoin(pxt.webConfig.commitCdnUrl, encodeURI(icon)));
+            }
         }
     }
     return headingLabel;
@@ -306,6 +309,10 @@ export function createFlyoutGap(gap: number) {
 export function createToolboxBlock(info: pxtc.BlocksInfo, fn: pxtc.SymbolInfo, comp: pxt.blocks.BlockCompileInfo, isShadow = false, maxRecursion = 0): HTMLElement {
     let parent: HTMLElement;
     let parentInput: HTMLElement;
+
+    if (fn.attributes.builtinBlockId) {
+        return createBuiltinBlock(fn);
+    }
 
     if (fn.attributes.toolboxParent) {
         const parentFn = info.blocksById[fn.attributes.toolboxParent];
@@ -576,3 +583,61 @@ export function createFunctionsFlyoutCategory(workspace: Blockly.WorkspaceSvg) {
 
     return res;
 };
+
+function createBuiltinBlock(fn: pxtc.SymbolInfo) {
+    const id = fn.attributes.builtinBlockId;
+
+    const blockColor = fn.attributes.color;
+
+    if (id === "makecode_color_picker") {
+        // <block type="makecode_color_picker">
+        //     <field name="FORMAT">rgb</field>
+        //     <value name="INPUT0">
+        //         <shadow type="makecode_color_picker_number">
+        //             <field name="NUM">255</field>
+        //         </shadow>
+        //     </value>
+        //     <value name="INPUT1">
+        //         <shadow type="makecode_color_picker_number">
+        //             <field name="NUM">255</field>
+        //         </shadow>
+        //     </value>
+        //     <value name="INPUT2">
+        //         <shadow type="makecode_color_picker_number">
+        //             <field name="NUM">0</field>
+        //         </shadow>
+        //     </value>
+        // </block>
+        const block = document.createElement("block");
+        block.setAttribute("type", "makecode_color_picker");
+
+        const field = document.createElement("field");
+        field.setAttribute("name", "FORMAT");
+        field.textContent = "rgb";
+        block.appendChild(field);
+
+        for (let i = 0; i < 3; i++) {
+            const value = document.createElement("value");
+            value.setAttribute("name", `INPUT${i}`);
+            const shadow = document.createElement("shadow");
+            shadow.setAttribute("type", "makecode_color_picker_number");
+            const numField = document.createElement("field");
+            numField.setAttribute("name", "NUM");
+            numField.textContent = "0";
+            shadow.appendChild(numField);
+            value.appendChild(shadow);
+            block.appendChild(value);
+        }
+
+        if (blockColor) {
+            const mutation = document.createElement("mutation");
+            mutation.setAttribute("color", blockColor);
+            block.appendChild(mutation);
+        }
+
+        return block;
+    }
+
+    pxt.warn(`Unsupported builtin block id: ${id}`);
+    return undefined;
+}

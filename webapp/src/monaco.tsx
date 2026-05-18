@@ -839,11 +839,12 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         const baseTheme: monaco.editor.BuiltinTheme = hc
             ? "hc-black"
             : (ThemeManager.getInstance(document)?.getCurrentColorTheme()?.monacoBaseTheme as monaco.editor.BuiltinTheme) ?? (inverted ? "vs-dark" : "vs");
+        const useColors = (hc || baseTheme === "vs-dark") ? {} : colors;
         monaco.editor.defineTheme('pxtTheme', {
             base: baseTheme,
             inherit: true, // can also be false to completely replace the builtin rules
             rules: rules,
-            colors: hc ? {} : colors
+            colors: useColors
         });
         monaco.editor.setTheme('pxtTheme');
 
@@ -1878,6 +1879,12 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             if (!res[ns]) {
                 res[ns] = [];
             }
+
+            if (fn.attributes.builtinBlockId) {
+                res[ns].push(...snippets.getExtensionContributedBuiltinBlock(fn.attributes.builtinBlockId, fn.attributes.weight || 50));
+                return;
+            }
+
             res[ns].push(fn);
             if (fn.attributes.toolboxParent) {
                 const parent = this.blockInfo.blocks.find(b => b.attributes.blockId === fn.attributes.toolboxParent);
