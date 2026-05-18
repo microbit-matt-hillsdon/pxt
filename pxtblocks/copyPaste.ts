@@ -26,6 +26,10 @@ export function initCopyPaste(forceRefresh: boolean = false) {
     registerCopy();
     registerCut();
     registerPaste();
+
+    // Blockly v13 doesn't ship Copy/Paste context-menu items; we provide our own.
+    registerCopyContextMenu();
+    registerPasteContextMenu();
 }
 
 export function initAccessibleBlocksCopyPasteContextMenu() {
@@ -162,7 +166,8 @@ function registerCopyContextMenu() {
         },
         scopeType: Blockly.ContextMenuRegistry.ScopeType.BLOCK,
         weight: BlockContextWeight.Copy,
-        id: "makecode-copy-block"
+        id: "makecode-copy-block",
+        associatedKeyboardShortcut: Blockly.ShortcutItems.names.COPY,
     };
 
     const copyCommentOption: Blockly.ContextMenuRegistry.RegistryItem = {
@@ -191,7 +196,8 @@ function registerCopyContextMenu() {
         },
         scopeType: Blockly.ContextMenuRegistry.ScopeType.COMMENT,
         weight: BlockContextWeight.Copy,
-        id: "makecode-copy-comment"
+        id: "makecode-copy-comment",
+        associatedKeyboardShortcut: Blockly.ShortcutItems.names.COPY,
     };
 
     if (Blockly.ContextMenuRegistry.registry.getItem(copyOption.id)) {
@@ -217,7 +223,8 @@ function registerPasteContextMenu() {
         },
         scopeType: Blockly.ContextMenuRegistry.ScopeType.WORKSPACE,
         weight: WorkspaceContextWeight.Paste,
-        id: "makecode-paste"
+        id: "makecode-paste",
+        associatedKeyboardShortcut: Blockly.ShortcutItems.names.PASTE,
     };
 
     if (Blockly.ContextMenuRegistry.registry.getItem(pasteOption.id)) {
