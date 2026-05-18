@@ -676,18 +676,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                 return startMoveShortcut.callback!(workspace, e, shortcut, scope);
             }
         });
-
-
-        // const startMoveContextMenuEntry = Blockly.ContextMenuRegistry.registry.getItem("move");
-        // Blockly.ContextMenuRegistry.registry.unregister(startMoveContextMenuEntry.id);
-        // Blockly.ContextMenuRegistry.registry.register({
-        //     ...startMoveContextMenuEntry,
-        //     callback: (scope: Blockly.ContextMenuRegistry.Scope, menuOpenEvent: Event, menuSelectEvent: Event, location: Blockly.utils.Coordinate) => {
-        //         maybeCloneBlockForMove(scope.block?.workspace || scope.workspace);
-
-        //         return startMoveContextMenuEntry.callback!(scope, menuOpenEvent, menuSelectEvent, location);
-        //     }
-        // } as Blockly.ContextMenuRegistry.RegistryItem);
     }
 
     private initWorkspaceSearch() {
