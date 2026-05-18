@@ -635,9 +635,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         };
     }
 
-    private initAccessibleBlocks() {
-        // const listShortcuts = Blockly.ShortcutRegistry.registry.getRegistry()["list_shortcuts"];
-        // Blockly.ShortcutRegistry.registry.unregister(listShortcuts.name);
+    private initKeyboardControls() {
         Blockly.ShortcutRegistry.registry.register({
             name: ShortcutNames.LIST_SHORTCUTS,
             callback: (workspace) => {
@@ -875,9 +873,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         this.initWorkspaceSounds();
         initContextMenu();
         initCopyPaste();
-        // This must come after initCopyPaste and initContextMenu so our
-        // wrapped shortcuts/context-menu items override Blockly's defaults.
-        this.initAccessibleBlocks();
+        this.initKeyboardControls();
         this.initWorkspaceSearch();
         this.setupIntersectionObserver();
         this.resize();
