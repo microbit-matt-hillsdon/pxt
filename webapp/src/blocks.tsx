@@ -40,7 +40,7 @@ import { initContextMenu } from "../../pxtblocks/contextMenu";
 import { HIDDEN_CLASS_NAME } from "../../pxtblocks/plugins/flyout/blockInflater";
 import { AIFooter } from "../../react-common/components/controls/AIFooter";
 import { CREATE_VAR_BTN_ID } from "../../pxtblocks/builtins/variables";
-import { ShortcutNames } from "./shortcut_formatting";
+import { getActionShortcut, ShortcutNames } from "./shortcut_formatting";
 
 interface CopyDataEntry {
     version: 1;
@@ -2408,6 +2408,8 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         const copyWorkspace = this.editor;
         const copyCoords = copyWorkspace.id === data.workspaceId ? data.coord : undefined;
 
+        clearPasteHints(copyWorkspace);
+
         // this pasting code is adapted from Blockly/core/shortcut_items.ts
         const doPaste = () => {
             const metricsManager = copyWorkspace.getMetricsManager();
@@ -2611,25 +2613,49 @@ function resolveLocalizedMarkdown(url: string) {
     return undefined;
 }
 
+// Toast id constants match Blockly's internal hints.ts so the same toast slots
+// are reused — paste dismissing the toast via clearPasteHints works either way.
+const COPIED_HINT_ID = "copiedHint";
+const CUT_HINT_ID = "cutHint";
+
+function showCopiedHint(workspace: Blockly.WorkspaceSvg) {
+    showPasteAvailableHint(workspace, Blockly.Msg["KEYBOARD_NAV_COPIED_HINT"], COPIED_HINT_ID);
+}
+
+function showCutHint(workspace: Blockly.WorkspaceSvg) {
+    showPasteAvailableHint(workspace, Blockly.Msg["KEYBOARD_NAV_CUT_HINT"], CUT_HINT_ID);
+}
+
+function showPasteAvailableHint(workspace: Blockly.WorkspaceSvg, template: string, id: string) {
+    if (!template) return;
+    const pasteKey = getActionShortcut(Blockly.ShortcutItems.names.PASTE);
+    if (!pasteKey) return;
+    Blockly.Toast.show(workspace, {
+        message: template.replace("%1", pasteKey.join(pxt.BrowserUtils.isMac() ? " " : " + ")),
+        duration: 7,
+        id,
+    });
+}
+
+function clearPasteHints(workspace: Blockly.WorkspaceSvg) {
+    Blockly.Toast.hide(workspace, COPIED_HINT_ID);
+    Blockly.Toast.hide(workspace, CUT_HINT_ID);
+}
+
 // adapted from Blockly/core/shortcut_items.ts
 function copy(workspace: Blockly.WorkspaceSvg, e: Event, _shortcut: Blockly.ShortcutRegistry.KeyboardShortcut, scope: Blockly.ContextMenuRegistry.Scope) {
     // Prevent the default copy behavior, which may beep or otherwise indicate
     // an error due to the lack of a selection.
     e.preventDefault();
-    workspace.hideChaff();
     const focused = scope.focusedNode;
+    if (!focused || !Blockly.isCopyable(focused)) return false;
 
-    // If copying a block in the flyout via the context menu, the workspace is the flyout,
-    // otherwise (using the keyboard shortcut) the workspace is the main workspace.
-    // If the workspace is the main workspace, calling hideChaff will close the flyout,
-    // so focus the main workspace after that happens.
-    if ((focused as Blockly.BlockSvg).isInFlyout && !workspace.isFlyout) {
-        Blockly.getFocusManager().focusTree(workspace);
+    // Don't hideChaff when copying from the flyout, so the flyout stays open.
+    if (!focused.workspace.isFlyout) {
+        workspace.hideChaff();
     }
 
-    if (!focused || !Blockly.isCopyable(focused)) return false;
     const copyData = focused.toCopyData();
-
     const copyWorkspace =
         focused.workspace instanceof Blockly.WorkspaceSvg
             ? focused.workspace
@@ -2645,49 +2671,55 @@ function copy(workspace: Blockly.WorkspaceSvg, e: Event, _shortcut: Blockly.Shor
             copyWorkspace,
             pkg.mainEditorPkg().header.id
         );
+        showCopiedHint(workspace);
     }
 
     return !!copyData;
 }
 
 // adapted from Blockly/core/shortcut_items.ts
-function cut(workspace: Blockly.WorkspaceSvg, _e: Event, _shortcut: Blockly.ShortcutRegistry.KeyboardShortcut, scope: Blockly.ContextMenuRegistry.Scope) {
+function cut(workspace: Blockly.WorkspaceSvg, e: Event, _shortcut: Blockly.ShortcutRegistry.KeyboardShortcut, scope: Blockly.ContextMenuRegistry.Scope) {
     const focused = scope.focusedNode;
+    let copied = false;
 
     if (focused instanceof Blockly.BlockSvg) {
         const copyData = focused.toCopyData();
-        const copyWorkspace = workspace;
-        const copyCoords = focused.getRelativeToSurfaceXY();
         saveCopyData(
             copyData,
-            copyCoords,
-            copyWorkspace,
+            focused.getRelativeToSurfaceXY(),
+            workspace,
             pkg.mainEditorPkg().header.id
         );
         if (!shouldDuplicateOnDrag(focused)) {
             focused.checkAndDelete();
         }
-        return true;
+        e.preventDefault();
+        copied = true;
     } else if (
         Blockly.isDeletable(focused) &&
         focused.isDeletable() &&
         Blockly.isCopyable(focused)
     ) {
         const copyData = focused.toCopyData();
-        const copyWorkspace = workspace;
         const copyCoords = Blockly.isDraggable(focused)
             ? focused.getRelativeToSurfaceXY()
             : null;
         saveCopyData(
             copyData,
             copyCoords,
-            copyWorkspace,
+            workspace,
             pkg.mainEditorPkg().header.id
         );
         focused.dispose();
-        return true;
+        workspace.getAudioManager().play("delete");
+        e.preventDefault();
+        copied = true;
     }
-    return false;
+
+    if (copied) {
+        showCutHint(workspace);
+    }
+    return copied;
 }
 
 function saveCopyData(
