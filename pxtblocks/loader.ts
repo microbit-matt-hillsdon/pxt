@@ -606,6 +606,7 @@ function initBlock(block: Blockly.Block, info: pxtc.BlocksInfo, fn: pxtc.SymbolI
                 if (hasInput(inputName)) return;
 
                 input = block.appendValueInput(inputName);
+                input.setAriaLabelProvider(pxt.Util.camelCaseToLowercaseWithSpaces(inputName));
                 input.setAlign(Blockly.inputs.Align.LEFT);
             }
             else if (expanded) {
