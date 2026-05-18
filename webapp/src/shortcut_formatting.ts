@@ -78,7 +78,7 @@ const shortModifierNames: Record<string, string> = {
 
 /**
  * User-facing name for a keycode. Mirrors Blockly's getKeyName but uses pxt's
- * lf() for translatable strings.
+ * translation function for translatable strings.
  */
 function getKeyName(keyCode: number): string {
   if (keyCode >= 65 && keyCode <= 90) {
