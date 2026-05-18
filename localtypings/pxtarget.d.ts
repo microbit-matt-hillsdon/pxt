@@ -397,6 +397,7 @@ declare namespace pxt {
         lightToc?: boolean; // if true: do NOT use inverted style in docs toc
         // FIXME (riknoll): Can't use Blockly types here
         blocklyOptions?: any; // Blockly options, see Configuration: https://developers.google.com/blockly/guides/get-started/web
+        blocklyKeyboardControlsByDefault?: boolean; // if true, keyboard controls will be enabled by default in the blockly editor
         hideFlyoutHeadings?: boolean; // Hide the flyout headings at the top of the flyout when on a mobile device.
         monacoColors?: pxt.Map<string>; // Monaco theme colors, see https://code.visualstudio.com/docs/getstarted/theme-color-reference
         simAnimationEnter?: string; // Simulator enter animation
@@ -906,13 +907,7 @@ declare namespace ts.pxtc {
         icon?: string;
         jresURL?: string;
         iconURL?: string;
-        imageLiteral?: number;
-        gridLiteral?: number;
-        gridLiteralOnColor?: string;
-        gridLiteralOffColor?: string;
-        imageLiteralColumns?: number; // optional number of columns
-        imageLiteralRows?: number; // optional number of rows
-        imageLiteralScale?: number; // button sizing between 0.6 and 2, default is 1
+
         weight?: number;
         parts?: string;
         hiddenParts?: string; // allows an extesion to declaratively hide a part
@@ -989,6 +984,23 @@ declare namespace ts.pxtc {
 
         /* end enum-only attributes */
 
+        /* led matrix field editor attributes */
+
+        imageLiteral?: number;
+        gridLiteral?: number;
+        colorGridLiteral?: number;
+        gridLiteralPalette?: string;
+        gridLiteralPaletteNames?: string;
+        gridLiteralUseProjectPalette?: boolean;
+        gridLiteralOnColor?: string;
+        gridLiteralOffColor?: string;
+        gridLiteralVerticalSpacing?: number; // optional spacing between pixels, default is 5
+        gridLiteralHorizontalSpacing?: number; // optional spacing between pixels, default is 7
+        gridLiteralBorderRadius?: number; // optional border radius for pixels, default is 5
+        imageLiteralColumns?: number; // optional number of columns
+        imageLiteralRows?: number; // optional number of rows
+        imageLiteralScale?: number; // button sizing between 0.6 and 2, default is 1
+
 
         isKind?: boolean; // annotation for built-in kinds in library code
         kindMemberName?: string; // The name a member of the kind as it will appear in the blocks editor. If the kind was "Colors" this would be "color"
@@ -1027,6 +1039,7 @@ declare namespace ts.pxtc {
         alias?: string; // another symbol alias for this member
         pyAlias?: string; // optional python version of the alias
         blockAliasFor?: string; // qname of the function this block is an alias for
+        builtinBlockId?: string; // if present, this block is to be replaced with a builtin block in the toolbox
     }
 
     interface ParamSnippet {
