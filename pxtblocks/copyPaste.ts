@@ -27,7 +27,7 @@ export function initCopyPaste(forceRefresh: boolean = false) {
     registerCut();
     registerPaste();
 
-    // Blockly v13 doesn't ship Copy/Paste context-menu items; we provide our own.
+    // Blockly doesn't ship Copy/Paste context-menu items; we provide our own.
     registerCopyContextMenu();
     registerPasteContextMenu();
 }
