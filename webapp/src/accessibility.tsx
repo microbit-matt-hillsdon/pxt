@@ -32,7 +32,7 @@ export class EditorAccessibilityMenu extends data.Component<EditorAccessibilityM
     }
 
     openBlocks(e: React.MouseEvent<HTMLElement>) {
-        this.props.parent.openBlocks();
+        this.props.parent.openBlocks(true);
     }
 
     openJavaScript() {

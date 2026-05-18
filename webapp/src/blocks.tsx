@@ -60,6 +60,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     loadingXmlPromise: Promise<any>;
     compilationResult: pxtblockly.BlockCompilationResult;
     shouldFocusWorkspace = false;
+    pendingKeyboardControlsHint = false;
     functionsDialog: CreateFunctionDialog = null;
 
     showCategories: boolean = true;
@@ -953,6 +954,22 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     focusWorkspace() {
         (this.editor.getSvgGroup() as SVGElement).focus();
         Blockly.hideChaff();
+
+        if (this.pendingKeyboardControlsHint) {
+            this.pendingKeyboardControlsHint = false;
+            this.showKeyboardControlsHint();
+        }
+    }
+
+    showKeyboardControlsHint() {
+        if (!this.editor || !Blockly.Msg["HELP_PROMPT"]) return;
+        const shortcut = getShortcutKeysShort(ShortcutNames.LIST_SHORTCUTS);
+        if (!shortcut) return;
+        Blockly.Toast.show(this.editor, {
+            message: Blockly.Msg["HELP_PROMPT"].replace("%1", shortcut),
+            id: "helpHint",
+            oncePerSession: true,
+        });
     }
 
     hasUndo() {
