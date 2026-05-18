@@ -40,7 +40,7 @@ import { initContextMenu } from "../../pxtblocks/contextMenu";
 import { HIDDEN_CLASS_NAME } from "../../pxtblocks/plugins/flyout/blockInflater";
 import { AIFooter } from "../../react-common/components/controls/AIFooter";
 import { CREATE_VAR_BTN_ID } from "../../pxtblocks/builtins/variables";
-import { getActionShortcut, ShortcutNames } from "./shortcut_formatting";
+import { getShortcutKeysShort, ShortcutNames } from "./shortcut_formatting";
 
 interface CopyDataEntry {
     version: 1;
@@ -2628,10 +2628,10 @@ function showCutHint(workspace: Blockly.WorkspaceSvg) {
 
 function showPasteAvailableHint(workspace: Blockly.WorkspaceSvg, template: string, id: string) {
     if (!template) return;
-    const pasteKey = getActionShortcut(Blockly.ShortcutItems.names.PASTE);
+    const pasteKey = getShortcutKeysShort(Blockly.ShortcutItems.names.PASTE);
     if (!pasteKey) return;
     Blockly.Toast.show(workspace, {
-        message: template.replace("%1", pasteKey.join(pxt.BrowserUtils.isMac() ? " " : " + ")),
+        message: template.replace("%1", pasteKey),
         duration: 7,
         id,
     });
