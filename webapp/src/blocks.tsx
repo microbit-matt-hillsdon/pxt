@@ -688,12 +688,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         //         return startMoveContextMenuEntry.callback!(scope, menuOpenEvent, menuSelectEvent, location);
         //     }
         // } as Blockly.ContextMenuRegistry.RegistryItem);
-
-        // This must come after plugin initialization to override context menu
-        // precondition functions set by the keyboard navigation plugin.
-        // We want to customize this behavior and have access to clipboard data to
-        // determined whether paste should be enabled.
-        pxtblockly.initAccessibleBlocksContextMenuItems();
     }
 
     private initWorkspaceSearch() {

@@ -24,7 +24,7 @@ import { initContextMenu } from "./contextMenu";
 import { renderCodeCard } from "./codecardRenderer";
 import { FieldDropdown } from "./fields/field_dropdown";
 import { setDraggableShadowBlocks, setDuplicateOnDrag, setDuplicateOnDragStrategy } from "./plugins/duplicateOnDrag";
-import { initAccessibleBlocksCopyPasteContextMenu, initCopyPaste } from "./copyPaste";
+import { initCopyPaste } from "./copyPaste";
 export { initCopyPaste } from "./copyPaste";
 import { FieldVariable } from "./plugins/newVariableField/fieldVariable";
 import { ArgumentReporterBlock, FieldArgumentReporter, setArgumentReporterLocalizeFunction } from "./plugins/functions";
@@ -649,10 +649,6 @@ function init(blockInfo: pxtc.BlocksInfo) {
             })
         });
     }
-}
-
-export function initAccessibleBlocksContextMenuItems() {
-    initAccessibleBlocksCopyPasteContextMenu()
 }
 
 

@@ -32,61 +32,6 @@ export function initCopyPaste(forceRefresh: boolean = false) {
     registerPasteContextMenu();
 }
 
-export function initAccessibleBlocksCopyPasteContextMenu() {
-    // overridePasteContextMenuItem();
-    // overrideCutContextMenuItem();
-}
-
-function overridePasteContextMenuItem() {
-    const oldPasteOption = Blockly.ContextMenuRegistry.registry.getItem("blockPasteFromContextMenu");
-
-    if ("separator" in oldPasteOption) {
-        throw new Error(`RegistryItem ${oldPasteOption.id} is not of type ActionRegistryItem`);
-    };
-
-    const pasteOption: Blockly.ContextMenuRegistry.RegistryItem = {
-        ...oldPasteOption,
-        preconditionFn: pasteContextMenuPreconditionFn,
-    };
-
-    Blockly.ContextMenuRegistry.registry.unregister("blockPasteFromContextMenu");
-    Blockly.ContextMenuRegistry.registry.register(pasteOption);
-}
-
-function overrideCutContextMenuItem() {
-    const oldCutOption = Blockly.ContextMenuRegistry.registry.getItem("blockCutFromContextMenu");
-
-    if ("separator" in oldCutOption) {
-        throw new Error(`RegistryItem ${oldCutOption.id} is not of type ActionRegistryItem`);
-    };
-
-    const cutOption: Blockly.ContextMenuRegistry.RegistryItem = {
-        ...oldCutOption,
-        preconditionFn: (scope: Blockly.ContextMenuRegistry.Scope) => {
-            const focused = scope.focusedNode;
-            if (!focused || !Blockly.isCopyable(focused)) return "hidden";
-
-            const workspace = focused.workspace;
-
-            if (focused.workspace.isFlyout)
-                return "hidden";
-
-            if (!(workspace instanceof Blockly.WorkspaceSvg)) return 'hidden';
-
-            if (
-                oldCut.preconditionFn(workspace, scope)
-            ) {
-                return 'enabled';
-            }
-
-            return "hidden";
-        },
-    };
-
-    Blockly.ContextMenuRegistry.registry.unregister("blockCutFromContextMenu");
-    Blockly.ContextMenuRegistry.registry.register(cutOption);
-}
-
 function registerCopy() {
     const copyShortcut: Blockly.ShortcutRegistry.KeyboardShortcut = {
         name: Blockly.ShortcutItems.names.COPY,
