@@ -633,7 +633,7 @@ function init(blockInfo: pxtc.BlocksInfo) {
     initText();
     initComments();
     initTooltip();
-    initKeyboardNavMessages();
+    initAccessibilityMessages();
 
     // in safari on ios, Blockly isn't always great at clearing touch
     // identifiers. for most browsers this doesn't matter because the
@@ -722,7 +722,7 @@ function initComments() {
     Blockly.Msg.WORKSPACE_COMMENT_DEFAULT_TEXT = '';
 }
 
-function initKeyboardNavMessages() {
+function initAccessibilityMessages() {
     // Translatable overrides for Blockly's built-in keyboard-navigation strings.
     // Excludes text used only in the shortcut dialog that we don't use.
     Object.assign(Blockly.Msg, {
