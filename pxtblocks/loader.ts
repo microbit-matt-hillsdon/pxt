@@ -800,10 +800,7 @@ function initAccessibilityMessages() {
         ENTER_KEY: lf("Enter"),
         BACKSPACE_KEY: lf("Backspace"),
         DELETE_KEY: lf("Delete"),
-        // Blockly's shortcut formatter reads ESCAPE_KEY; the catalog also has
-        // ESCAPE — set both so we're robust to either spelling.
         ESCAPE: lf("Esc"),
-        ESCAPE_KEY: lf("Esc"),
         TAB_KEY: lf("Tab"),
         SHIFT_KEY: lf("Shift"),
         CAPS_LOCK_KEY: lf("Caps Lock"),
@@ -828,6 +825,7 @@ function initAccessibilityMessages() {
         KEYBOARD_NAV_CUT_HINT: lf("Cut. Press %1 to paste."),
         KEYBOARD_NAV_BLOCK_NAVIGATION_HINT: lf("Use %1 to navigate inside of blocks."),
         KEYBOARD_NAV_WORKSPACE_NAVIGATION_HINT: lf("Use the arrow keys to navigate."),
+        KEYBOARD_NAV_FLYOUT_LABEL_HINT: lf("Use the arrow keys to navigate to a block, or press %1 to go to the next heading."),
         // Aria labels for the workspace tree.
         WORKSPACE_LABEL_1_STACK: lf("Blocks workspace. 1 stack of blocks"),
         WORKSPACE_LABEL_MANY_STACKS: lf("Blocks workspace. %1 stacks of blocks"),
@@ -859,6 +857,38 @@ function initAccessibilityMessages() {
         INPUT_LABEL_STATEMENT: lf("command position"),
         INPUT_LABEL_END_STATEMENT: lf("End %1"),
         INPUT_LABEL_EMPTY: lf("Empty"),
+        // Generic aria labels.
+        ARIA_LABEL_BUTTON: lf("button"),
+        ARIA_LABEL_COMMENT: lf("Comment"),
+        ARIA_LABEL_COMMENT_COLLAPSE: lf("Collapse Comment"),
+        ARIA_LABEL_COMMENT_EXPAND: lf("Expand Comment"),
+        ARIA_LABEL_HEADING: lf("heading"),
+        // Field type labels for screen readers.
+        ARIA_TYPE_FIELD_CHECKBOX: lf("checkbox"),
+        ARIA_TYPE_FIELD_DROPDOWN: lf("dropdown"),
+        ARIA_TYPE_FIELD_IMAGE: lf("image"),
+        ARIA_TYPE_FIELD_INPUT: lf("input"),
+        ARIA_TYPE_FIELD_NUMBER: lf("number"),
+        ARIA_TYPE_FIELD_TEXT_INPUT: lf("text"),
+        // Field state labels.
+        FIELD_LABEL_CHECKBOX_CHECKED: lf("Checked"),
+        FIELD_LABEL_CHECKBOX_UNCHECKED: lf("Not checked"),
+        FIELD_LABEL_EDIT_PREFIX: lf("Edit %1"),
+        FIELD_LABEL_EMPTY: lf("empty"),
+        FIELD_LABEL_OPTION_INDEX: lf("Option %1"),
+        FIELD_LABEL_VARIABLE: lf("Variable '%1'"),
+        // Bubble labels.
+        BUBBLE_LABEL_COMMENT: lf("Comment: %1"),
+        BUBBLE_LABEL_DEFAULT: lf("Bubble"),
+        BUBBLE_LABEL_WARNING: lf("Warning: %1"),
+        // Icon labels.
+        ICON_LABEL_COMMENT_CLOSED: lf("Open Comment"),
+        ICON_LABEL_COMMENT_OPEN: lf("Close Comment"),
+        ICON_LABEL_DEFAULT: lf("Icon"),
+        ICON_LABEL_MUTATOR_CLOSED: lf("Edit this block"),
+        ICON_LABEL_MUTATOR_OPEN: lf("Close block editor"),
+        ICON_LABEL_WARNING_CLOSED: lf("Open Warning"),
+        ICON_LABEL_WARNING_OPEN: lf("Close Warning"),
         // Move-mode announcements.
         ANNOUNCE_MOVE_WORKSPACE: lf("Moving %1 on workspace."),
         ANNOUNCE_MOVE_BEFORE: lf("Moving %1 before %2."),
