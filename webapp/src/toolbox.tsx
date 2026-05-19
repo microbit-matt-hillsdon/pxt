@@ -1169,8 +1169,6 @@ export class ToolboxSearch extends data.Component<ToolboxSearchProps, ToolboxSea
         const { toolbox } = this.props;
         let charCode = (typeof e.which == "number") ? e.which : e.keyCode
         if (charCode === 40 /* Down Key */) {
-            // Activate keyboard nav so focus outlines show and moveFocusToFlyout
-            // doesn't short-circuit on subsequent right-arrow.
             Blockly.keyboardNavigationController.setIsActive(true);
             // Always select the first toolbox category item when using the down arrow.
             toolbox.selectFirstItem();
