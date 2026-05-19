@@ -423,7 +423,7 @@ body .injectionDiv {
 }
 
 // PXT's React-rendered toolbox tree. Suppress the default :focus-visible
-// outline; the second rule paints a themed one when keyboard nav is active.
+// outline; the second rule shows a themed one when keyboard nav is active.
 div.blocklyTreeRoot > div[role="tree"]:focus-visible {
     outline: none;
 }
@@ -458,7 +458,7 @@ div.blocklyTreeRoot > div[role="tree"]:focus-visible {
     opacity: 1;
 }
 
-// Suppress Blockly's outline on the toolbox wrapper; we paint the active-tree
+// Suppress Blockly's outline on the toolbox wrapper; we show the active-tree
 // outline on the React-rendered tree above instead.
 .blocklyKeyboardNavigation .injectionDiv .blocklyToolbox:has(.blocklyActiveFocus) {
     outline: none;
