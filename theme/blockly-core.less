@@ -422,11 +422,11 @@ body .injectionDiv {
     --blockly-active-workspace-comment-color: var(--pxt-target-foreground1);
 }
 
-// Avoid focus outlines when not using the keyboard navigation plugin.
+// PXT's React-rendered toolbox tree. Suppress the default :focus-visible
+// outline; the second rule paints a themed one when keyboard nav is active.
 div.blocklyTreeRoot > div[role="tree"]:focus-visible {
     outline: none;
 }
-
 .blocklyKeyboardNavigation div.blocklyTreeRoot > div[role="tree"]:focus-visible {
     outline: var(--blockly-selection-width) solid var(--blockly-active-tree-color);
     outline-offset: calc(var(--blockly-selection-width) * -1);
@@ -458,7 +458,8 @@ div.blocklyTreeRoot > div[role="tree"]:focus-visible {
     opacity: 1;
 }
 
-/* Toolbox and flyout. */
+// Suppress Blockly's outline on the toolbox wrapper; we paint the active-tree
+// outline on the React-rendered tree above instead.
 .blocklyKeyboardNavigation .injectionDiv .blocklyToolbox:has(.blocklyActiveFocus) {
     outline: none;
 }
