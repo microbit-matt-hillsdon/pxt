@@ -664,7 +664,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
             }
         });
 
-        const startMoveShortcut = Blockly.ShortcutRegistry.registry.getRegistry()["start_move"];
+        const startMoveShortcut = Blockly.ShortcutRegistry.registry.getRegistry()[Blockly.ShortcutItems.names.START_MOVE];
         Blockly.ShortcutRegistry.registry.unregister(startMoveShortcut.name);
         Blockly.ShortcutRegistry.registry.register({
             ...startMoveShortcut,
