@@ -39,7 +39,6 @@ import { flow, initCopyPaste } from "../../pxtblocks";
 import { initContextMenu } from "../../pxtblocks/contextMenu";
 import { HIDDEN_CLASS_NAME } from "../../pxtblocks/plugins/flyout/blockInflater";
 import { AIFooter } from "../../react-common/components/controls/AIFooter";
-import { CREATE_VAR_BTN_ID } from "../../pxtblocks/builtins/variables";
 import { getShortcutKeysShort, ShortcutNames } from "./shortcut_formatting";
 
 interface CopyDataEntry {
@@ -783,16 +782,6 @@ export class Editor extends toolboxeditor.ToolboxEditor {
                     this.showVariablesFlyout();
                     // Workspace onTreeBlur is not called if the var is created via mouse, so reset state.
                     this.setFlyoutForceOpen(false);
-
-                    if (Blockly.keyboardNavigationController.getIsActive()) {
-                        const flyout = this.editor.getFlyout();
-                        const flyoutWorkspace = flyout.getWorkspace();
-                        const newCreateVarButtonNode = flyoutWorkspace.lookUpFocusableNode(CREATE_VAR_BTN_ID);
-                        if (newCreateVarButtonNode) {
-                            const focusManager = Blockly.getFocusManager();
-                            focusManager.focusNode(newCreateVarButtonNode);
-                        }
-                    }
                 }
             }
 
