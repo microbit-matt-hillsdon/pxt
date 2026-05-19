@@ -414,14 +414,12 @@ text.blocklyCheckbox {
 *******************************/
 
 
-// body prefix bumps specificity so these win over Blockly's runtime-injected
-// .injectionDiv defaults regardless of stylesheet load order.
+// body prefix bumps specificity so --blockly-active-tree-color wins over
+// Blockly's runtime-injected .injectionDiv default regardless of load order.
 body .injectionDiv {
-    --blockly-active-node-color: #fff200;
     --blockly-active-tree-color: var(--pxt-target-foreground1);
-    /* Comments are yellow default highlight is orange */
+    // PXT-only var; matches the tree colour for contrast against the yellow node highlight.
     --blockly-active-workspace-comment-color: var(--pxt-target-foreground1);
-    --blockly-selection-width: 3px;
 }
 
 // Avoid focus outlines when not using the keyboard navigation plugin.
