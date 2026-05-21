@@ -3370,6 +3370,13 @@ export class ProjectView
         return cmds.pairAsync();
     }
 
+    shouldShowPairingDialogOnDownload(): boolean {
+        return pxt.appTarget.appTheme.preferWebUSBDownload
+            && pxt.appTarget?.compile?.webUSB
+            && pxt.usb.isEnabled
+            && !webusb.userPrefersDownloadFlagSet();
+    }
+
     ///////////////////////////////////////////////////////////
     ////////////             Compile              /////////////
     ///////////////////////////////////////////////////////////
