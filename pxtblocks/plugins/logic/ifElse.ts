@@ -72,6 +72,7 @@ const IF_ELSE_MIXIN = {
         if (this.getInput('ELSE')) this.elseStatementConnection_?.reconnect(this, 'ELSE');
     },
     addElse_: function (this: IfElseBlock) {
+        Blockly.utils.aria.announceDynamicAriaState(pxt.Util.lf("Else branch added."));
         const update = () => {
             this.elseCount_++;
         };
@@ -79,6 +80,7 @@ const IF_ELSE_MIXIN = {
 
     },
     removeElse_: function (this: IfElseBlock) {
+        Blockly.utils.aria.announceDynamicAriaState(pxt.Util.lf("Else branch removed."));
         const update = () => {
             this.elseCount_--;
         };
@@ -89,12 +91,14 @@ const IF_ELSE_MIXIN = {
         maybeFocusMutatorButton(this.getInput(inputName)?.connection?.targetBlock() as Blockly.BlockSvg);
     },
     addElseIf_: function (this: IfElseBlock) {
+        Blockly.utils.aria.announceDynamicAriaState(pxt.Util.lf("Else if branch added."));
         const update = () => {
             this.elseifCount_++;
         };
         this.update_(update);
     },
     removeElseIf_: function (this: IfElseBlock, arg: number) {
+        Blockly.utils.aria.announceDynamicAriaState(pxt.Util.lf("Else if branch removed."));
         const update = () => {
             this.elseifCount_--;
         };
