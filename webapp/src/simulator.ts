@@ -27,6 +27,8 @@ export const FAST_TRACE_INTERVAL = 100;
 export const SLOW_TRACE_INTERVAL = 500;
 
 export let driver: pxsim.SimulatorDriver;
+export const _crashDebugModuleId = Math.random().toString(36).slice(2, 8);
+console.log("[crash-debug] simulator module loaded id=", _crashDebugModuleId);
 let config: SimulatorConfig;
 let lastCompileResult: pxtc.CompileResult;
 let displayedModals: pxt.Map<boolean> = {};
@@ -40,7 +42,11 @@ export function setTranslations(translations: pxt.Map<string>) {
 }
 
 export async function initAsync(root: HTMLElement, cfg: SimulatorConfig) {
-    if (!root) return;
+    console.log("[crash-debug] simulator.initAsync enter root=", root);
+    if (!root) {
+        console.log("[crash-debug] simulator.initAsync EARLY RETURN (root null)");
+        return;
+    }
     pxsim.U.clear(root);
     const simulatorsDiv = document.createElement('div');
     simulatorsDiv.id = 'simulators';
@@ -51,7 +57,9 @@ export async function initAsync(root: HTMLElement, cfg: SimulatorConfig) {
     debuggerDiv.className = 'ui item landscape only';
     root.appendChild(debuggerDiv);
 
+    console.log("[crash-debug] simulator.initAsync awaiting target-config");
     const trgConfig = await data.getAsync<pxt.TargetConfig>("target-config:")
+    console.log("[crash-debug] simulator.initAsync got target-config, trgConfig=", !!trgConfig);
 
     const nestedEditorSim = /nestededitorsim=1/i.test(window.location.href);
     const mpRole = /[\&\?]mp=(server|client)/i.exec(window.location.href)?.[1]?.toLowerCase();
@@ -274,8 +282,11 @@ export async function initAsync(root: HTMLElement, cfg: SimulatorConfig) {
         simulatorExtensions,
         userLanguage: pxt.Util.userLanguage()
     };
-    driver = new pxsim.SimulatorDriver(document.getElementById('simulators'), options);
+    const simulatorsEl = document.getElementById('simulators');
+    console.log("[crash-debug] simulator.initAsync assigning driver, #simulators=", simulatorsEl);
+    driver = new pxsim.SimulatorDriver(simulatorsEl, options);
     config = cfg
+    console.log("[crash-debug] simulator.initAsync done, driver=", driver);
 }
 
 function postSimEditorEvent(subtype: string, exception?: string) {

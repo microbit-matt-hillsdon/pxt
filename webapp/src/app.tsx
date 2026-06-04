@@ -1124,8 +1124,10 @@ export class ProjectView
     }
 
     public async componentDidMount() {
+        const bv = getBoardView();
+        console.log("[crash-debug] ProjectView.componentDidMount enter, boardview=", bv, "hasError=", this.state.hasError, "home=", this.state.home, "simulatorModuleId=", simulator._crashDebugModuleId);
         this.allEditors.forEach(e => e.prepare())
-        await simulator.initAsync(getBoardView(), {
+        await simulator.initAsync(bv, {
             orphanException: brk => {
                 // TODO: start debugging session
                 // TODO: user friendly error message
@@ -1199,6 +1201,7 @@ export class ProjectView
         // subscribe to user preference changes (for simulator or non-render subscriptions)
         data.subscribe(this.cloudStatusSubscriber, `${cloud.HEADER_CLOUDSTATE}:*`);
         data.subscribe(this.headerChangeSubscriber, "header:*");
+        console.log("[crash-debug] ProjectView.componentDidMount resolving editorMountComplete, simulator.driver=", simulator.driver);
         this.editorMountComplete.resolve(undefined);
     }
 
@@ -1210,6 +1213,7 @@ export class ProjectView
 
     // Add an error guard for the entire application
     componentDidCatch(error: any, info: any) {
+        console.log("[crash-debug] ProjectView.componentDidCatch fired, error=", error, "info=", info);
         this.handleCriticalError(error, info);
     }
 
@@ -1733,9 +1737,12 @@ export class ProjectView
 
     private async internalLoadHeaderAsync(h: pxt.workspace.Header, editorState?: pxt.editor.EditorState): Promise<void> {
         pxt.debug(`loading ${h.id} (pxt v${h.targetVersion})`);
+        console.log("[crash-debug] internalLoadHeaderAsync awaiting mount, simulator.driver=", simulator.driver);
         await this.editorMountComplete.promise;
+        console.log("[crash-debug] internalLoadHeaderAsync past mount, simulator.driver=", simulator.driver, "boardview=", getBoardView(), "hasError=", this.state.hasError, "simulatorModuleId=", simulator._crashDebugModuleId);
         this.stopSimulator(true);
         if (pxt.appTarget.simulator && pxt.appTarget.simulator.aspectRatio) {
+            console.log("[crash-debug] internalLoadHeaderAsync about to call driver.preload");
             simulator.driver.preload(pxt.appTarget.simulator.aspectRatio);
         }
 
