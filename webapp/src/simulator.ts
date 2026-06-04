@@ -28,7 +28,8 @@ export const SLOW_TRACE_INTERVAL = 500;
 
 export let driver: pxsim.SimulatorDriver;
 export const _crashDebugModuleId = Math.random().toString(36).slice(2, 8);
-console.log("[crash-debug] simulator module loaded id=", _crashDebugModuleId);
+export const _crashDebugBuildMarker = "v2-2026-06-04-args-stack";
+console.log("[crash-debug v2] simulator module loaded id=", _crashDebugModuleId, "marker=", _crashDebugBuildMarker);
 let config: SimulatorConfig;
 let lastCompileResult: pxtc.CompileResult;
 let displayedModals: pxt.Map<boolean> = {};
@@ -42,9 +43,10 @@ export function setTranslations(translations: pxt.Map<string>) {
 }
 
 export async function initAsync(root: HTMLElement, cfg: SimulatorConfig) {
-    console.log("[crash-debug] simulator.initAsync enter root=", root);
+    console.log("[crash-debug v2] simulator.initAsync enter root=", root, "typeof=", typeof root, "arguments.length=", arguments.length, "arguments[0]=", arguments[0]);
+    try { throw new Error("[crash-debug v2] stack at initAsync entry"); } catch (e) { console.log(e); }
     if (!root) {
-        console.log("[crash-debug] simulator.initAsync EARLY RETURN (root null)");
+        console.log("[crash-debug v2] simulator.initAsync EARLY RETURN (root null)");
         return;
     }
     pxsim.U.clear(root);
