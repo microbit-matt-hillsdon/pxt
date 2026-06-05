@@ -62,7 +62,8 @@ export async function initAsync(root: HTMLElement, cfg: SimulatorConfig) {
     console.log("[crash-debug] simulator.initAsync got target-config, trgConfig=", !!trgConfig);
 
     const nestedEditorSim = /nestededitorsim=1/i.test(window.location.href);
-    const mpRole = /[\&\?]mp=(server|client)/i.exec(window.location.href)?.[1]?.toLowerCase();
+    const mpRoleMatch = /[\&\?]mp=(server|client)/i.exec(window.location.href);
+    const mpRole = mpRoleMatch && mpRoleMatch[1] ? mpRoleMatch[1].toLowerCase() : undefined;
     let parentOrigin: string = null;
     if (window.parent !== window) {
         const searchParams = new URLSearchParams(window.location.search);
@@ -81,7 +82,7 @@ export async function initAsync(root: HTMLElement, cfg: SimulatorConfig) {
 
     // Map simulator extensions from approved repos
     const simulatorExtensions: pxt.Map<pxt.SimulatorExtensionConfig> = {};
-    Object.entries(trgConfig?.packages?.approvedRepoLib || {})
+    Object.entries((trgConfig && trgConfig.packages && trgConfig.packages.approvedRepoLib) || {})
         .map(([k, v]) => ({ k: k, v: v.simx }))
         .filter(x => !!x.v)
         .forEach(x => simulatorExtensions[x.k] = {
@@ -91,7 +92,7 @@ export async function initAsync(root: HTMLElement, cfg: SimulatorConfig) {
             ...x.v
         });
     // Add in test simulator extensions
-    Object.entries(pxt.appTarget?.simulator?.testSimulatorExtensions || {})
+    Object.entries((pxt.appTarget && pxt.appTarget.simulator && pxt.appTarget.simulator.testSimulatorExtensions) || {})
         .map(([k, v]) => ({ k: k, v: v as pxt.SimulatorExtensionConfig }))
         .filter(x => !!x.v)
         .forEach(x => simulatorExtensions[x.k] = {
@@ -278,7 +279,7 @@ export async function initAsync(root: HTMLElement, cfg: SimulatorConfig) {
         nestedEditorSim,
         parentOrigin,
         mpRole,
-        messageSimulators: pxt.appTarget?.simulator?.messageSimulators,
+        messageSimulators: pxt.appTarget && pxt.appTarget.simulator ? pxt.appTarget.simulator.messageSimulators : undefined,
         simulatorExtensions,
         userLanguage: pxt.Util.userLanguage()
     };
