@@ -1379,7 +1379,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
     }
 
     showVariablesFlyout() {
-        this.showFlyoutInternal_(Blockly.Variables.flyoutCategory(this.editor, true), "variables");
+        this.showFlyoutInternal_(pxtblockly.createVariablesFlyoutCategory(this.editor), "variables");
         this.setFlyoutLabel(lf("Variables"));
     }
 
