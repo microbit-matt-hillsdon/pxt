@@ -42,6 +42,7 @@ export function setTranslations(translations: pxt.Map<string>) {
 }
 
 export async function initAsync(root: HTMLElement, cfg: SimulatorConfig) {
+    console.log("[crash-debug arg-probe] arguments.length=", arguments.length, "arguments[0]=", arguments[0]);
     console.log("[crash-debug] simulator.initAsync enter root=", root);
     if (!root) {
         console.log("[crash-debug] simulator.initAsync EARLY RETURN (root null)");
