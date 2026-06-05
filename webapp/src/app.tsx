@@ -1735,7 +1735,7 @@ export class ProjectView
         pxt.debug(`loading ${h.id} (pxt v${h.targetVersion})`);
         await this.editorMountComplete.promise;
         this.stopSimulator(true);
-        if (pxt.appTarget.simulator && pxt.appTarget.simulator.aspectRatio) {
+        if (simulator.driver && pxt.appTarget.simulator && pxt.appTarget.simulator.aspectRatio) {
             simulator.driver.preload(pxt.appTarget.simulator.aspectRatio);
         }
 
