@@ -23,6 +23,7 @@ export * from "./blockDragger";
 export * from "./workspaceSearch";
 export * from "./monkeyPatches";
 export * from "./getBlockText";
+export * from "./keyboardNav";
 
 import * as contextMenu from "./contextMenu";
 import * as external from "./external";

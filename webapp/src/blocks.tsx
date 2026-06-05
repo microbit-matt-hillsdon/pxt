@@ -753,6 +753,7 @@ export class Editor extends toolboxeditor.ToolboxEditor {
         Blockly.config.snapRadius = 28;
         Blockly.config.connectingSnapRadius = 96;
         this.editor = Blockly.inject(blocklyDiv, this.getBlocklyOptions(forceHasCategories)) as Blockly.WorkspaceSvg;
+        this.editor.setNavigator(new pxtblockly.PxtNavigator());
         pxtblockly.contextMenu.setupWorkspaceContextMenu(this.editor);
 
         // set Blockly Colors
