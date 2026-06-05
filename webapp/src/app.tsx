@@ -1127,7 +1127,7 @@ export class ProjectView
         const bv = getBoardView();
         console.log("[crash-debug] ProjectView.componentDidMount enter, boardview=", bv, "hasError=", this.state.hasError, "home=", this.state.home, "simulatorModuleId=", simulator._crashDebugModuleId);
         this.allEditors.forEach(e => e.prepare())
-        await simulator.initAsync(bv, {
+        await simulator.initAsync({
             orphanException: brk => {
                 // TODO: start debugging session
                 // TODO: user friendly error message

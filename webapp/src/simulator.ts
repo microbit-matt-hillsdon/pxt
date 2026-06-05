@@ -41,10 +41,11 @@ export function setTranslations(translations: pxt.Map<string>) {
     }
 }
 
-export async function initAsync(root: HTMLElement, cfg: SimulatorConfig) {
-    console.log("[crash-debug] simulator.initAsync enter root=", root);
+export async function initAsync(cfg: SimulatorConfig) {
+    const root = document.getElementById('boardview');
+    console.log("[crash-debug no-root-arg-probe] simulator.initAsync enter root (read inside)=", root);
     if (!root) {
-        console.log("[crash-debug] simulator.initAsync EARLY RETURN (root null)");
+        console.log("[crash-debug no-root-arg-probe] simulator.initAsync EARLY RETURN (root null)");
         return;
     }
     pxsim.U.clear(root);
