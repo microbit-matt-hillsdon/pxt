@@ -18,35 +18,39 @@ export abstract class ToolboxEditor extends srceditor.Editor {
 
     abstract getBlocksForCategory(ns: string, subns?: string): toolbox.BlockDefinition[];
 
-    // --- Hacky V1/V2 board-mode prototype, driven by the ?mode=v1|v2 URL param ---
-    // A block is "V2-only" when it lives in the micro:bit (V2) flyout group or
-    // requires a V2-only simulator part. Both markers are micro:bit-specific.
-    private static readonly V2_GROUP_NAME = "micro:bit (V2)";
-    private static readonly V2_PARTS = ["microphone", "logotouch", "builtinspeaker", "flashlog", "v2"];
-
-    protected boardModeFilter(): "v1" | "v2" | undefined {
-        const mode = pxt.Util.parseQueryString(window.location.search || "")["mode"];
-        return mode === "v1" || mode === "v2" ? mode : undefined;
+    // --- Prototype: variant-differentiated toolbox, driven by the ?variant=<id> URL param ---
+    // A variant may declare the toolbox groups it introduces (runtime.variantGroups).
+    // When a variant is selected, groups belonging to *other* variants are hidden and
+    // this variant's own groups are hoisted to the top of each flyout. Core stays
+    // variant-agnostic: every group name comes from target config, not from here.
+    protected selectedVariant(): string | undefined {
+        return pxt.getUrlVariant();
     }
 
-    protected isV2Block(b: toolbox.BlockDefinition): boolean {
-        const attrs = b.attributes;
-        if (!attrs) return false;
-        if (attrs.group === ToolboxEditor.V2_GROUP_NAME) return true;
-        if (attrs.parts) {
-            const parts = attrs.parts.split(/[\s,]+/).filter(p => !!p);
-            if (parts.some(p => ToolboxEditor.V2_PARTS.indexOf(p) >= 0)) return true;
-        }
-        return false;
+    private variantGroupsOf(id: string): string[] {
+        return (pxt.appTarget.variants?.[id]?.runtime?.variantGroups) || [];
     }
 
-    // v2 mode: float groups made entirely of V2-only blocks (heading and all) to
-    // the top of each flyout. v1-mode hiding happens upstream in filterBlocks, so
-    // by the time groups are built the V2 blocks (and any group left empty) are gone.
-    protected applyBoardModeToGroups(blockGroups: toolbox.GroupDefinition[]): toolbox.GroupDefinition[] {
-        if (this.boardModeFilter() !== "v2") return blockGroups;
-        const isV2Group = (g: toolbox.GroupDefinition) => g.blocks.length > 0 && g.blocks.every(b => this.isV2Block(b));
-        return blockGroups.filter(isV2Group).concat(blockGroups.filter(g => !isV2Group(g)));
+    // Groups owned by some variant but not the selected one: their blocks are hidden.
+    protected hiddenVariantGroups(): pxt.Map<boolean> {
+        const sel = this.selectedVariant();
+        const hidden: pxt.Map<boolean> = {};
+        if (!sel) return hidden;
+        const present = this.variantGroupsOf(sel);
+        Object.keys(pxt.appTarget.variants || {}).forEach(id =>
+            this.variantGroupsOf(id).forEach(g => { if (present.indexOf(g) < 0) hidden[g] = true; }));
+        return hidden;
+    }
+
+    // Float the selected variant's own groups (heading and all) to the top of the flyout.
+    // Hiding happens upstream in filterBlocks, so groups left empty are already gone.
+    protected hoistSelectedVariantGroups(blockGroups: toolbox.GroupDefinition[]): toolbox.GroupDefinition[] {
+        const sel = this.selectedVariant();
+        if (!sel) return blockGroups;
+        const promote = this.variantGroupsOf(sel);
+        if (!promote.length) return blockGroups;
+        const isPromoted = (g: toolbox.GroupDefinition) => promote.indexOf(g.name) >= 0;
+        return blockGroups.filter(isPromoted).concat(blockGroups.filter(g => !isPromoted(g)));
     }
 
     protected shouldShowBlock(blockId: string, ns: string, shadow?: boolean) {
@@ -444,7 +448,7 @@ export abstract class ToolboxEditor extends srceditor.Editor {
                     }
                 }
             }
-            blockGroups = this.applyBoardModeToGroups(blockGroups);
+            blockGroups = this.hoistSelectedVariantGroups(blockGroups);
 
             // Only cache if there are no filters
             if (!this.parent.state?.editorState?.filters) {

@@ -211,6 +211,7 @@ declare namespace pxt {
         tilesetFieldEditorIdentity?: string; // The qualified name of the API used with the field_tileset field editor. Currently, only for pxt-arcade
         screenSize?: Size;
         bannedCategories?: string[]; // a list of categories to exclude blocks from
+        variantGroups?: string[]; // toolbox groups introduced by this variant; hidden under other variants, hoisted when this variant is selected
     }
 
     interface AppSerial {

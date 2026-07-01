@@ -305,6 +305,15 @@ namespace pxt {
     // notify when app target was changed
     export let onAppTargetChanged: () => void;
 
+    // Prototype: UI-selected variant from the ?variant=<id> URL param, validated
+    // against the target's declared variants. Distinct from appTargetVariant (which
+    // drives compilation); this only influences toolbox presentation and the sim skin.
+    export function getUrlVariant(): string {
+        if (typeof window === "undefined") return undefined;
+        const id = U.parseQueryString(window.location.search || "")["variant"];
+        return id && appTarget && appTarget.variants && appTarget.variants[id] ? id : undefined;
+    }
+
     // This causes the `hw` package to be replaced with `hw---variant` upon package load
     // the pxt.json of hw---variant would generally specify compileServiceVariant
     // This is controlled by ?hw=variant or by configuration created by dragging `config.bin`

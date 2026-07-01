@@ -344,7 +344,10 @@ export function run(pkg: pxt.MainPackage, debug: boolean,
         }
     }
 
-    const theme = pkg.config.theme || (pxt.appTarget.appTheme.matchWebUSBDeviceInSim && pxt.packetio.isConnected() && pxt.packetio.deviceVariant());
+    // A ?variant=<id> selection forces the sim skin (variant id doubles as the sim
+    // theme). Prototype: this deliberately overrides a connected WebUSB device; that
+    // precedence is to be revisited.
+    const theme = pxt.getUrlVariant() || pkg.config.theme || (pxt.appTarget.appTheme.matchWebUSBDeviceInSim && pxt.packetio.isConnected() && pxt.packetio.deviceVariant());
 
     const opts: pxsim.SimulatorRunOptions = {
         boardDefinition: boardDefinition,
