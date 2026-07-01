@@ -18,6 +18,37 @@ export abstract class ToolboxEditor extends srceditor.Editor {
 
     abstract getBlocksForCategory(ns: string, subns?: string): toolbox.BlockDefinition[];
 
+    // --- Hacky V1/V2 board-mode prototype, driven by the ?mode=v1|v2 URL param ---
+    // A block is "V2-only" when it lives in the micro:bit (V2) flyout group or
+    // requires a V2-only simulator part. Both markers are micro:bit-specific.
+    private static readonly V2_GROUP_NAME = "micro:bit (V2)";
+    private static readonly V2_PARTS = ["microphone", "logotouch", "builtinspeaker", "flashlog", "v2"];
+
+    protected boardModeFilter(): "v1" | "v2" | undefined {
+        const mode = pxt.Util.parseQueryString(window.location.search || "")["mode"];
+        return mode === "v1" || mode === "v2" ? mode : undefined;
+    }
+
+    protected isV2Block(b: toolbox.BlockDefinition): boolean {
+        const attrs = b.attributes;
+        if (!attrs) return false;
+        if (attrs.group === ToolboxEditor.V2_GROUP_NAME) return true;
+        if (attrs.parts) {
+            const parts = attrs.parts.split(/[\s,]+/).filter(p => !!p);
+            if (parts.some(p => ToolboxEditor.V2_PARTS.indexOf(p) >= 0)) return true;
+        }
+        return false;
+    }
+
+    // v2 mode: float groups made entirely of V2-only blocks (heading and all) to
+    // the top of each flyout. v1-mode hiding happens upstream in filterBlocks, so
+    // by the time groups are built the V2 blocks (and any group left empty) are gone.
+    protected applyBoardModeToGroups(blockGroups: toolbox.GroupDefinition[]): toolbox.GroupDefinition[] {
+        if (this.boardModeFilter() !== "v2") return blockGroups;
+        const isV2Group = (g: toolbox.GroupDefinition) => g.blocks.length > 0 && g.blocks.every(b => this.isV2Block(b));
+        return blockGroups.filter(isV2Group).concat(blockGroups.filter(g => !isV2Group(g)));
+    }
+
     protected shouldShowBlock(blockId: string, ns: string, shadow?: boolean) {
         let filters = this.parent.state.editorState && this.parent.state.editorState.filters;
 
@@ -413,6 +444,8 @@ export abstract class ToolboxEditor extends srceditor.Editor {
                     }
                 }
             }
+            blockGroups = this.applyBoardModeToGroups(blockGroups);
+
             // Only cache if there are no filters
             if (!this.parent.state?.editorState?.filters) {
                 this.blockGroupsCache[ns] = blockGroups;

@@ -49,6 +49,7 @@ export interface BlockDefinition {
         deprecated?: boolean;
         blockHidden?: boolean;
         group?: string;
+        parts?: string;
         subcategory?: string;
         topblockWeight?: number;
         help?: string;

@@ -2110,7 +2110,9 @@ export class Editor extends toolboxeditor.ToolboxEditor {
 
     private filterBlocks(subns: string, blocks: toolbox.BlockDefinition[]) {
         if (!blocks) return [];
+        const hideV2 = this.boardModeFilter() === "v1";
         return blocks.filter((block => !(block.attributes.blockHidden)
+            && !(hideV2 && this.isV2Block(block))
             && !(block.attributes.deprecated && !this.parent.isTutorial())
             && ((!subns && !block.attributes.subcategory && !block.attributes.advanced)
                 || (subns && ((block.attributes.advanced && subns == lf("more"))
