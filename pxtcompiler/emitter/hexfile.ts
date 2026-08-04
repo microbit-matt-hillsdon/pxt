@@ -1101,9 +1101,11 @@ _stored_program: .hex ${res}
         let res = "\x41\x14\x0E\x2F\xB8\x2F\xA2\xBB"
 
         res += U.uint8ArrayToString([
-            metablob.length & 0xff, metablob.length >> 8,
-            binstring.length & 0xff, binstring.length >> 8,
-            0, 0, 0, 0
+            metablob.length & 0xff, (metablob.length >> 8) & 0xff,
+            // textLen is 32 bits (see docs/source-embedding.md); bytes 14-15 stay reserved
+            binstring.length & 0xff, (binstring.length >> 8) & 0xff,
+            (binstring.length >> 16) & 0xff, (binstring.length >> 24) & 0xff,
+            0, 0
         ])
 
         res += metablob

@@ -1222,7 +1222,8 @@ int main() {
             let m = /^:10....0[0E]41140E2FB82FA2BB(....)(....)(....)(....)(..)/.exec(ln)
             if (m) {
                 metaLen = parseInt(swapBytes(m[1]), 16)
-                textLen = parseInt(swapBytes(m[2]), 16)
+                // textLen is 32 bits (see docs/source-embedding.md): low 16 in m[2], high 16 in m[3]
+                textLen = parseInt(swapBytes(m[2]), 16) + (parseInt(swapBytes(m[3]), 16) << 16)
                 toGo = metaLen + textLen
                 buf = <any>new Uint8Array(toGo)
             } else if (toGo > 0) {
