@@ -1094,7 +1094,7 @@ _stored_program: .hex ${res}
 `
     }
 
-    function packSource(meta: string, binstring: string) {
+    export function packSource(meta: string, binstring: string) {
         let metablob = Util.toUTF8(meta)
         let totallen = metablob.length + binstring.length
 
