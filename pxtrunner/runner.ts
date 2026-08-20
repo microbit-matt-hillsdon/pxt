@@ -1156,7 +1156,8 @@ export function renderMarkdownAsync(content: HTMLElement, md: string, options: R
     const html = pxt.docs.renderMarkdown({
         template: template,
         markdown: md,
-        theme: pxt.appTarget.appTheme
+        theme: pxt.appTarget.appTheme,
+        staticPkg: !!pxt.webConfig?.isStatic
     });
     let blocksAspectRatio = options.blocksAspectRatio
         || window.innerHeight < window.innerWidth ? 1.62 : 1 / 1.62;

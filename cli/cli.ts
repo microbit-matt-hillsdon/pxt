@@ -1166,6 +1166,10 @@ function uploadCoreAsync(opts: UploadOptions) {
         return targetUsedImages[fn];
     }).appTheme;
 
+    // in localDir mode there is no CDN; images are served from <route>/docs/static/
+    const localDirAppTheme = opts.localDir ? replaceStaticImagesInJsonBlob(readLocalPxTarget(),
+        fn => localDocsAssetUrl(opts.localDir, fn)).appTheme : undefined;
+
     const targetImagePaths = Object.keys(targetUsedImages);
     const targetImagesHashed = Object.values(targetUsedImages);
 
@@ -1247,6 +1251,7 @@ function uploadCoreAsync(opts: UploadOptions) {
             "/sim/": opts.localDir,
             "/blb/": opts.localDir,
             "/trgblb/": opts.localDir,
+            "\"/static/": `"${opts.localDir}docs/static/`,
             "@monacoworkerjs@": `${opts.localDir}monacoworker.js`,
             "@gifworkerjs@": `${opts.localDir}gifjs/gif.worker.js`,
             "@workerjs@": `${opts.localDir}worker.js`,
@@ -1340,7 +1345,7 @@ function uploadCoreAsync(opts: UploadOptions) {
                             m[k.slice(0, k.length - 3)] = m[k];
                     }
                 }
-                content = server.expandHtml(content, undefined, cdnCachedAppTheme);
+                content = server.expandHtml(content, undefined, opts.localDir ? localDirAppTheme : cdnCachedAppTheme);
             }
 
             if (/^sim/.test(fileName) || /^workerConfig/.test(fileName)) {
@@ -1378,13 +1383,21 @@ function uploadCoreAsync(opts: UploadOptions) {
                             e.path = opts.localDir + "docs" + e.path;
                         }
                     trg.appTheme.homeUrl = opts.localDir
-                    // patch icons in bundled packages
+                    // patch icons in bundled packages; they are docs-relative
+                    // (/static/... or ./static/...)
                     Object.keys(trg.bundledpkgs).forEach(pkgid => {
                         const res = trg.bundledpkgs[pkgid];
                         // path config before storing
                         const config = JSON.parse(res[pxt.CONFIG_NAME]) as pxt.PackageConfig;
-                        if (/^\//.test(config.icon)) config.icon = opts.localDir + "docs" + config.icon;
+                        if (/^\.?\//.test(config.icon)) config.icon = localDocsAssetUrl(opts.localDir, config.icon);
                         res[pxt.CONFIG_NAME] = pxt.Package.stringifyConfig(config);
+                    })
+                    // patch /static/... urls in color theme override css
+                    Object.keys(trg.colorThemeMap || {}).forEach(themeId => {
+                        const colorTheme = trg.colorThemeMap[themeId];
+                        if (colorTheme.overrideCss) {
+                            colorTheme.overrideCss = patchDocsAssetUrls(colorTheme.overrideCss, opts.localDir);
+                        }
                     })
                     data = Buffer.from((isJs ? targetJsPrefix : '') + nodeutil.stringify(trg), "utf8")
                 } else {
@@ -1957,6 +1970,25 @@ function processLf(filename: string, translationStrings: pxt.Map<string>): void 
 
 function getGalleryUrl(props: pxt.GalleryProps | string): string {
     return typeof props === "string" ? props : props.url
+}
+
+// Static packages (pxt staticpkg) have no doc server routing /static/ to the
+// docs folder; assets are only available at <route>docs/static/. This
+// rewrites the reference syntaxes found in doc sources: quoted html
+// attributes ("/static/...), markdown links and images (](/static/...),
+// codecard bullet-list values (* imageUrl: /static/...) and css urls
+// (url(/static/...), possibly quoted). The github-style /docs/static/ form
+// is accepted everywhere. References constructed at runtime are resolved by
+// pxt.BrowserUtils.staticAssetUrl instead.
+function patchDocsAssetUrls(content: string, webpath: string): string {
+    return content.replace(/("|\]\(|:[ \t]*|url\((["']?))\/(?:docs\/)?static\//g,
+        (full, pref) => `${pref}${webpath}docs/static/`);
+}
+
+// maps a docs-relative asset path (/static/... or ./static/...) to its
+// location in a static package
+function localDocsAssetUrl(localDir: string, path: string): string {
+    return localDir + "docs" + path.replace(/^\.?\//, "/");
 }
 
 function replaceStaticImagesInJsonBlob(cfg: any, staticAssetHandler: (fileLocation: string) => string): any {
@@ -3024,6 +3056,7 @@ function renderDocs(builtPackaged: string, localDir: string) {
     docsTemplate = U.replaceAll(docsTemplate, "/doccdn/", webpath)
     docsTemplate = U.replaceAll(docsTemplate, "/docfiles/", webpath + "docfiles/")
     docsTemplate = U.replaceAll(docsTemplate, "/--embed", webpath + "embed.js")
+    docsTemplate = patchDocsAssetUrls(docsTemplate, webpath)
 
     const validatedDirs: Map<boolean> = {}
 
@@ -3058,8 +3091,9 @@ function renderDocs(builtPackaged: string, localDir: string) {
                         pathUnderDocs.slice(0, -3),
                         fileData
                     );
-                    // patch any /static/... url to /docs/static/...
-                    const patchedMd = md.replace(/\"\/static\//g, `"/docs/static/`);
+                    // the patched markdown is also written out for rendering
+                    // at runtime
+                    const patchedMd = patchDocsAssetUrls(md, webpath);
                     nodeutil.writeFileSync(outputFile, patchedMd, { encoding: "utf8" });
 
                     html = pxt.docs.renderMarkdown({
@@ -3067,17 +3101,26 @@ function renderDocs(builtPackaged: string, localDir: string) {
                         markdown: pxt.docs.normalizeStaticMarkdown(patchedMd),
                         theme: pxt.appTarget.appTheme,
                         filepath: path.join("docs", pathUnderDocs),
+                        staticPkg: true,
                     });
 
                     // replace .md with .html for rendered page drop
                     outputFile = outputFile.slice(0, -3) + ".html";
                 } else {
-                    html = server.expandHtml(fileData);
+                    html = patchDocsAssetUrls(server.expandHtml(fileData), webpath);
                 }
 
                 html = html.replace(/(<a[^<>]*)\shref="(\/[^<>"]*)"/g, (f, beg, url) => {
+                    // asset links patched above point at files, not doc pages
+                    if (url.startsWith(`${webpath}docs/static/`)) return f;
                     return beg + ` href="${webpath}docs${url}.html"`
                 });
+
+                // theme assets in the built target are docs-relative
+                // (docs/static/...) which only resolves from the app root;
+                // rendered doc pages live under <route>docs/, so make them
+                // absolute
+                html = html.replace(/"docs\/static\//g, `"${webpath}docs/static/`);
                 buf = Buffer.from(html, "utf8");
             }
 

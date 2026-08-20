@@ -506,6 +506,7 @@ namespace pxt.docs {
         ghEditURLs?: string[];
         repo?: { name: string; fullName: string; tag?: string };
         throwOnError?: boolean; // check for missing macros
+        staticPkg?: boolean; // rendering for a static package: no doc server, so keep asset paths as-is
         TOC?: TOCMenuEntry[]; // TOC parsed here
     }
 
@@ -745,9 +746,13 @@ ${opts.repo.name.replace(/^pxt-/, '')}=github:${opts.repo.fullName}#${opts.repo.
         html = html.replace(/&lt;br\s*\/&gt;/ig, "<br/>");
 
         // github will render images if referenced as ![](/docs/static/foo.png)
-        // we require /static/foo.png
-        html = html.replace(/(<img [^>]* src=")\/docs\/static\/([^">]+)"/g,
-            (full: string, pref: string, addr: string) => pref + '/static/' + addr + '"')
+        // we require /static/foo.png, which the doc server routes to the docs
+        // folder. Static packages have no such route: assets are only served
+        // from <route>/docs/static/, so keep those paths untouched there.
+        if (!opts.staticPkg) {
+            html = html.replace(/(<img [^>]* src=")\/docs\/static\/([^">]+)"/g,
+                (full: string, pref: string, addr: string) => pref + '/static/' + addr + '"')
+        }
 
         let endBox = ""
         let boxSize = 0;
