@@ -683,6 +683,15 @@ namespace pxt.BrowserUtils {
             return url.replace(/@cdnUrl@\/(blob|commit)\/[a-f0-9]{40}\//, "./");
     }
 
+    // /static/... urls are a doc server route serving files from the docs
+    // folder; static packages (pxt staticpkg) have no server, so those assets
+    // are only available at <relprefix>docs/static/...
+    export function staticAssetUrl(url: string): string {
+        if (pxt.webConfig?.isStatic && /^\/static\//.test(url))
+            return pxt.webConfig.relprefix + "docs" + url;
+        return url;
+    }
+
     export function initTheme() {
         const theme = pxt.appTarget.appTheme;
         if (theme) {

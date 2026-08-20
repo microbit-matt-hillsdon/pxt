@@ -87,7 +87,7 @@ export const SocialButton = (props: SocialButtonProps) => {
                     href={socialUrl}
                     label={
                         <img
-                            src={`/static/logo/social-buttons/${type}.png`}
+                            src={pxt.BrowserUtils.staticAssetUrl(`/static/logo/social-buttons/${type}.png`)}
                             alt={heading || pxt.U.rlf(type)}
                         />
                     }

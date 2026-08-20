@@ -53,7 +53,7 @@ export function TutorialValidationErrorMessage(
                 <div className="tutorial-validation-error-body">
                     <img
                         className="tutorial-validation-error-emoji"
-                        src="/static/validation/ladybeetle.svg"
+                        src={pxt.BrowserUtils.staticAssetUrl("/static/validation/ladybeetle.svg")}
                         alt={lf("Ladybug")}
                         height="50%"/>
                     <div className="tutorial-validation-error-inner">

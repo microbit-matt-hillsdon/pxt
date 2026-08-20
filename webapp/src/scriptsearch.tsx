@@ -501,7 +501,7 @@ export class ScriptSearch extends data.Component<ISettingsProps, ScriptSearchSta
                                 <ScriptSearchCodeCard
                                     name={experiment.name}
                                     scr={experiment}
-                                    imageUrl={`/static/experiments/${experiment.id.toLowerCase()}.png`}
+                                    imageUrl={pxt.BrowserUtils.staticAssetUrl(`/static/experiments/${experiment.id.toLowerCase()}.png`)}
                                     description={experiment.description}
                                     key={'exp' + experiment.id}
                                     role="button"
