@@ -40,6 +40,8 @@ export class BlockDragger extends Blockly.dragging.Dragger {
             super.onDragEnd(e);
         } finally {
             clearBackpackDragState(this.draggable.workspace);
+            // Workaround for https://github.com/RaspberryPiFoundation/blockly/issues/10722
+            if (!(e instanceof PointerEvent)) Blockly.Events.setGroup(false);
         }
 
         const blocklyToolboxDiv = document.getElementsByClassName('blocklyToolbox')[0] as HTMLElement;
@@ -58,6 +60,8 @@ export class BlockDragger extends Blockly.dragging.Dragger {
             super.onDragRevert();
         } finally {
             clearBackpackDragState(this.draggable.workspace);
+            // Workaround for https://github.com/RaspberryPiFoundation/blockly/issues/10722
+            Blockly.Events.setGroup(false);
         }
     }
 }
